@@ -1,0 +1,63 @@
+#include "probabilities.h"
+#include "objective.h"
+
+// [[Rcpp::export]]
+double compute_negative_log_likelihood(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
+
+  R_xlen_t K = Y_matrix_list.size();
+
+  double ll = 0;
+
+  for (R_xlen_t i = 0; i < K; i++) {
+
+    NumericMatrix Y = Y_matrix_list[i];
+    NumericMatrix X = X_list[i];
+    NumericMatrix Z = Z_list[i];
+    const arma::mat & Gamma = Gamma_list[i];
+
+    arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
+    arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
+    arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
+
+    ll += arma::accu(arma::log(arma::sum(compute_probabilities(X_, Z_, alpha, Beta, Gamma) % Y_, 1)));
+
+  }
+
+  return -1 * ll / N;
+
+}
+
+// [[Rcpp::export]]
+double group_lasso_penalty(const arma::mat & Beta, double lambda) {
+
+  return lambda * arma::accu(arma::sqrt(arma::sum(arma::square(Beta), 1)));
+
+}
+
+// [[Rcpp::export]]
+double l2_penalty(const std::vector<arma::mat> & Gamma_list, double rho) {
+
+  R_xlen_t K = Gamma_list.size();
+
+  double penalty = 0;
+
+  for (R_xlen_t i = 0; i < K; i++) {
+
+    penalty += arma::accu(arma::square(Gamma_list[i]));
+
+  }
+
+  return (rho / 2) * penalty;
+
+}
+
+// [[Rcpp::export]]
+double compute_objective_function(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, double lambda, double rho, int N) {
+
+  double nll = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N);
+  double gl = group_lasso_penalty(Beta, lambda);
+  double l2 = l2_penalty(Gamma_list, rho);
+
+  return nll + gl + l2;
+
+}
