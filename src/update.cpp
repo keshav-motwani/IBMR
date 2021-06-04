@@ -8,7 +8,7 @@
 arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const std::vector<arma::mat> & Gamma_list, double lambda, int N) {
 
   bool line_search = true;
-  double step_size = 0.1;
+  double step_size = 5;
   double shrinkage = 0.5;
 
   arma::mat Beta_new;
@@ -40,7 +40,7 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
 arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
 
   bool line_search = true;
-  double step_size = 0.01;
+  double step_size = 5;
   double shrinkage = 0.5;
 
   arma::colvec alpha_new;
@@ -50,7 +50,7 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
   while(line_search) {
 
     alpha_new = alpha_old - step_size * gradient;
-    double g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N);
+    double g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list, N);
 
     if (g_new > g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) {
       step_size = shrinkage * step_size;
@@ -59,6 +59,8 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
     }
 
   }
+
+  // Rcout << "step_size: " << step_size << "\n";
 
   return alpha_new;
 

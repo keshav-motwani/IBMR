@@ -2,13 +2,23 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
-fit_Gamma_list <- function(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old) {
-    .Call(`_IBMR_fit_Gamma_list`, Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old)
+fit_Gamma <- function(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old) {
+    .Call(`_IBMR_fit_Gamma`, Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old)
 }
 
 #' @export
 fit_alpha_Beta <- function(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old, Beta_old) {
     .Call(`_IBMR_fit_alpha_Beta`, Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old, Beta_old)
+}
+
+#' @export
+fit_alpha <- function(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old) {
+    .Call(`_IBMR_fit_alpha`, Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old)
+}
+
+#' @export
+fit_alpha_Beta_Gamma <- function(Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old) {
+    .Call(`_IBMR_fit_alpha_Beta_Gamma`, Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
 }
 
 compute_gradient_Beta <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N) {
@@ -38,6 +48,11 @@ compute_objective_function <- function(Y_matrix_list, X_list, Z_list, alpha, Bet
 #' @export
 compute_probabilities <- function(X, Z, alpha, Beta, Gamma) {
     .Call(`_IBMR_compute_probabilities`, X, Z, alpha, Beta, Gamma)
+}
+
+#' @export
+compute_probabilities_Gamma0 <- function(X, alpha, Beta) {
+    .Call(`_IBMR_compute_probabilities_Gamma0`, X, alpha, Beta)
 }
 
 #' @export

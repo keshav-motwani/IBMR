@@ -10,7 +10,7 @@ arma::mat group_lasso_prox(const arma::mat & matrix, double lambda) {
   thresholded.zeros();
 
   arma::uvec greater = arma::find(row_norms > lambda);
-  thresholded.rows(greater) = matrix.rows(greater) - (arma::diagmat(lambda / row_norms.elem(greater)) * matrix.rows(greater));
+  thresholded.rows(greater) = matrix.rows(greater) - (arma::mat(matrix.rows(greater)).each_col() % (lambda / row_norms.elem(greater)));
 
   return thresholded;
 

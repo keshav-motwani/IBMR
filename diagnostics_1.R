@@ -25,10 +25,10 @@ test2 = as.matrix(do.call(cbind, coef(fit3, 0))[-1, ])
 
 Y_mat = create_Y_matrix(g4, 1:4)
 
-system.time({test = fit_Gamma_list(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))})
+system.time({test = fit_Gamma(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))$Gamma_list})
 test = matrix(test[[1]], ncol = 4)
 plot(test[, 1] - test[, 4], test2[, 1] - test2[, 4])
 abline(0, 1)
 
 microbenchmark::microbenchmark(glmnet = {fit3 = glmnet(x, g4, family = "multinomial", alpha = 0, standardize = FALSE, intercept = FALSE, lambda = 0.5)},
-                               IBMR = {test = fit_Gamma_list(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))}, times = 30)
+                               IBMR = {test = fit_Gamma(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))}, times = 30)

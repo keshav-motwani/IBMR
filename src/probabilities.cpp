@@ -14,6 +14,18 @@ arma::mat compute_probabilities(const arma::mat & X, const arma::mat & Z, const 
 
 //' @export
 // [[Rcpp::export]]
+arma::mat compute_probabilities_Gamma0(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
+
+  arma::colvec o = arma::ones<arma::colvec>(X.n_rows);
+
+  arma::mat P = arma::exp(o * alpha.t() + X * Beta);
+
+  return P.each_col() % (1 / arma::sum(P, 1));
+
+}
+
+//' @export
+// [[Rcpp::export]]
 arma::mat compute_conditional_probabilities(const arma::mat & Y_matrix, const arma::mat & P) {
 
   arma::mat C = P % Y_matrix;

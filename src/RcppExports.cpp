@@ -6,9 +6,9 @@
 
 using namespace Rcpp;
 
-// fit_Gamma_list
-List fit_Gamma_list(const List& Y_matrix_list, const List& X_list, const List& Z_list, double rho, int n_iter, double tolerance, std::vector<arma::mat> Gamma_list_old);
-RcppExport SEXP _IBMR_fit_Gamma_list(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP rhoSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP Gamma_list_oldSEXP) {
+// fit_Gamma
+List fit_Gamma(const List& Y_matrix_list, const List& X_list, const List& Z_list, double rho, int n_iter, double tolerance, std::vector<arma::mat> Gamma_list_old);
+RcppExport SEXP _IBMR_fit_Gamma(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP rhoSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP Gamma_list_oldSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -19,7 +19,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type n_iter(n_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
     Rcpp::traits::input_parameter< std::vector<arma::mat> >::type Gamma_list_old(Gamma_list_oldSEXP);
-    rcpp_result_gen = Rcpp::wrap(fit_Gamma_list(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old));
+    rcpp_result_gen = Rcpp::wrap(fit_Gamma(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -38,6 +38,43 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::colvec >::type alpha_old(alpha_oldSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Beta_old(Beta_oldSEXP);
     rcpp_result_gen = Rcpp::wrap(fit_alpha_Beta(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old, Beta_old));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fit_alpha
+List fit_alpha(const List& Y_matrix_list, const List& X_list, const List& Z_list, double lambda, int n_iter, double tolerance, arma::colvec alpha_old);
+RcppExport SEXP _IBMR_fit_alpha(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP lambdaSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP alpha_oldSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type X_list(X_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type Z_list(Z_listSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< int >::type n_iter(n_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type alpha_old(alpha_oldSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_alpha(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fit_alpha_Beta_Gamma
+List fit_alpha_Beta_Gamma(const List& Y_matrix_list, const List& X_list, const List& Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, std::vector<arma::mat> Gamma_list_old);
+RcppExport SEXP _IBMR_fit_alpha_Beta_Gamma(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP lambdaSEXP, SEXP rhoSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP alpha_oldSEXP, SEXP Beta_oldSEXP, SEXP Gamma_list_oldSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type X_list(X_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type Z_list(Z_listSEXP);
+    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< int >::type n_iter(n_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type alpha_old(alpha_oldSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Beta_old(Beta_oldSEXP);
+    Rcpp::traits::input_parameter< std::vector<arma::mat> >::type Gamma_list_old(Gamma_list_oldSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_alpha_Beta_Gamma(Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -147,6 +184,19 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type Gamma(GammaSEXP);
     rcpp_result_gen = Rcpp::wrap(compute_probabilities(X, Z, alpha, Beta, Gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_probabilities_Gamma0
+arma::mat compute_probabilities_Gamma0(const arma::mat& X, const arma::colvec& alpha, const arma::mat& Beta);
+RcppExport SEXP _IBMR_compute_probabilities_Gamma0(SEXP XSEXP, SEXP alphaSEXP, SEXP BetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_probabilities_Gamma0(X, alpha, Beta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -272,8 +322,10 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_IBMR_fit_Gamma_list", (DL_FUNC) &_IBMR_fit_Gamma_list, 7},
+    {"_IBMR_fit_Gamma", (DL_FUNC) &_IBMR_fit_Gamma, 7},
     {"_IBMR_fit_alpha_Beta", (DL_FUNC) &_IBMR_fit_alpha_Beta, 8},
+    {"_IBMR_fit_alpha", (DL_FUNC) &_IBMR_fit_alpha, 7},
+    {"_IBMR_fit_alpha_Beta_Gamma", (DL_FUNC) &_IBMR_fit_alpha_Beta_Gamma, 10},
     {"_IBMR_compute_gradient_Beta", (DL_FUNC) &_IBMR_compute_gradient_Beta, 7},
     {"_IBMR_compute_gradient_alpha", (DL_FUNC) &_IBMR_compute_gradient_alpha, 7},
     {"_IBMR_compute_negative_log_likelihood", (DL_FUNC) &_IBMR_compute_negative_log_likelihood, 7},
@@ -281,6 +333,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_l2_penalty", (DL_FUNC) &_IBMR_l2_penalty, 2},
     {"_IBMR_compute_objective_function", (DL_FUNC) &_IBMR_compute_objective_function, 9},
     {"_IBMR_compute_probabilities", (DL_FUNC) &_IBMR_compute_probabilities, 5},
+    {"_IBMR_compute_probabilities_Gamma0", (DL_FUNC) &_IBMR_compute_probabilities_Gamma0, 3},
     {"_IBMR_compute_conditional_probabilities", (DL_FUNC) &_IBMR_compute_conditional_probabilities, 2},
     {"_IBMR_group_lasso_prox", (DL_FUNC) &_IBMR_group_lasso_prox, 2},
     {"_IBMR_rcpparma_hello_world", (DL_FUNC) &_IBMR_rcpparma_hello_world, 0},

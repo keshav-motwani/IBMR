@@ -28,7 +28,6 @@ simulate_category_mappings = function(number_of_levels, number_per_split, label_
 
 }
 
-#' @export
 get_category_mapping = function(label_tree, label_levels) {
 
   inverse_category_mapping = c()
@@ -83,6 +82,17 @@ simulate_X_list = function(n_k, p, mean = 0, rho = 0.5) {
 }
 
 #' @export
+simulate_alpha = function(categories, lower = -2, upper = 2) {
+
+  alpha = runif(length(categories), lower, upper)
+
+  names(alpha) = categories
+
+  return(alpha - mean(alpha))
+
+}
+
+#' @export
 simulate_Beta = function(categories, p, nonzero, lower = -2, upper = 2) {
 
   Beta = matrix(0, nrow = p, ncol = length(categories))
@@ -96,9 +106,9 @@ simulate_Beta = function(categories, p, nonzero, lower = -2, upper = 2) {
 }
 
 #' @export
-simulate_Y = function(categories, inverse_category_mapping, X, Beta) {
+simulate_Y = function(categories, inverse_category_mapping, X, alpha, Beta) {
 
-  P = compute_probabilities(X, Beta)
+  P = compute_probabilities_Gamma0(X, alpha, Beta)
 
   Y_fine = apply(P, 1, function(x) sample(categories, 1, prob = x))
   Y = inverse_category_mapping[Y_fine]
@@ -108,8 +118,8 @@ simulate_Y = function(categories, inverse_category_mapping, X, Beta) {
 }
 
 #' @export
-simulate_Y_list = function(categories, inverse_category_mappings, X_list, Beta) {
+simulate_Y_list = function(categories, inverse_category_mappings, X_list, alpha, Beta) {
 
-  lapply(1:length(X_list), function(i) simulate_Y(categories, inverse_category_mappings[[i]], X_list[[i]], Beta))
+  lapply(1:length(X_list), function(i) simulate_Y(categories, inverse_category_mappings[[i]], X_list[[i]], alpha, Beta))
 
 }
