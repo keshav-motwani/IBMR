@@ -1,9 +1,9 @@
 #' @export
 simulate_category_mappings = function(number_of_levels, number_per_split, label_levels_per_dataset) {
 
-  if(!all(sapply(1:number_per_split, function(i) number_of_levels %in% sapply(label_levels_per_dataset, `[`, i)))) {
-    stop("The finest level categories (highest level) must be present in at least one dataset as specified in label_levels_per_dataset.")
-  }
+  # if(!all(sapply(1:number_per_split, function(i) number_of_levels %in% sapply(label_levels_per_dataset, `[`, i)))) {
+  #   stop("The finest level categories (highest level) must be present in at least one dataset as specified in label_levels_per_dataset.")
+  # }
 
   if (!all(sapply(label_levels_per_dataset, length) == number_per_split)) {
     stop("For each dataset, one level for each of the first branches of the tree must be specified (for a total of number_per_split categories).")

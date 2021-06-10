@@ -78,6 +78,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// SSE
+double SSE(arma::mat Y, arma::mat X, arma::mat Beta);
+RcppExport SEXP _IBMR_SSE(SEXP YSEXP, SEXP XSEXP, SEXP BetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Beta(BetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(SSE(Y, X, Beta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_gradient_Beta
 arma::mat compute_gradient_Beta(const List& Y_matrix_list, const List& X_list, const List& Z_list, const arma::colvec& alpha, const arma::mat& Beta, const std::vector<arma::mat>& Gamma_list, int N);
 RcppExport SEXP _IBMR_compute_gradient_Beta(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP alphaSEXP, SEXP BetaSEXP, SEXP Gamma_listSEXP, SEXP NSEXP) {
@@ -326,6 +339,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_fit_alpha_Beta", (DL_FUNC) &_IBMR_fit_alpha_Beta, 8},
     {"_IBMR_fit_alpha", (DL_FUNC) &_IBMR_fit_alpha, 7},
     {"_IBMR_fit_alpha_Beta_Gamma", (DL_FUNC) &_IBMR_fit_alpha_Beta_Gamma, 10},
+    {"_IBMR_SSE", (DL_FUNC) &_IBMR_SSE, 3},
     {"_IBMR_compute_gradient_Beta", (DL_FUNC) &_IBMR_compute_gradient_Beta, 7},
     {"_IBMR_compute_gradient_alpha", (DL_FUNC) &_IBMR_compute_gradient_alpha, 7},
     {"_IBMR_compute_negative_log_likelihood", (DL_FUNC) &_IBMR_compute_negative_log_likelihood, 7},

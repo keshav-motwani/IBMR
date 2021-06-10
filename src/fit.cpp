@@ -81,7 +81,7 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
 
     alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list, N);
 
-    objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
+    // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
 
     Beta_new = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, N);
 
@@ -181,7 +181,7 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
 
     alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list_old, N);
 
-    // objective(3 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, rho, N);
+    // objective(3 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, rho, N);
 
     Beta_new = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, N);
 
@@ -209,5 +209,13 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
                             Rcpp::Named("Beta") = Beta_new,
                             Rcpp::Named("Gamma_list") = Gamma_list_new,
                             Rcpp::Named("objective") = objective);
+
+}
+
+//' @export
+// [[Rcpp::export]]
+double SSE(arma::mat Y, arma::mat X, arma::mat Beta) {
+
+  return arma::accu(arma::square(Y - X * Beta));
 
 }

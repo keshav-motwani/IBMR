@@ -21,6 +21,11 @@ fit_alpha_Beta_Gamma <- function(Y_matrix_list, X_list, Z_list, lambda, rho, n_i
     .Call(`_IBMR_fit_alpha_Beta_Gamma`, Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
 }
 
+#' @export
+SSE <- function(Y, X, Beta) {
+    .Call(`_IBMR_SSE`, Y, X, Beta)
+}
+
 compute_gradient_Beta <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N) {
     .Call(`_IBMR_compute_gradient_Beta`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
 }
