@@ -69,3 +69,5 @@ abline(0, 1)
 
 result$getValue(alpha) - mean(result$getValue(alpha))
 test$alpha
+
+rm(list = ls())

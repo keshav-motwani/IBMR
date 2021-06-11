@@ -36,3 +36,5 @@ nll_fine = apply(Beta_grid, 1, function(x) IBMR:::compute_negative_log_likelihoo
 
 filled.contour(x = seq(-range, range, length.out = 100), y = seq(-range, range, length.out = 100), z = matrix(nll, nrow = 100, byrow = TRUE))
 # filled.contour(x = seq(-range, range, length.out = 100), y = seq(-range, range, length.out = 100), z = matrix(nll_fine, nrow = 100, byrow = TRUE))
+
+rm(list = ls())

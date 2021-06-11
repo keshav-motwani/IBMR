@@ -45,3 +45,5 @@ abline(0, 1)
 
 plot(test - rowMeans(test), Beta - rowMeans(Beta))
 abline(0, 1)
+
+rm(list = ls())

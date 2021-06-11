@@ -67,6 +67,6 @@ arma::mat compute_gradient_Gamma(const arma::mat & Y, const arma::mat & X, const
   arma::mat P = compute_probabilities(X, Z, alpha, Beta, Gamma);
   arma::mat C = compute_conditional_probabilities(Y, P);
 
-  return Z.t() * (P - C) / N + rho * Gamma;
+  return (Z.t() * (P - C) / N) + rho * Gamma;
 
 }

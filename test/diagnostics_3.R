@@ -61,3 +61,4 @@ fit3$a0[, 1]
 test_fine$alpha
 test_fine$Beta
 
+rm(list = ls())

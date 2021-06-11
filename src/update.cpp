@@ -5,10 +5,10 @@
 #include "update.h"
 
 // [[Rcpp::export]]
-arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const std::vector<arma::mat> & Gamma_list, double lambda, int N) {
+arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const std::vector<arma::mat> & Gamma_list, double lambda, int N, double min_step_size) {
 
   bool line_search = true;
-  double step_size = 5;
+  double step_size = min_step_size * 500;
   double shrinkage = 0.5;
 
   arma::mat Beta_new;
@@ -24,8 +24,12 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
     g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha, Beta_new, Gamma_list, N);
     arma::mat difference = (Beta_old - Beta_new) / step_size;
 
-    if (g_new > g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) {
+    if (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 1e-12) {
       step_size = shrinkage * step_size;
+      // Rcout << "Shrunk Beta " << step_size << "\n";
+      if (step_size < shrinkage * min_step_size) {
+        Rcout << "Error Beta " << g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) << "\n";
+      }
     } else {
       line_search = false;
     }
@@ -37,10 +41,10 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
 }
 
 // [[Rcpp::export]]
-arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
+arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N, double min_step_size) {
 
   bool line_search = true;
-  double step_size = 5;
+  double step_size = min_step_size * 10;
   double shrinkage = 0.5;
 
   arma::colvec alpha_new;
@@ -52,8 +56,12 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
     alpha_new = alpha_old - step_size * gradient;
     double g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list, N);
 
-    if (g_new > g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) {
+    if (g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) > 1e-12) {
       step_size = shrinkage * step_size;
+      // Rcout << "Shrunk alpha " << step_size << "\n";
+      if (step_size < shrinkage * min_step_size) {
+        Rcout << "Error alpha " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
+      }
     } else {
       line_search = false;
     }
@@ -107,7 +115,7 @@ std::vector<arma::mat> update_Gamma_list_fast(const List & Y_matrix_list, const 
 }
 
 // [[Rcpp::export]]
-std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
+std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N, arma::colvec min_step_size) {
 
   R_xlen_t K = Y_matrix_list.size();
 
@@ -125,20 +133,24 @@ std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
     arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
 
     bool line_search = true;
-    double step_size = 5;
+    double step_size = min_step_size(i) * 100;
     double shrinkage = 0.5;
 
     arma::mat Gamma_new;
     arma::mat gradient = compute_gradient_Gamma(Y_, X_, Z_, alpha, Beta, Gamma_old, rho, N);
-    double g_old = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_old, N);
+    double g_old = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_old, N) + rho * arma::accu(arma::square(Gamma_old)) / 2;
 
     while(line_search) {
 
       Gamma_new = Gamma_old - step_size * gradient;
-      double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N);
+      double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N) + rho * arma::accu(arma::square(Gamma_new)) / 2;
 
-      if (g_new > g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) {
+      if (g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) > 1e-12) {
         step_size = shrinkage * step_size;
+        // Rcout << "Shrunk Gamma " << step_size << "\n";
+        if (step_size < shrinkage * min_step_size(i)) {
+          Rcout << "Error Gamma " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
+        }
       } else {
         line_search = false;
       }

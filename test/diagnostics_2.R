@@ -28,3 +28,5 @@ Y_mat = create_Y_matrix(g4, 1:4)
 system.time({test = fit_alpha_Beta(list(Y_mat, Y_mat), list(x, x), list(x, x), fit3$lambda[20], 1000, 1e-6, rep(0, 4), matrix(0, nrow = 100, ncol = 4))$Beta})
 plot(test[, 1] - test[, 4], test2[, 1] - test2[, 4])
 abline(0, 1)
+
+rm(list = ls())
