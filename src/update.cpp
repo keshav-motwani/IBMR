@@ -8,7 +8,7 @@
 arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const std::vector<arma::mat> & Gamma_list, double lambda, int N, double min_step_size) {
 
   bool line_search = true;
-  double step_size = min_step_size * 500;
+  double step_size = min_step_size * 1000;
   double shrinkage = 0.5;
 
   arma::mat Beta_new;
@@ -27,9 +27,9 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
     if (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 1e-12) {
       step_size = shrinkage * step_size;
       // Rcout << "Shrunk Beta " << step_size << "\n";
-      if (step_size < shrinkage * min_step_size) {
-        Rcout << "Error Beta " << g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) << "\n";
-      }
+      // if (step_size < shrinkage * min_step_size) {
+      //   Rcout << "Error Beta " << g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) << "\n";
+      // }
     } else {
       line_search = false;
     }
@@ -59,9 +59,9 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
     if (g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) > 1e-12) {
       step_size = shrinkage * step_size;
       // Rcout << "Shrunk alpha " << step_size << "\n";
-      if (step_size < shrinkage * min_step_size) {
-        Rcout << "Error alpha " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
-      }
+      // if (step_size < shrinkage * min_step_size) {
+      //   Rcout << "Error alpha " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
+      // }
     } else {
       line_search = false;
     }
@@ -133,7 +133,7 @@ std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
     arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
 
     bool line_search = true;
-    double step_size = min_step_size(i) * 100;
+    double step_size = min_step_size(i) * 1000;
     double shrinkage = 0.5;
 
     arma::mat Gamma_new;
@@ -148,9 +148,9 @@ std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
       if (g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) > 1e-12) {
         step_size = shrinkage * step_size;
         // Rcout << "Shrunk Gamma " << step_size << "\n";
-        if (step_size < shrinkage * min_step_size(i)) {
-          Rcout << "Error Gamma " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
-        }
+        // if (step_size < shrinkage * min_step_size(i)) {
+        //   Rcout << "Error Gamma " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
+        // }
       } else {
         line_search = false;
       }

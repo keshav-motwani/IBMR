@@ -25,9 +25,11 @@ Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]]
 lambda = 0.01
 rho = 0.5
 
-system.time({test = fit_alpha_Beta_Gamma(Y_matrix_list, X_list, X_list, lambda, rho, 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test = fit_alpha_Beta_Gamma(Y_matrix_list, X_list, X_list, lambda, rho, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test_Newton = fit_alpha_Beta_Gamma_Newton(Y_matrix_list, X_list, X_list, lambda, rho, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
 
 all(diff(test$objective[test$objective != 0]) <= 0)
+all(diff(test_Newton$objective[test_Newton$objective != 0]) <= 0)
 
 thresh <- 1e-24
 
@@ -54,7 +56,7 @@ obj = obj + lambda * sum(norm2(beta, axis = 1)) + (rho * sum(Gamma_1 ^ 2) / 2) +
 prob <- Problem(Minimize(obj))
 result <- solve(prob, FEASTOL = thresh, RELTOL = thresh, ABSTOL = thresh, verbose = TRUE, num_iter = 1000)
 
-par(mfrow = c(1, 3))
+par(mfrow = c(2, 3))
 
 plot(result$getValue(beta), test$Beta)
 abline(0, 1)
@@ -67,7 +69,18 @@ test$Gamma_list[[2]] = matrix(test$Gamma_list[[2]], ncol = 4)
 plot(result$getValue(Gamma_2), test$Gamma_list[[2]])
 abline(0, 1)
 
+plot(result$getValue(beta), test_Newton$Beta)
+abline(0, 1)
+
+test_Newton$Gamma_list[[1]] = matrix(test_Newton$Gamma_list[[1]], ncol = 4)
+plot(result$getValue(Gamma_1), test_Newton$Gamma_list[[1]])
+abline(0, 1)
+
+test_Newton$Gamma_list[[2]] = matrix(test_Newton$Gamma_list[[2]], ncol = 4)
+plot(result$getValue(Gamma_2), test_Newton$Gamma_list[[2]])
+abline(0, 1)
+
 result$getValue(alpha) - mean(result$getValue(alpha))
-test$alpha
+test_Newton$alpha
 
 rm(list = ls())

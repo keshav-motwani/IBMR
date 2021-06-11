@@ -32,6 +32,12 @@ system.time({test_fine = fit_alpha_Beta_Gamma(Y_matrix_list_fine, X_list, X_list
 all(diff(test$objective[test$objective != 0]) <= 0)
 all(diff(test_fine$objective[test_fine$objective != 0]) <= 0)
 
+system.time({test = fit_alpha_Beta_Gamma_Newton(Y_matrix_list, X_list, X_list, 0.01, 0.5, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test_fine = fit_alpha_Beta_Gamma_Newton(Y_matrix_list_fine, X_list, X_list, 0.01, 0.5, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+
+all(diff(test$objective[test$objective != 0]) <= 0)
+all(diff(test_fine$objective[test_fine$objective != 0]) <= 0)
+
 test = test$Beta
 test_fine = test_fine$Beta
 
