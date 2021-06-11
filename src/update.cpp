@@ -67,7 +67,7 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
 }
 
 // [[Rcpp::export]]
-std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
+std::vector<arma::mat> update_Gamma_list_fast(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
 
@@ -95,6 +95,53 @@ std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
       arma::colvec v = Z_ * Gamma_old.col(l) - ((P.col(l) - C.col(l)) / S);
 
       Gamma_new.col(l) = arma::solve((((Z_.each_col() % S).t() * Z_) / N) + rho * arma::eye(Z_.n_cols, Z_.n_cols), Z_.t() * (S % v) / N);
+
+    }
+
+    Gamma_list_new[i] = Gamma_new;
+
+  }
+
+  return Gamma_list_new;
+
+}
+
+// [[Rcpp::export]]
+std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
+
+  R_xlen_t K = Y_matrix_list.size();
+
+  std::vector<arma::mat> Gamma_list_new(K);
+
+  for (R_xlen_t i = 0; i < K; i++) {
+
+    NumericMatrix Y = Y_matrix_list[i];
+    NumericMatrix X = X_list[i];
+    NumericMatrix Z = Z_list[i];
+    const arma::mat & Gamma_old = Gamma_list_old[i];
+
+    arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
+    arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
+    arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
+
+    bool line_search = true;
+    double step_size = 5;
+    double shrinkage = 0.5;
+
+    arma::mat Gamma_new;
+    arma::mat gradient = compute_gradient_Gamma(Y_, X_, Z_, alpha, Beta, Gamma_old, rho, N);
+    double g_old = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_old, N);
+
+    while(line_search) {
+
+      Gamma_new = Gamma_old - step_size * gradient;
+      double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N);
+
+      if (g_new > g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) {
+        step_size = shrinkage * step_size;
+      } else {
+        line_search = false;
+      }
 
     }
 

@@ -21,11 +21,6 @@ fit_alpha_Beta_Gamma <- function(Y_matrix_list, X_list, Z_list, lambda, rho, n_i
     .Call(`_IBMR_fit_alpha_Beta_Gamma`, Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
 }
 
-#' @export
-SSE <- function(Y, X, Beta) {
-    .Call(`_IBMR_SSE`, Y, X, Beta)
-}
-
 compute_gradient_Beta <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N) {
     .Call(`_IBMR_compute_gradient_Beta`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
 }
@@ -34,8 +29,16 @@ compute_gradient_alpha <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, G
     .Call(`_IBMR_compute_gradient_alpha`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
 }
 
+compute_gradient_Gamma <- function(Y, X, Z, alpha, Beta, Gamma, rho, N) {
+    .Call(`_IBMR_compute_gradient_Gamma`, Y, X, Z, alpha, Beta, Gamma, rho, N)
+}
+
 compute_negative_log_likelihood <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N) {
     .Call(`_IBMR_compute_negative_log_likelihood`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
+}
+
+compute_negative_log_likelihood_1 <- function(Y, X, Z, alpha, Beta, Gamma, N) {
+    .Call(`_IBMR_compute_negative_log_likelihood_1`, Y, X, Z, alpha, Beta, Gamma, N)
 }
 
 group_lasso_penalty <- function(Beta, lambda) {
@@ -91,6 +94,10 @@ update_Beta <- function(Y_matrix_list, X_list, Z_list, alpha, Beta_old, Gamma_li
 
 update_alpha <- function(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N) {
     .Call(`_IBMR_update_alpha`, Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N)
+}
+
+update_Gamma_list_fast <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N) {
+    .Call(`_IBMR_update_Gamma_list_fast`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N)
 }
 
 update_Gamma_list <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N) {

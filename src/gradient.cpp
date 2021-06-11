@@ -60,3 +60,13 @@ arma::colvec compute_gradient_alpha(const List & Y_matrix_list, const List & X_l
   return gradient / N;
 
 }
+
+// [[Rcpp::export]]
+arma::mat compute_gradient_Gamma(const arma::mat & Y, const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma, double rho, int N) {
+
+  arma::mat P = compute_probabilities(X, Z, alpha, Beta, Gamma);
+  arma::mat C = compute_conditional_probabilities(Y, P);
+
+  return Z.t() * (P - C) / N + rho * Gamma;
+
+}

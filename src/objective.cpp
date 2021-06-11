@@ -1,6 +1,7 @@
 #include "probabilities.h"
 #include "objective.h"
 
+
 // [[Rcpp::export]]
 double compute_negative_log_likelihood(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
 
@@ -24,6 +25,45 @@ double compute_negative_log_likelihood(const List & Y_matrix_list, const List & 
   }
 
   return -1 * ll / N;
+
+}
+
+// // [[Rcpp::export]]
+// double compute_negative_log_likelihood(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
+//
+//   R_xlen_t K = Y_matrix_list.size();
+//
+//   double ll = 0;
+//
+//   for (R_xlen_t i = 0; i < K; i++) {
+//
+//     NumericMatrix Y = Y_matrix_list[i];
+//     NumericMatrix X = X_list[i];
+//     NumericMatrix Z = Z_list[i];
+//     const arma::mat & Gamma = Gamma_list[i];
+//
+//     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
+//     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
+//     arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
+//
+//     arma::colvec o = arma::ones<arma::colvec>(X_.n_rows);
+//     arma::mat P = arma::exp(o * alpha.t() + X_ * Beta + Z_ * Gamma);
+//
+//     ll += arma::accu(arma::log(arma::sum(P % Y_, 1)) - arma::log(arma::sum(P, 1)));
+//
+//   }
+//
+//   return -1 * ll / N;
+//
+// }
+
+// [[Rcpp::export]]
+double compute_negative_log_likelihood_1(const arma::mat & Y, const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma, int N) {
+
+  arma::colvec o = arma::ones<arma::colvec>(X.n_rows);
+  arma::mat P = arma::exp(o * alpha.t() + X * Beta + Z * Gamma);
+
+  return -1 * arma::accu(arma::log(arma::sum(P % Y, 1)) - arma::log(arma::sum(P, 1))) / N;
 
 }
 
