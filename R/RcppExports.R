@@ -2,8 +2,8 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' @export
-fit_Gamma_fast <- function(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old) {
-    .Call(`_IBMR_fit_Gamma_fast`, Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old)
+fit_Gamma_Newton <- function(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old) {
+    .Call(`_IBMR_fit_Gamma_Newton`, Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, Gamma_list_old)
 }
 
 #' @export
@@ -22,8 +22,8 @@ fit_alpha <- function(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, 
 }
 
 #' @export
-fit_alpha_Beta_Gamma_fast <- function(Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old) {
-    .Call(`_IBMR_fit_alpha_Beta_Gamma_fast`, Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
+fit_alpha_Beta_Gamma_Newton <- function(Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old) {
+    .Call(`_IBMR_fit_alpha_Beta_Gamma_Newton`, Y_matrix_list, X_list, Z_list, lambda, rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
 }
 
 #' @export
@@ -118,8 +118,8 @@ update_alpha <- function(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_l
     .Call(`_IBMR_update_alpha`, Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N, min_step_size)
 }
 
-update_Gamma_list_fast <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N) {
-    .Call(`_IBMR_update_Gamma_list_fast`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N)
+update_Gamma_list_Newton <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N) {
+    .Call(`_IBMR_update_Gamma_list_Newton`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N)
 }
 
 update_Gamma_list <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N, min_step_size) {

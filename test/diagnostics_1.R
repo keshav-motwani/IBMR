@@ -31,7 +31,7 @@ plot(test[, 1] - test[, 4], test2[, 1] - test2[, 4])
 abline(0, 1)
 
 microbenchmark::microbenchmark(glmnet = {fit3 = glmnet(x, g4, family = "multinomial", alpha = 0, standardize = FALSE, intercept = FALSE, lambda = 0.5)},
-                               IBMR_fast = {test = fit_Gamma_fast(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))},
+                               IBMR_Newton = {test = fit_Gamma_Newton(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))},
                                IBMR = {test = fit_Gamma(list(Y_mat), list(x), list(x), 0.5, 1000, 1e-6, list(matrix(0, ncol = 4, nrow = 100)))}, times = 100)
 
 rm(list = ls())

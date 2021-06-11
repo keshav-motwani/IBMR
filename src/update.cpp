@@ -75,7 +75,7 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
 }
 
 // [[Rcpp::export]]
-std::vector<arma::mat> update_Gamma_list_fast(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
+std::vector<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
 

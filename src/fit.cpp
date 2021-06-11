@@ -4,7 +4,7 @@
 
 //' @export
 // [[Rcpp::export]]
-List fit_Gamma_fast(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, std::vector<arma::mat> Gamma_list_old) {
+List fit_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, std::vector<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(n_iter);
   objective.zeros();
@@ -32,7 +32,7 @@ List fit_Gamma_fast(const List & Y_matrix_list, const List & X_list, const List 
 
   for (int i = 0; i < n_iter; i++) {
 
-    Gamma_list_new = update_Gamma_list_fast(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N);
+    Gamma_list_new = update_Gamma_list_Newton(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N);
 
     objective(i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_new, 0, rho, N);
 
@@ -216,7 +216,7 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
 
 //' @export
 // [[Rcpp::export]]
-List fit_alpha_Beta_Gamma_fast(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, std::vector<arma::mat> Gamma_list_old) {
+List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, std::vector<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(3 * n_iter);
   objective.zeros();
@@ -246,7 +246,7 @@ List fit_alpha_Beta_Gamma_fast(const List & Y_matrix_list, const List & X_list, 
 
     // objective(3 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, lambda, rho, N);
 
-    Gamma_list_new = update_Gamma_list_fast(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, rho, N);
+    Gamma_list_new = update_Gamma_list_Newton(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, rho, N);
 
     objective(3 * i + 2) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_new, lambda, rho, N);
 
