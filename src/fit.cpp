@@ -161,7 +161,7 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
 
 //' @export
 // [[Rcpp::export]]
-List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, int n_iter, double tolerance, arma::colvec alpha_old) {
+List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, int n_iter, double tolerance, arma::colvec alpha_old) {
 
   arma::colvec objective(n_iter);
   objective.zeros();
@@ -210,6 +210,123 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
   }
 
   return Rcpp::List::create(Rcpp::Named("alpha") = alpha_new,
+                            Rcpp::Named("objective") = objective);
+
+}
+
+//' @export
+// [[Rcpp::export]]
+List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, std::vector<arma::mat> Gamma_list_old) {
+
+  arma::colvec objective(2 * n_iter);
+  objective.zeros();
+
+  R_xlen_t K = Y_matrix_list.size();
+
+  int N = 0;
+  for (R_xlen_t i = 0; i < K; i++) {
+    NumericMatrix Y = Y_matrix_list[i];
+    N += Y.nrow();
+  }
+
+  NumericMatrix X0 = X_list[0];
+  NumericMatrix Z0 = Z_list[0];
+  NumericMatrix Y0 = Y_matrix_list[0];
+  int p = X0.ncol();
+  int r = Z0.ncol();
+  int q = Y0.ncol();
+
+  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
+
+  arma::mat Beta(p, q);
+  Beta.zeros();
+
+  arma::colvec alpha_new = alpha_old;
+  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+
+  for (int i = 0; i < n_iter; i++) {
+
+    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, min_step_size_alpha);
+
+    // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
+
+    Gamma_list_new = update_Gamma_list_Newton(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_old, rho, N);
+
+    objective(2 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_new, 0, rho, N);
+
+    // Rcout << i << "   " << objective(2 * i) << "\n";
+    // Rcout << i << "   " << objective(2 * i + 1) << "\n";
+
+    if (i > 1 && std::abs((objective(2 * (i - 1) + 1) - objective(2 * i + 1)) / objective(2 * (i - 1) + 1)) < tolerance) {
+      break;
+    }
+
+    alpha_old = alpha_new;
+    Gamma_list_old = Gamma_list_new;
+
+  }
+
+  return Rcpp::List::create(Rcpp::Named("alpha") = alpha_new,
+                            Rcpp::Named("Gamma_list") = Gamma_list_new,
+                            Rcpp::Named("objective") = objective);
+
+}
+
+//' @export
+// [[Rcpp::export]]
+List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, std::vector<arma::mat> Gamma_list_old) {
+
+  arma::colvec objective(2 * n_iter);
+  objective.zeros();
+
+  R_xlen_t K = Y_matrix_list.size();
+
+  int N = 0;
+  for (R_xlen_t i = 0; i < K; i++) {
+    NumericMatrix Y = Y_matrix_list[i];
+    N += Y.nrow();
+  }
+
+  NumericMatrix X0 = X_list[0];
+  NumericMatrix Z0 = Z_list[0];
+  NumericMatrix Y0 = Y_matrix_list[0];
+  int p = X0.ncol();
+  int r = Z0.ncol();
+  int q = Y0.ncol();
+
+  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
+  arma::colvec min_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N);
+
+  arma::mat Beta(p, q);
+  Beta.zeros();
+
+  arma::colvec alpha_new = alpha_old;
+  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+
+  for (int i = 0; i < n_iter; i++) {
+
+    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, min_step_size_alpha);
+
+    // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
+
+    Gamma_list_new = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_old, rho, N, min_step_size_Gamma);
+
+    objective(2 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_new, 0, rho, N);
+
+    // Rcout << i << "   " << objective(2 * i) << "\n";
+    // Rcout << i << "   " << objective(2 * i + 1) << "\n";
+
+    if (i > 1 && std::abs((objective(2 * (i - 1) + 1) - objective(2 * i + 1)) / objective(2 * (i - 1) + 1)) < tolerance) {
+      break;
+    }
+
+    alpha_old = alpha_new;
+    Gamma_list_old = Gamma_list_new;
+
+  }
+
+  return Rcpp::List::create(Rcpp::Named("alpha") = alpha_new,
+                            Rcpp::Named("Gamma_list") = Gamma_list_new,
                             Rcpp::Named("objective") = objective);
 
 }

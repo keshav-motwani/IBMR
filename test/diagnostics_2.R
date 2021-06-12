@@ -1,4 +1,4 @@
-# check that fitted Beta is same as group lasso regression from glmnet when Gamma = 0
+# check that fitted Beta of fit_alpha_Beta is same as group lasso regression from glmnet when Gamma = 0
 
 set.seed(1)
 

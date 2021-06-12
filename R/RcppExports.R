@@ -17,8 +17,18 @@ fit_alpha_Beta <- function(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolera
 }
 
 #' @export
-fit_alpha <- function(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old) {
-    .Call(`_IBMR_fit_alpha`, Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old)
+fit_alpha <- function(Y_matrix_list, X_list, Z_list, n_iter, tolerance, alpha_old) {
+    .Call(`_IBMR_fit_alpha`, Y_matrix_list, X_list, Z_list, n_iter, tolerance, alpha_old)
+}
+
+#' @export
+fit_alpha_Gamma_Newton <- function(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, alpha_old, Gamma_list_old) {
+    .Call(`_IBMR_fit_alpha_Gamma_Newton`, Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, alpha_old, Gamma_list_old)
+}
+
+#' @export
+fit_alpha_Gamma <- function(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, alpha_old, Gamma_list_old) {
+    .Call(`_IBMR_fit_alpha_Gamma`, Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, alpha_old, Gamma_list_old)
 }
 
 #' @export

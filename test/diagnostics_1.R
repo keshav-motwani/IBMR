@@ -1,4 +1,4 @@
-# check that fitted Gamma is same as ridge regression when only 1 dataset
+# check that fitted Gamma of fit_Gamma is same as ridge regression when only 1 dataset
 
 set.seed(1)
 

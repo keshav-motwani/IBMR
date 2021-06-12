@@ -59,19 +59,54 @@ BEGIN_RCPP
 END_RCPP
 }
 // fit_alpha
-List fit_alpha(const List& Y_matrix_list, const List& X_list, const List& Z_list, double lambda, int n_iter, double tolerance, arma::colvec alpha_old);
-RcppExport SEXP _IBMR_fit_alpha(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP lambdaSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP alpha_oldSEXP) {
+List fit_alpha(const List& Y_matrix_list, const List& X_list, const List& Z_list, int n_iter, double tolerance, arma::colvec alpha_old);
+RcppExport SEXP _IBMR_fit_alpha(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP alpha_oldSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
     Rcpp::traits::input_parameter< const List& >::type X_list(X_listSEXP);
     Rcpp::traits::input_parameter< const List& >::type Z_list(Z_listSEXP);
-    Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< int >::type n_iter(n_iterSEXP);
     Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
     Rcpp::traits::input_parameter< arma::colvec >::type alpha_old(alpha_oldSEXP);
-    rcpp_result_gen = Rcpp::wrap(fit_alpha(Y_matrix_list, X_list, Z_list, lambda, n_iter, tolerance, alpha_old));
+    rcpp_result_gen = Rcpp::wrap(fit_alpha(Y_matrix_list, X_list, Z_list, n_iter, tolerance, alpha_old));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fit_alpha_Gamma_Newton
+List fit_alpha_Gamma_Newton(const List& Y_matrix_list, const List& X_list, const List& Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, std::vector<arma::mat> Gamma_list_old);
+RcppExport SEXP _IBMR_fit_alpha_Gamma_Newton(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP rhoSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP alpha_oldSEXP, SEXP Gamma_list_oldSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type X_list(X_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type Z_list(Z_listSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< int >::type n_iter(n_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type alpha_old(alpha_oldSEXP);
+    Rcpp::traits::input_parameter< std::vector<arma::mat> >::type Gamma_list_old(Gamma_list_oldSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_alpha_Gamma_Newton(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, alpha_old, Gamma_list_old));
+    return rcpp_result_gen;
+END_RCPP
+}
+// fit_alpha_Gamma
+List fit_alpha_Gamma(const List& Y_matrix_list, const List& X_list, const List& Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, std::vector<arma::mat> Gamma_list_old);
+RcppExport SEXP _IBMR_fit_alpha_Gamma(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP rhoSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP alpha_oldSEXP, SEXP Gamma_list_oldSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type X_list(X_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type Z_list(Z_listSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    Rcpp::traits::input_parameter< int >::type n_iter(n_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type tolerance(toleranceSEXP);
+    Rcpp::traits::input_parameter< arma::colvec >::type alpha_old(alpha_oldSEXP);
+    Rcpp::traits::input_parameter< std::vector<arma::mat> >::type Gamma_list_old(Gamma_list_oldSEXP);
+    rcpp_result_gen = Rcpp::wrap(fit_alpha_Gamma(Y_matrix_list, X_list, Z_list, rho, n_iter, tolerance, alpha_old, Gamma_list_old));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -456,7 +491,9 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_fit_Gamma_Newton", (DL_FUNC) &_IBMR_fit_Gamma_Newton, 7},
     {"_IBMR_fit_Gamma", (DL_FUNC) &_IBMR_fit_Gamma, 7},
     {"_IBMR_fit_alpha_Beta", (DL_FUNC) &_IBMR_fit_alpha_Beta, 8},
-    {"_IBMR_fit_alpha", (DL_FUNC) &_IBMR_fit_alpha, 7},
+    {"_IBMR_fit_alpha", (DL_FUNC) &_IBMR_fit_alpha, 6},
+    {"_IBMR_fit_alpha_Gamma_Newton", (DL_FUNC) &_IBMR_fit_alpha_Gamma_Newton, 8},
+    {"_IBMR_fit_alpha_Gamma", (DL_FUNC) &_IBMR_fit_alpha_Gamma, 8},
     {"_IBMR_fit_alpha_Beta_Gamma_Newton", (DL_FUNC) &_IBMR_fit_alpha_Beta_Gamma_Newton, 10},
     {"_IBMR_fit_alpha_Beta_Gamma", (DL_FUNC) &_IBMR_fit_alpha_Beta_Gamma, 10},
     {"_IBMR_compute_gradient_Beta", (DL_FUNC) &_IBMR_compute_gradient_Beta, 7},

@@ -1,4 +1,4 @@
-# check that objective function decreases
+# check that objective function decreases for fit_alpha_Beta_Gamma
 
 library(IBMR)
 library(glmnet)
