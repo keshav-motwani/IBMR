@@ -1,4 +1,4 @@
-compute_rho_sequence = function(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, n_iter, tolerance) {
+compute_rho_sequence = function(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, phi, n_iter, tolerance) {
 
   alpha = fit_alpha(Y_matrix_list, X_list, Z_list, n_iter, tolerance, rep(0, ncol(Y_matrix_list[[1]])))$alpha
   Beta = matrix(0, nrow = ncol(X_list[[1]]), ncol = ncol(Y_matrix_list[[1]]))
@@ -10,7 +10,7 @@ compute_rho_sequence = function(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ra
 
   for (k in 1:length(Y_matrix_list)) {
 
-    rho[k] = max(abs(compute_gradient_Gamma(Y_matrix_list[[k]], X_list[[k]], Z_list[[k]], alpha, Beta, Gamma_list[[k]], 0, N))) / 0.001
+    rho[k] = max(abs(compute_gradient_Gamma(Y_matrix_list[[k]], X_list[[k]], Z_list[[k]], alpha, Beta, Gamma_list[[k]], 0, N))) / phi
 
   }
 
@@ -116,7 +116,7 @@ compute_tuning_performance_no_Gamma = function(fit,
                                                category_mappings_validation,
                                                X_list_validation) {
 
-  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings[[i]]))
+  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings_validation[[i]]))
 
   N = sum(sapply(X_list_validation, nrow))
 

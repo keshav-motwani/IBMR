@@ -8,9 +8,10 @@ IBMR = function(Y_list,
                 category_mappings_validation = NULL,
                 X_list_validation = NULL,
                 n_lambda = 25,
-                n_rho = 20,
                 lambda_min_ratio = 1e-3,
+                n_rho = 20,
                 rho_min_ratio = 1e-3,
+                phi = 1e-3,
                 n_iter = 1000,
                 tolerance = 1e-6,
                 Gamma_update = "Newton") {
@@ -27,7 +28,7 @@ IBMR = function(Y_list,
 
   features = colnames(X_list[[1]])
 
-  rho_sequence = compute_rho_sequence(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, n_iter, tolerance)
+  rho_sequence = compute_rho_sequence(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, phi, n_iter, tolerance)
   lambda_grid = compute_lambda_grid(Y_matrix_list, X_list, Z_list, rho_sequence, n_lambda, lambda_min_ratio, n_iter, tolerance)
 
   if (Gamma_update == "Newton") {

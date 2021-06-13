@@ -10,8 +10,8 @@ number_per_split = 2
 label_levels_per_dataset = list(c(2, 2), c(2, 2), c(2, 2), c(2, 2))
 category_mappings = simulate_category_mappings(number_of_levels, number_per_split, label_levels_per_dataset)
 
-p = 20
-nonzero = 20
+p = 50
+nonzero = 10
 
 alpha = simulate_alpha(category_mappings$categories, 0.1, 0.5)
 Beta = simulate_Beta(category_mappings$categories, p, nonzero, -0.5, 0.5)
@@ -30,7 +30,11 @@ test = IBMR_no_Gamma(Y_list, category_mappings$categories, category_mappings$cat
 plot(coef(fit, fit$lambda[10])[[1]][-1], test$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
-test = IBMR(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, X_list, n_lambda = 10, n_rho = 5, lambda_min_ratio = 1e-3, rho_min_ratio = 1e-8)
+val = compute_tuning_performance_no_Gamma(test, Y_list_val, category_mappings$categories, category_mappings$category_mappings, X_list_val)
+
+which_min(val)
+
+test = IBMR(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, X_list, n_lambda = 10, n_rho = 30, lambda_min_ratio = 1e-3, rho_min_ratio = 1e-8, phi = 1e-3, Gamma_update = "gradient")
 
 val = compute_tuning_performance(test, Y_list_val, category_mappings$categories, category_mappings$category_mappings, X_list_val)
 
