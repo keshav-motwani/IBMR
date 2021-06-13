@@ -19,8 +19,7 @@ double compute_negative_log_likelihood(const List & Y_matrix_list, const List & 
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
     arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
 
-    arma::colvec o = arma::ones<arma::colvec>(X_.n_rows);
-    arma::mat P = arma::exp(o * alpha.t() + X_ * Beta + Z_ * Gamma);
+    arma::mat P = arma::exp(compute_linear_predictor(X_, Z_, alpha, Beta, Gamma));
 
     ll += arma::accu(arma::log(arma::sum(P % Y_, 1)) - arma::log(arma::sum(P, 1)));
 
@@ -45,8 +44,7 @@ double compute_negative_log_likelihood_no_Gamma(const List & Y_matrix_list, cons
     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
 
-    arma::colvec o = arma::ones<arma::colvec>(X_.n_rows);
-    arma::mat P = arma::exp(o * alpha.t() + X_ * Beta);
+    arma::mat P = arma::exp(compute_linear_predictor_no_Gamma(X_, alpha, Beta));
 
     ll += arma::accu(arma::log(arma::sum(P % Y_, 1)) - arma::log(arma::sum(P, 1)));
 
@@ -59,8 +57,7 @@ double compute_negative_log_likelihood_no_Gamma(const List & Y_matrix_list, cons
 // [[Rcpp::export]]
 double compute_negative_log_likelihood_1(const arma::mat & Y, const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma, int N) {
 
-  arma::colvec o = arma::ones<arma::colvec>(X.n_rows);
-  arma::mat P = arma::exp(o * alpha.t() + X * Beta + Z * Gamma);
+  arma::mat P = arma::exp(compute_linear_predictor_no_Gamma(X, alpha, Beta));
 
   return -1 * arma::accu(arma::log(arma::sum(P % Y, 1)) - arma::log(arma::sum(P, 1))) / N;
 

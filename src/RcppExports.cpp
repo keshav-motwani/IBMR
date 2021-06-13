@@ -294,6 +294,34 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_linear_predictor
+arma::mat compute_linear_predictor(const arma::mat& X, const arma::mat& Z, const arma::colvec& alpha, const arma::mat& Beta, const arma::mat& Gamma);
+RcppExport SEXP _IBMR_compute_linear_predictor(SEXP XSEXP, SEXP ZSEXP, SEXP alphaSEXP, SEXP BetaSEXP, SEXP GammaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Gamma(GammaSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_linear_predictor(X, Z, alpha, Beta, Gamma));
+    return rcpp_result_gen;
+END_RCPP
+}
+// compute_linear_predictor_no_Gamma
+arma::mat compute_linear_predictor_no_Gamma(const arma::mat& X, const arma::colvec& alpha, const arma::mat& Beta);
+RcppExport SEXP _IBMR_compute_linear_predictor_no_Gamma(SEXP XSEXP, SEXP alphaSEXP, SEXP BetaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_linear_predictor_no_Gamma(X, alpha, Beta));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_probabilities
 arma::mat compute_probabilities(const arma::mat& X, const arma::mat& Z, const arma::colvec& alpha, const arma::mat& Beta, const arma::mat& Gamma);
 RcppExport SEXP _IBMR_compute_probabilities(SEXP XSEXP, SEXP ZSEXP, SEXP alphaSEXP, SEXP BetaSEXP, SEXP GammaSEXP) {
@@ -477,6 +505,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_group_lasso_penalty", (DL_FUNC) &_IBMR_group_lasso_penalty, 2},
     {"_IBMR_l2_penalty", (DL_FUNC) &_IBMR_l2_penalty, 2},
     {"_IBMR_compute_objective_function", (DL_FUNC) &_IBMR_compute_objective_function, 9},
+    {"_IBMR_compute_linear_predictor", (DL_FUNC) &_IBMR_compute_linear_predictor, 5},
+    {"_IBMR_compute_linear_predictor_no_Gamma", (DL_FUNC) &_IBMR_compute_linear_predictor_no_Gamma, 3},
     {"_IBMR_compute_probabilities", (DL_FUNC) &_IBMR_compute_probabilities, 5},
     {"_IBMR_compute_probabilities_no_Gamma", (DL_FUNC) &_IBMR_compute_probabilities_no_Gamma, 3},
     {"_IBMR_compute_conditional_probabilities", (DL_FUNC) &_IBMR_compute_conditional_probabilities, 2},

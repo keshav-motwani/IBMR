@@ -2,11 +2,31 @@
 
 //' @export
 // [[Rcpp::export]]
+arma::mat compute_linear_predictor(const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma) {
+
+  arma::mat lin_pred = X * Beta + Z * Gamma;
+  lin_pred = lin_pred.each_row() + alpha.t();
+
+  return lin_pred;
+
+}
+
+//' @export
+// [[Rcpp::export]]
+arma::mat compute_linear_predictor_no_Gamma(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
+
+  arma::mat lin_pred = X * Beta;
+  lin_pred = lin_pred.each_row() + alpha.t();
+
+  return lin_pred;
+
+}
+
+//' @export
+// [[Rcpp::export]]
 arma::mat compute_probabilities(const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma) {
 
-  arma::colvec o = arma::ones<arma::colvec>(X.n_rows);
-
-  arma::mat P = arma::exp(o * alpha.t() + X * Beta + Z * Gamma);
+  arma::mat P = arma::exp(compute_linear_predictor(X, Z, alpha, Beta, Gamma));
 
   return P.each_col() % (1 / arma::sum(P, 1));
 
@@ -16,9 +36,7 @@ arma::mat compute_probabilities(const arma::mat & X, const arma::mat & Z, const 
 // [[Rcpp::export]]
 arma::mat compute_probabilities_no_Gamma(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
 
-  arma::colvec o = arma::ones<arma::colvec>(X.n_rows);
-
-  arma::mat P = arma::exp(o * alpha.t() + X * Beta);
+  arma::mat P = arma::exp(compute_linear_predictor_no_Gamma(X, alpha, Beta));
 
   return P.each_col() % (1 / arma::sum(P, 1));
 
