@@ -3,6 +3,8 @@
 export(IBMR)
 export(IBMR_no_Gamma)
 export(compute_conditional_probabilities)
+export(compute_linear_predictor)
+export(compute_linear_predictor_no_Gamma)
 export(compute_probabilities)
 export(compute_probabilities_no_Gamma)
 export(compute_tuning_performance)
