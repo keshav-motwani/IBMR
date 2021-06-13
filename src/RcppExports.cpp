@@ -219,6 +219,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_negative_log_likelihood_no_Gamma
+double compute_negative_log_likelihood_no_Gamma(const List& Y_matrix_list, const List& X_list, const arma::colvec& alpha, const arma::mat& Beta, int N);
+RcppExport SEXP _IBMR_compute_negative_log_likelihood_no_Gamma(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP alphaSEXP, SEXP BetaSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type X_list(X_listSEXP);
+    Rcpp::traits::input_parameter< const arma::colvec& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type Beta(BetaSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_negative_log_likelihood_no_Gamma(Y_matrix_list, X_list, alpha, Beta, N));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_negative_log_likelihood_1
 double compute_negative_log_likelihood_1(const arma::mat& Y, const arma::mat& X, const arma::mat& Z, const arma::colvec& alpha, const arma::mat& Beta, const arma::mat& Gamma, int N);
 RcppExport SEXP _IBMR_compute_negative_log_likelihood_1(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP alphaSEXP, SEXP BetaSEXP, SEXP GammaSEXP, SEXP NSEXP) {
@@ -328,49 +343,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::mat& >::type matrix(matrixSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     rcpp_result_gen = Rcpp::wrap(group_lasso_prox(matrix, lambda));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_hello_world
-arma::mat rcpparma_hello_world();
-RcppExport SEXP _IBMR_rcpparma_hello_world() {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    rcpp_result_gen = Rcpp::wrap(rcpparma_hello_world());
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_outerproduct
-arma::mat rcpparma_outerproduct(const arma::colvec& x);
-RcppExport SEXP _IBMR_rcpparma_outerproduct(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_outerproduct(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_innerproduct
-double rcpparma_innerproduct(const arma::colvec& x);
-RcppExport SEXP _IBMR_rcpparma_innerproduct(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_innerproduct(x));
-    return rcpp_result_gen;
-END_RCPP
-}
-// rcpparma_bothproducts
-Rcpp::List rcpparma_bothproducts(const arma::colvec& x);
-RcppExport SEXP _IBMR_rcpparma_bothproducts(SEXP xSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::colvec& >::type x(xSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpparma_bothproducts(x));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -500,6 +472,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_compute_gradient_alpha", (DL_FUNC) &_IBMR_compute_gradient_alpha, 7},
     {"_IBMR_compute_gradient_Gamma", (DL_FUNC) &_IBMR_compute_gradient_Gamma, 8},
     {"_IBMR_compute_negative_log_likelihood", (DL_FUNC) &_IBMR_compute_negative_log_likelihood, 7},
+    {"_IBMR_compute_negative_log_likelihood_no_Gamma", (DL_FUNC) &_IBMR_compute_negative_log_likelihood_no_Gamma, 5},
     {"_IBMR_compute_negative_log_likelihood_1", (DL_FUNC) &_IBMR_compute_negative_log_likelihood_1, 7},
     {"_IBMR_group_lasso_penalty", (DL_FUNC) &_IBMR_group_lasso_penalty, 2},
     {"_IBMR_l2_penalty", (DL_FUNC) &_IBMR_l2_penalty, 2},
@@ -508,10 +481,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_compute_probabilities_Gamma0", (DL_FUNC) &_IBMR_compute_probabilities_Gamma0, 3},
     {"_IBMR_compute_conditional_probabilities", (DL_FUNC) &_IBMR_compute_conditional_probabilities, 2},
     {"_IBMR_group_lasso_prox", (DL_FUNC) &_IBMR_group_lasso_prox, 2},
-    {"_IBMR_rcpparma_hello_world", (DL_FUNC) &_IBMR_rcpparma_hello_world, 0},
-    {"_IBMR_rcpparma_outerproduct", (DL_FUNC) &_IBMR_rcpparma_outerproduct, 1},
-    {"_IBMR_rcpparma_innerproduct", (DL_FUNC) &_IBMR_rcpparma_innerproduct, 1},
-    {"_IBMR_rcpparma_bothproducts", (DL_FUNC) &_IBMR_rcpparma_bothproducts, 1},
     {"_IBMR_compute_min_step_size_Beta", (DL_FUNC) &_IBMR_compute_min_step_size_Beta, 3},
     {"_IBMR_compute_min_step_size_alpha", (DL_FUNC) &_IBMR_compute_min_step_size_alpha, 1},
     {"_IBMR_compute_min_step_size_Gamma", (DL_FUNC) &_IBMR_compute_min_step_size_Gamma, 4},

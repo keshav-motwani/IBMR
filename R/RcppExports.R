@@ -57,6 +57,10 @@ compute_negative_log_likelihood <- function(Y_matrix_list, X_list, Z_list, alpha
     .Call(`_IBMR_compute_negative_log_likelihood`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
 }
 
+compute_negative_log_likelihood_no_Gamma <- function(Y_matrix_list, X_list, alpha, Beta, N) {
+    .Call(`_IBMR_compute_negative_log_likelihood_no_Gamma`, Y_matrix_list, X_list, alpha, Beta, N)
+}
+
 compute_negative_log_likelihood_1 <- function(Y, X, Z, alpha, Beta, Gamma, N) {
     .Call(`_IBMR_compute_negative_log_likelihood_1`, Y, X, Z, alpha, Beta, Gamma, N)
 }
@@ -90,22 +94,6 @@ compute_conditional_probabilities <- function(Y_matrix, P) {
 
 group_lasso_prox <- function(matrix, lambda) {
     .Call(`_IBMR_group_lasso_prox`, matrix, lambda)
-}
-
-rcpparma_hello_world <- function() {
-    .Call(`_IBMR_rcpparma_hello_world`)
-}
-
-rcpparma_outerproduct <- function(x) {
-    .Call(`_IBMR_rcpparma_outerproduct`, x)
-}
-
-rcpparma_innerproduct <- function(x) {
-    .Call(`_IBMR_rcpparma_innerproduct`, x)
-}
-
-rcpparma_bothproducts <- function(x) {
-    .Call(`_IBMR_rcpparma_bothproducts`, x)
 }
 
 compute_min_step_size_Beta <- function(Y_matrix_list, X_list, N) {
