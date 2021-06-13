@@ -87,7 +87,7 @@ compute_tuning_performance = function(fit,
                                       category_mappings_validation,
                                       X_list_validation) {
 
-  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings[[i]]))
+  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings_validation[[i]]))
 
   N = sum(sapply(X_list_validation, nrow))
 

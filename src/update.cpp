@@ -5,7 +5,7 @@
 #include "update.h"
 
 // [[Rcpp::export]]
-arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const std::vector<arma::mat> & Gamma_list, double lambda, int N, double min_step_size) {
+arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const arma::field<arma::mat> & Gamma_list, double lambda, int N, double min_step_size) {
 
   bool line_search = true;
   double step_size = min_step_size * 1000;
@@ -41,7 +41,7 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
 }
 
 // [[Rcpp::export]]
-arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N, double min_step_size) {
+arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N, double min_step_size) {
 
   bool line_search = true;
   double step_size = min_step_size * 10;
@@ -75,18 +75,18 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
 }
 
 // [[Rcpp::export]]
-std::vector<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N) {
+arma::field<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list_old, double rho, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
 
-  std::vector<arma::mat> Gamma_list_new(K);
+  arma::field<arma::mat> Gamma_list_new(K);
 
   for (R_xlen_t i = 0; i < K; i++) {
 
     NumericMatrix Y = Y_matrix_list[i];
     NumericMatrix X = X_list[i];
     NumericMatrix Z = Z_list[i];
-    const arma::mat & Gamma_old = Gamma_list_old[i];
+    const arma::mat & Gamma_old = Gamma_list_old(i);
 
     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
@@ -106,7 +106,7 @@ std::vector<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, cons
 
     }
 
-    Gamma_list_new[i] = Gamma_new;
+    Gamma_list_new(i) = Gamma_new;
 
   }
 
@@ -115,18 +115,18 @@ std::vector<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, cons
 }
 
 // [[Rcpp::export]]
-std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list_old, double rho, int N, arma::colvec min_step_size) {
+arma::field<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list_old, double rho, int N, arma::colvec min_step_size) {
 
   R_xlen_t K = Y_matrix_list.size();
 
-  std::vector<arma::mat> Gamma_list_new(K);
+  arma::field<arma::mat> Gamma_list_new(K);
 
   for (R_xlen_t i = 0; i < K; i++) {
 
     NumericMatrix Y = Y_matrix_list[i];
     NumericMatrix X = X_list[i];
     NumericMatrix Z = Z_list[i];
-    const arma::mat & Gamma_old = Gamma_list_old[i];
+    const arma::mat & Gamma_old = Gamma_list_old(i);
 
     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
@@ -157,7 +157,7 @@ std::vector<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
 
     }
 
-    Gamma_list_new[i] = Gamma_new;
+    Gamma_list_new(i) = Gamma_new;
 
   }
 

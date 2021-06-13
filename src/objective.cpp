@@ -2,7 +2,7 @@
 #include "objective.h"
 
 // [[Rcpp::export]]
-double compute_negative_log_likelihood(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
+double compute_negative_log_likelihood(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
 
@@ -13,7 +13,7 @@ double compute_negative_log_likelihood(const List & Y_matrix_list, const List & 
     NumericMatrix Y = Y_matrix_list[i];
     NumericMatrix X = X_list[i];
     NumericMatrix Z = Z_list[i];
-    const arma::mat & Gamma = Gamma_list[i];
+    const arma::mat & Gamma = Gamma_list(i);
 
     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
@@ -74,7 +74,7 @@ double group_lasso_penalty(const arma::mat & Beta, double lambda) {
 }
 
 // [[Rcpp::export]]
-double l2_penalty(const std::vector<arma::mat> & Gamma_list, double rho) {
+double l2_penalty(const arma::field<arma::mat> & Gamma_list, double rho) {
 
   R_xlen_t K = Gamma_list.size();
 
@@ -82,7 +82,7 @@ double l2_penalty(const std::vector<arma::mat> & Gamma_list, double rho) {
 
   for (R_xlen_t i = 0; i < K; i++) {
 
-    penalty += arma::accu(arma::square(Gamma_list[i]));
+    penalty += arma::accu(arma::square(Gamma_list(i)));
 
   }
 
@@ -91,7 +91,7 @@ double l2_penalty(const std::vector<arma::mat> & Gamma_list, double rho) {
 }
 
 // [[Rcpp::export]]
-double compute_objective_function(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, double lambda, double rho, int N) {
+double compute_objective_function(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, double lambda, double rho, int N) {
 
   double nll = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N);
   double gl = group_lasso_penalty(Beta, lambda);

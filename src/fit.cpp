@@ -4,7 +4,7 @@
 
 //' @export
 // [[Rcpp::export]]
-List fit_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, std::vector<arma::mat> Gamma_list_old) {
+List fit_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::field<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(n_iter);
   objective.zeros();
@@ -28,7 +28,7 @@ List fit_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const Lis
   arma::mat Beta(p, q);
   Beta.zeros();
 
-  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+  arma::field<arma::mat> Gamma_list_new = Gamma_list_old;
 
   for (int i = 0; i < n_iter; i++) {
 
@@ -52,7 +52,7 @@ List fit_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const Lis
 
 //' @export
 // [[Rcpp::export]]
-List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, std::vector<arma::mat> Gamma_list_old) {
+List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::field<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(n_iter);
   objective.zeros();
@@ -78,7 +78,7 @@ List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_l
   arma::mat Beta(p, q);
   Beta.zeros();
 
-  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+  arma::field<arma::mat> Gamma_list_new = Gamma_list_old;
 
   for (int i = 0; i < n_iter; i++) {
 
@@ -123,9 +123,9 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
   double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
   double min_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N);
 
-  std::vector<arma::mat> Gamma_list(K);
+  arma::field<arma::mat> Gamma_list(K);
   for (R_xlen_t i = 0; i < K; i++) {
-    Gamma_list[i] = arma::mat(r, q, arma::fill::zeros);
+    Gamma_list(i) = arma::mat(r, q, arma::fill::zeros);
   }
 
   arma::colvec alpha_new = alpha_old;
@@ -186,9 +186,9 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
   arma::mat Beta(p, q);
   Beta.zeros();
 
-  std::vector<arma::mat> Gamma_list(K);
+  arma::field<arma::mat> Gamma_list(K);
   for (R_xlen_t i = 0; i < K; i++) {
-    Gamma_list[i] = arma::mat(r, q, arma::fill::zeros);
+    Gamma_list(i) = arma::mat(r, q, arma::fill::zeros);
   }
 
   arma::colvec alpha_new = alpha_old;
@@ -216,7 +216,7 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
 
 //' @export
 // [[Rcpp::export]]
-List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, std::vector<arma::mat> Gamma_list_old) {
+List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::field<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(2 * n_iter);
   objective.zeros();
@@ -242,7 +242,7 @@ List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, con
   Beta.zeros();
 
   arma::colvec alpha_new = alpha_old;
-  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+  arma::field<arma::mat> Gamma_list_new = Gamma_list_old;
 
   for (int i = 0; i < n_iter; i++) {
 
@@ -274,7 +274,7 @@ List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, con
 
 //' @export
 // [[Rcpp::export]]
-List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, std::vector<arma::mat> Gamma_list_old) {
+List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::field<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(2 * n_iter);
   objective.zeros();
@@ -301,7 +301,7 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
   Beta.zeros();
 
   arma::colvec alpha_new = alpha_old;
-  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+  arma::field<arma::mat> Gamma_list_new = Gamma_list_old;
 
   for (int i = 0; i < n_iter; i++) {
 
@@ -333,7 +333,7 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
 
 //' @export
 // [[Rcpp::export]]
-List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, std::vector<arma::mat> Gamma_list_old) {
+List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, arma::field<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(3 * n_iter);
   objective.zeros();
@@ -351,7 +351,7 @@ List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list
 
   arma::colvec alpha_new = alpha_old;
   arma::mat Beta_new = Beta_old;
-  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+  arma::field<arma::mat> Gamma_list_new = Gamma_list_old;
 
   for (int i = 0; i < n_iter; i++) {
 
@@ -390,7 +390,7 @@ List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list
 
 //' @export
 // [[Rcpp::export]]
-List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, std::vector<arma::mat> Gamma_list_old) {
+List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_list, double lambda, double rho, int n_iter, double tolerance, arma::colvec alpha_old, arma::mat Beta_old, arma::field<arma::mat> Gamma_list_old) {
 
   arma::colvec objective(3 * n_iter);
   objective.zeros();
@@ -409,7 +409,7 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
 
   arma::colvec alpha_new = alpha_old;
   arma::mat Beta_new = Beta_old;
-  std::vector<arma::mat> Gamma_list_new = Gamma_list_old;
+  arma::field<arma::mat> Gamma_list_new = Gamma_list_old;
 
   for (int i = 0; i < n_iter; i++) {
 

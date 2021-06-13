@@ -108,7 +108,7 @@ simulate_Beta = function(categories, p, nonzero, lower = -2, upper = 2) {
 #' @export
 simulate_Y = function(categories, inverse_category_mapping, X, alpha, Beta) {
 
-  P = compute_probabilities_Gamma0(X, alpha, Beta)
+  P = compute_probabilities_no_Gamma(X, alpha, Beta)
 
   Y_fine = apply(P, 1, function(x) sample(categories, 1, prob = x))
   Y = inverse_category_mapping[Y_fine]

@@ -2,7 +2,7 @@
 #include "gradient.h"
 
 // [[Rcpp::export]]
-arma::mat compute_gradient_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
+arma::mat compute_gradient_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
 
@@ -14,7 +14,7 @@ arma::mat compute_gradient_Beta(const List & Y_matrix_list, const List & X_list,
     NumericMatrix Y = Y_matrix_list[i];
     NumericMatrix X = X_list[i];
     NumericMatrix Z = Z_list[i];
-    const arma::mat & Gamma = Gamma_list[i];
+    const arma::mat & Gamma = Gamma_list(i);
 
     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);
@@ -32,7 +32,7 @@ arma::mat compute_gradient_Beta(const List & Y_matrix_list, const List & X_list,
 }
 
 // [[Rcpp::export]]
-arma::colvec compute_gradient_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const std::vector<arma::mat> & Gamma_list, int N) {
+arma::colvec compute_gradient_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
 
@@ -44,7 +44,7 @@ arma::colvec compute_gradient_alpha(const List & Y_matrix_list, const List & X_l
     NumericMatrix Y = Y_matrix_list[i];
     NumericMatrix X = X_list[i];
     NumericMatrix Z = Z_list[i];
-    const arma::mat & Gamma = Gamma_list[i];
+    const arma::mat & Gamma = Gamma_list(i);
 
     arma::mat Y_(Y.begin(), Y.nrow(), Y.ncol(), false);
     arma::mat X_(X.begin(), X.nrow(), X.ncol(), false);

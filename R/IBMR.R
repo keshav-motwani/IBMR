@@ -48,16 +48,16 @@ IBMR = function(Y_list,
       Gamma_list_old = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = length(categories)))
     } else {
       model_old = model_fits[[r - 1]][[1]]
-      alpha_old = model$alpha
-      Beta_old = model$Beta
-      Gamma_list_old = model$Gamma_list
+      alpha_old = model_old$alpha
+      Beta_old = model_old$Beta
+      Gamma_list_old = model_old$Gamma_list
     }
 
     for (l in 1:n_lambda) {
 
-      print(c(g, l))
+      print(c(r, l))
 
-      fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_grid[g, l], rho_sequence[g], n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
+      fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_grid[r, l], rho_sequence[r], n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
       fit$lambda_index = l
       fit$rho_index = r
 

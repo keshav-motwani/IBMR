@@ -83,8 +83,8 @@ compute_probabilities <- function(X, Z, alpha, Beta, Gamma) {
 }
 
 #' @export
-compute_probabilities_Gamma0 <- function(X, alpha, Beta) {
-    .Call(`_IBMR_compute_probabilities_Gamma0`, X, alpha, Beta)
+compute_probabilities_no_Gamma <- function(X, alpha, Beta) {
+    .Call(`_IBMR_compute_probabilities_no_Gamma`, X, alpha, Beta)
 }
 
 #' @export

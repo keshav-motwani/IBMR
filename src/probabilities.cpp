@@ -14,7 +14,7 @@ arma::mat compute_probabilities(const arma::mat & X, const arma::mat & Z, const 
 
 //' @export
 // [[Rcpp::export]]
-arma::mat compute_probabilities_Gamma0(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
+arma::mat compute_probabilities_no_Gamma(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
 
   arma::colvec o = arma::ones<arma::colvec>(X.n_rows);
 
