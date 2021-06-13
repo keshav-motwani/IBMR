@@ -57,7 +57,7 @@ double compute_negative_log_likelihood_no_Gamma(const List & Y_matrix_list, cons
 // [[Rcpp::export]]
 double compute_negative_log_likelihood_1(const arma::mat & Y, const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma, int N) {
 
-  arma::mat P = arma::exp(compute_linear_predictor_no_Gamma(X, alpha, Beta));
+  arma::mat P = arma::exp(compute_linear_predictor(X, Z, alpha, Beta, Gamma));
 
   return -1 * arma::accu(arma::log(arma::sum(P % Y, 1)) - arma::log(arma::sum(P, 1))) / N;
 
