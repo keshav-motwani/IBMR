@@ -4,9 +4,9 @@ fit_glmnet = function(Y_list,
                       X_list,
                       Y_list_validation,
                       X_list_validation,
-                      n_lambda = 20,
+                      n_lambda = 25,
                       lambda_min_ratio = 1e-4,
-                      n_alpha = 25) {
+                      n_alpha = 20) {
 
   Y = unlist(Y_list)
   X = do.call(rbind, X_list)
