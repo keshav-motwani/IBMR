@@ -1,12 +1,12 @@
 #' @export
-fit_elastic_net = function(Y_list,
-                           categories,
-                           X_list,
-                           Y_list_validation,
-                           X_list_validation,
-                           n_lambda = 20,
-                           lambda_min_ratio = 1e-4,
-                           n_alpha = 25) {
+fit_glmnet = function(Y_list,
+                      categories,
+                      X_list,
+                      Y_list_validation,
+                      X_list_validation,
+                      n_lambda = 20,
+                      lambda_min_ratio = 1e-4,
+                      n_alpha = 25) {
 
   Y = unlist(Y_list)
   X = do.call(rbind, X_list)

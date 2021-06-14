@@ -323,7 +323,7 @@ fit_IBMR_no_Gamma = function(data) {
 
 fit_elastic_net = function(data) {
 
-  fit = fit_elastic_net(
+  fit = fit_glmnet(
     data$train$Y_list,
     data$train$category_mappings$categories,
     data$train$X_list,
