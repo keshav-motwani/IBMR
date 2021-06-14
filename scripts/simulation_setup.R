@@ -114,8 +114,6 @@ evaluate_parameters = function(parameters, simulation_function) {
                                       data$test$Y_list_fine,
                                       data$test$X_star_list,
                                       data$test$category_mappings_fine$categories)
-    performance$tuning_parameters = fit$tuning_parameters
-    performance$validation_negative_log_likelihood = fit$validation_negative_log_likelihood
 
     best_case_performance = compute_best_case_performance(data$alpha,
                                                           data$Beta,
@@ -127,7 +125,7 @@ evaluate_parameters = function(parameters, simulation_function) {
 
     if (length(fits) > 1) parameters$method = names(fits)[i]
 
-    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance)
+    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit)
 
   }
 
@@ -248,7 +246,8 @@ prepare_output_IBMR = function(fit) {
     alpha = fit$best_model$alpha,
     Beta = fit$best_model$Beta,
     tuning_parameters = fit$best_tuning_parameters,
-    validation_negative_log_likelihood = fit$validation_negative_log_likelihood
+    validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
+    best_model = fit$best_model
   )
   IBMR = c(IBMR, get_all_alphas_Betas_IBMR(fit))
 
@@ -262,7 +261,8 @@ prepare_output_IBMR_no_Gamma = function(fit) {
     alpha = fit$best_model$alpha,
     Beta = fit$best_model$Beta,
     tuning_parameters = fit$best_tuning_parameters,
-    validation_negative_log_likelihood = fit$validation_negative_log_likelihood
+    validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
+    best_model = fit$best_model
   )
   IBMR = c(IBMR, get_all_alphas_Betas_IBMR_no_Gamma(fit))
 
@@ -276,7 +276,8 @@ prepare_output_glmnet = function(fit) {
     alpha = fit$best_model$alpha,
     Beta = fit$best_model$Beta,
     tuning_parameters = fit$best_tuning_parameters,
-    validation_negative_log_likelihood = fit$validation_negative_log_likelihood
+    validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
+    best_model = fit$best_model
   )
   elastic_net = c(elastic_net, get_all_alphas_Betas_IBMR(fit))
 
@@ -284,7 +285,8 @@ prepare_output_glmnet = function(fit) {
     alpha = fit$best_model_group_lasso$alpha,
     Beta = fit$best_model_group_lasso$Beta,
     tuning_parameters = fit$best_tuning_parameters_group_lasso,
-    validation_negative_log_likelihood = fit$validation_negative_log_likelihood[1,]
+    validation_negative_log_likelihood = fit$validation_negative_log_likelihood[1,],
+    best_model = fit$best_model_group_lasso
   )
   group_lasso = c(group_lasso, get_all_alphas_Betas_group_lasso(fit))
 
