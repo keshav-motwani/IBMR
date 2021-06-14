@@ -201,6 +201,8 @@ get_all_alphas_Betas_IBMR_no_Gamma = function(fit) {
 
   for (l in 1:fit$n_lambda) {
 
+    model = fit$model_fits[[l]]
+
     if (!is.null(model)) {
 
       alphas = c(alphas, list(fit$model_fits[[l]]$alpha))
