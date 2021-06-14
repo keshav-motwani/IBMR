@@ -16,13 +16,13 @@ defaults = list(
 )
 
 considered_values = list(
-  q = c(2, 4, 8, 16, 32),
-  K = c(1, 2, 4, 8, 16),
-  nonzero = c(20, 50, 75, 100, 125),
-  b = c(0.25, 0.5, 1, 1.5, 2)
+  # q = c(2, 4, 8, 16, 32),
+  # K = c(1, 2, 4, 8, 16),
+  nonzero = c(20, 50, 75, 100, 125) #,
+  # b = c(0.25, 0.5, 1, 1.5, 2)
 )
 
-methods = c("IBMR", "IBMR_no_Gamma", "elastic_net")
+methods = c("IBMR", "IBMR_no_Gamma", "elastic_net", "ORACLE")
 
 parameters = expand_parameters("fine_clean_simulations", considered_values, defaults, 50, methods)
 
