@@ -160,7 +160,7 @@ IBMR_no_Gamma = function(Y_list,
     best_tuning_parameters = which_min(validation_negative_log_likelihood)[1, ]
 
     fit$best_tuning_parameters = best_tuning_parameters
-    fit$best_model = fit$model_fits[[best_tuning_parameters[1]]]
+    fit$best_model = fit$model_fits[[best_tuning_parameters[2]]]
 
   }
 
