@@ -8,7 +8,7 @@ dir.create(RESULT_PATH, recursive = TRUE)
 
 defaults = list(
   q = 16,
-  N = 20000,
+  N = 4000,
   K = 4,
   p = 500,
   nonzero = 75,
