@@ -22,8 +22,8 @@ considered_values = list(
   b = c(0.25, 0.5, 1, 1.5, 2)
 )
 
-methods = c("ORACLE")
-ARRAY_ID = 1
+methods = c("IBMR", "IBMR_no_Gamma", "elastic_net")
+
 parameters = expand_parameters("fine_clean_simulations", considered_values, defaults, 50, methods)
 
 current_parameters = parameters[[ARRAY_ID]]
