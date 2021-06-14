@@ -179,6 +179,8 @@ get_all_alphas_Betas_IBMR = function(fit) {
 
     for (l in 1:fit$n_lambda) {
 
+      model = fit$model_fits[[r]][[l]]
+
       if (!is.null(model)) {
 
         alphas = c(alphas, list(fit$model_fits[[r]][[l]]$alpha))
