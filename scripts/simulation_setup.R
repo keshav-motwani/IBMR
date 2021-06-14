@@ -225,7 +225,7 @@ get_all_alphas_Betas_group_lasso = function(fit) {
 
   a = 1
 
-  for (l in 1:length(fit$model_fits)) {
+  for (l in 1:fit$n_lambda) {
 
     model = fit$model_fits[[a]][[l]]
 
