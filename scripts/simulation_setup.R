@@ -297,7 +297,7 @@ fit_IBMR = function(data) {
     data$train$X_list,
     data$train$Z_list,
     data$validation$Y_list,
-    data$validation$category_mappings,
+    data$validation$category_mappings$category_mappings,
     data$validation$X_list
   )
 
@@ -313,7 +313,7 @@ fit_IBMR_no_Gamma = function(data) {
     data$train$category_mappings$category_mappings,
     data$train$X_list,
     data$validation$Y_list,
-    data$validation$category_mappings,
+    data$validation$category_mappings$category_mappings,
     data$validation$X_list
   )
 
