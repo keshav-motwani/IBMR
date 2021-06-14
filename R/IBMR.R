@@ -8,13 +8,13 @@ IBMR = function(Y_list,
                 category_mappings_validation = NULL,
                 X_list_validation = NULL,
                 n_lambda = 25,
-                lambda_min_ratio = 1e-3,
+                lambda_min_ratio = 1e-4,
                 n_rho = 20,
-                rho_min_ratio = 1e-3,
+                rho_min_ratio = 1e-8,
                 phi = 1e-3,
                 n_iter = 1000,
                 tolerance = 1e-6,
-                Gamma_update = "Newton") {
+                Gamma_update = "gradient") {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
 
@@ -110,7 +110,7 @@ IBMR_no_Gamma = function(Y_list,
                          category_mappings_validation = NULL,
                          X_list_validation = NULL,
                          n_lambda = 25,
-                         lambda_min_ratio = 1e-3,
+                         lambda_min_ratio = 1e-4,
                          n_iter = 1000,
                          tolerance = 1e-6) {
 

@@ -17,8 +17,8 @@ nonzero = 10
 alpha = simulate_alpha(category_mappings$categories, 0.1, 0.5)
 Beta = simulate_Beta(category_mappings$categories, p, nonzero, -0.5, 0.5)
 
-X_list = simulate_X_list(rep(100, length(label_levels_per_dataset)), p)
-Z_list = simulate_X_list(rep(100, length(label_levels_per_dataset)), p)
+X_list = simulate_X_star_list(rep(100, length(label_levels_per_dataset)), p)
+Z_list = simulate_X_star_list(rep(100, length(label_levels_per_dataset)), p)
 Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)
 
 Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], category_mappings$categories, category_mappings$category_mappings[[i]]))

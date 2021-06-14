@@ -91,15 +91,17 @@ compute_tuning_performance = function(fit,
 
   N = sum(sapply(X_list_validation, nrow))
 
-  nll = matrix(0, nrow = fit$n_rho, ncol = fit$n_lambda)
+  nll = matrix(NA, nrow = fit$n_rho, ncol = fit$n_lambda)
 
   for (r in 1:fit$n_rho) {
 
     for (l in 1:fit$n_lambda) {
 
+      print(c(r, l))
+
       model = fit$model_fits[[r]][[l]]
 
-      nll[r, l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, model$alpha, model$Beta, N)
+      if (!is.null(model)) nll[r, l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, model$alpha, model$Beta, N)
 
     }
 
@@ -120,13 +122,13 @@ compute_tuning_performance_no_Gamma = function(fit,
 
   N = sum(sapply(X_list_validation, nrow))
 
-  nll = matrix(0, nrow = 1, ncol = fit$n_lambda)
+  nll = matrix(NA, nrow = 1, ncol = fit$n_lambda)
 
   for (l in 1:fit$n_lambda) {
 
     model = fit$model_fits[[l]]
 
-    nll[1, l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, model$alpha, model$Beta, N)
+    if (!is.null(model)) nll[1, l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, model$alpha, model$Beta, N)
 
   }
 

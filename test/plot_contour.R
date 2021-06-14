@@ -15,7 +15,7 @@ Beta = simulate_Beta(category_mappings$categories, p, nonzero, -0.5, 0.5)
 
 n = c(10, 1000)
 
-X_list = simulate_X_list(n, p)
+X_list = simulate_X_star_list(n, p)
 Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)
 Y_list_fine = lapply(Y_list, names)
 

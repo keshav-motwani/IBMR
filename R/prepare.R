@@ -8,3 +8,11 @@ create_Y_matrix = function(Y, categories, category_mapping) {
   return(Y)
 
 }
+
+create_fine_category_mappings = function(categories, K) {
+
+  names(categories) = categories
+
+  replicate(K, as.list(categories), simplify = FALSE)
+
+}

@@ -54,7 +54,7 @@ get_category_mapping = function(label_tree, label_levels) {
 }
 
 #' @export
-simulate_X = function(n, p, mean = 0, rho = 0.5) {
+simulate_X_star = function(n, p, mean = 0, rho = 0.5) {
 
   Sigma = matrix(nrow = p, ncol = p)
 
@@ -75,9 +75,9 @@ simulate_X = function(n, p, mean = 0, rho = 0.5) {
 }
 
 #' @export
-simulate_X_list = function(n_k, p, mean = 0, rho = 0.5) {
+simulate_X_star_list = function(n_k, p, mean = 0, rho = 0.5) {
 
-  lapply(n_k, simulate_X, p, mean, rho)
+  lapply(n_k, simulate_X_star, p, mean, rho)
 
 }
 

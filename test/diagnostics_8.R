@@ -16,11 +16,11 @@ nonzero = 10
 alpha = simulate_alpha(category_mappings$categories, 0.1, 0.5)
 Beta = simulate_Beta(category_mappings$categories, p, nonzero, -0.5, 0.5)
 
-X_list = simulate_X_list(rep(10000, length(label_levels_per_dataset)), p)
-Z_list = simulate_X_list(rep(10000, length(label_levels_per_dataset)), p)
+X_list = simulate_X_star_list(rep(10000, length(label_levels_per_dataset)), p)
+Z_list = simulate_X_star_list(rep(10000, length(label_levels_per_dataset)), p)
 Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)
 
-X_list_val = simulate_X_list(rep(10000, length(label_levels_per_dataset)), p)
+X_list_val = simulate_X_star_list(rep(10000, length(label_levels_per_dataset)), p)
 Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_list_val, alpha, Beta)
 
 system.time({fit = glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 20, lambda.min.ratio = 1e-3)})
@@ -34,7 +34,7 @@ val = compute_tuning_performance_no_Gamma(test, Y_list_val, category_mappings$ca
 
 which_min(val)
 
-test = IBMR(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, X_list, n_lambda = 10, n_rho = 30, lambda_min_ratio = 1e-3, rho_min_ratio = 1e-8, phi = 1e-3, Gamma_update = "gradient")
+test = IBMR(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, X_list, Gamma_update = "gradient")
 
 val = compute_tuning_performance(test, Y_list_val, category_mappings$categories, category_mappings$category_mappings, X_list_val)
 
