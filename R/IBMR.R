@@ -66,6 +66,8 @@ IBMR = function(Y_list,
       Beta_old = fit$Beta
       Gamma_list_old = fit$Gamma_list
 
+      fit$KKT_check = check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda_grid[r, l], rho_sequence[r], fit$alpha, fit$Beta, fit$Gamma_list)
+
       model_fits_lambda_sequence[[l]] = fit
 
     }
@@ -140,6 +142,8 @@ IBMR_no_Gamma = function(Y_list,
 
     alpha_old = fit$alpha
     Beta_old = fit$Beta
+
+    fit$KKT_check = check_KKT_IBMR_no_Gamma(Y_matrix_list, X_list, lambda_sequence[l], fit$alpha, fit$Beta)
 
     model_fits_lambda_sequence[[l]] = fit
 

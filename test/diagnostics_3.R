@@ -29,12 +29,16 @@ Y_matrix_list_fine = lapply(1:length(Y_list_fine), function(i) create_Y_matrix(Y
 system.time({fit3 = glmnet(do.call(rbind, X_list), unlist(Y_list_fine), family = "multinomial", alpha = 1, standardize = FALSE, intercept = TRUE, type.multinomial = "grouped")})
 test2 = as.matrix(do.call(cbind, coef(fit3, fit3$lambda[20]))[-1, ])
 
-system.time({test = fit_alpha_Beta(Y_matrix_list, X_list, X_list, fit3$lambda[20], 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4))$Beta})
-system.time({test_fine = fit_alpha_Beta(Y_matrix_list_fine, X_list, X_list, fit3$lambda[20], 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4))})
+system.time({test = fit_alpha_Beta(Y_matrix_list, X_list, X_list, fit3$lambda[20], 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4))})
+system.time({test_fine = fit_alpha_Beta(Y_matrix_list_fine, X_list, X_list, fit3$lambda[20], 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4))})
+
+check_KKT_IBMR_no_Gamma(Y_matrix_list, X_list, fit3$lambda[20], test$alpha, test$Beta)
+check_KKT_IBMR_no_Gamma(Y_matrix_list_fine, X_list, fit3$lambda[20], test_fine$alpha, test_fine$Beta)
 
 fit3$a0[, 20]
 test_fine$alpha
 
+test = test$Beta
 test_fine = test_fine$Beta
 
 par(mfrow = c(2, 2))
