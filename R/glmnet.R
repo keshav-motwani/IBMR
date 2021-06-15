@@ -6,7 +6,7 @@ fit_glmnet = function(Y_list,
                       X_list_validation,
                       n_lambda = 25,
                       lambda_min_ratio = 1e-4,
-                      n_alpha = 20) {
+                      n_alpha = 1) {
 
   names(categories) = categories
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, as.list(categories)))
