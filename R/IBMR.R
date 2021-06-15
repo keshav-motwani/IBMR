@@ -12,7 +12,7 @@ IBMR = function(Y_list,
                 n_rho = 20,
                 rho_min_ratio = 1e-8,
                 phi = 1e-3,
-                n_iter = 1000,
+                n_iter = 10000,
                 tolerance = 1e-12,
                 Gamma_update = "gradient") {
 
@@ -114,7 +114,7 @@ IBMR_no_Gamma = function(Y_list,
                          X_list_validation = NULL,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
-                         n_iter = 1000,
+                         n_iter = 10000,
                          tolerance = 1e-12) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
