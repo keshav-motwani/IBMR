@@ -13,7 +13,7 @@ IBMR = function(Y_list,
                 rho_min_ratio = 1e-8,
                 phi = 1e-3,
                 n_iter = 10000,
-                tolerance = 1e-12,
+                tolerance = 1e-8,
                 Gamma_update = "gradient") {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
@@ -115,7 +115,7 @@ IBMR_no_Gamma = function(Y_list,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
                          n_iter = 10000,
-                         tolerance = 1e-12) {
+                         tolerance = 1e-8) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Z_list = lapply(Y_list, function(Y) matrix(1, nrow = length(Y), ncol = 1))
