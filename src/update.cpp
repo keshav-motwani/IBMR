@@ -8,7 +8,7 @@
 arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const arma::field<arma::mat> & Gamma_list, double lambda, int N, double min_step_size) {
 
   bool line_search = true;
-  double step_size = min_step_size * 500;
+  double step_size = min_step_size * 2000;
   double shrinkage = 0.5;
 
   arma::mat Beta_new;
@@ -133,7 +133,7 @@ arma::field<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
     arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
 
     bool line_search = true;
-    double step_size = min_step_size(i) * 500;
+    double step_size = min_step_size(i) * 2000;
     double shrinkage = 0.5;
 
     arma::mat Gamma_new;
