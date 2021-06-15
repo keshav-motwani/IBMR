@@ -33,7 +33,7 @@ check_KKT_IBMR_no_Gamma = function(Y_matrix_list,
                                    alpha,
                                    Beta) {
 
-  Z_list = lapply(Y_list, function(Y) matrix(1, nrow = length(Y), ncol = 1))
+  Z_list = lapply(Y_matrix_list, function(Y) matrix(1, nrow = nrow(Y), ncol = 1))
   Gamma_list = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = ncol(Y_matrix_list[[1]])))
 
   N = sum(sapply(Y_matrix_list, nrow))
