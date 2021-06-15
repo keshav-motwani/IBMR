@@ -2,8 +2,8 @@
 fit_glmnet = function(Y_list,
                       categories,
                       X_list,
-                      Y_list_validation,
-                      X_list_validation,
+                      Y_list_validation = NULL,
+                      X_list_validation = NULL,
                       n_lambda = 25,
                       lambda_min_ratio = 1e-4,
                       n_alpha = 1) {
@@ -29,7 +29,7 @@ fit_glmnet = function(Y_list,
 
     print(a)
 
-    fit = glmnet::glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, alpha = alpha_seq[a], standardize = FALSE)
+    fit = glmnet::glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, alpha = alpha_seq[a], standardize = FALSE, maxit = 1e6, thresh = 1e-8)
 
     model_fits_lambda_seq = vector("list", n_lambda)
 
@@ -41,6 +41,7 @@ fit_glmnet = function(Y_list,
                     alpha_index = a)
 
       result$KKT_check = check_KKT_IBMR_no_Gamma(Y_matrix_list, X_list, fit$lambda[i], result$alpha, result$Beta)
+      print(result$KKT_check)
 
       model_fits_lambda_seq[[i]] = result
 

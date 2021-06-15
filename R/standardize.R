@@ -69,11 +69,13 @@ adjust_fit = function(fit, categories, features, X_mean, X_sd) {
 
   for (r in 1:fit$n_rho) {
     for (l in 1:fit$n_lambda) {
-      fit$model_fits[[r]][[l]]$alpha = adjust_alpha(fit$model_fits[[r]][[l]]$alpha, fit$model_fits[[r]][[l]]$Beta, X_mean, X_sd)
-      fit$model_fits[[r]][[l]]$Beta = adjust_Beta(fit$model_fits[[r]][[l]]$Beta, X_sd)
-      names(fit$model_fits[[r]][[l]]$alpha) = categories
-      colnames(fit$model_fits[[r]][[l]]$Beta) = categories
-      rownames(fit$model_fits[[r]][[l]]$Beta) = features
+      if (!is.null(fit$model_fits[[r]][[l]])) {
+        fit$model_fits[[r]][[l]]$alpha = adjust_alpha(fit$model_fits[[r]][[l]]$alpha, fit$model_fits[[r]][[l]]$Beta, X_mean, X_sd)
+        fit$model_fits[[r]][[l]]$Beta = adjust_Beta(fit$model_fits[[r]][[l]]$Beta, X_sd)
+        names(fit$model_fits[[r]][[l]]$alpha) = categories
+        colnames(fit$model_fits[[r]][[l]]$Beta) = categories
+        rownames(fit$model_fits[[r]][[l]]$Beta) = features
+      }
     }
   }
 
