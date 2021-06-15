@@ -29,7 +29,7 @@ fit_glmnet = function(Y_list,
 
     print(a)
 
-    fit = glmnet::glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, alpha = alpha_seq[a], standardize = FALSE, maxit = 1e6, thresh = 1e-8)
+    fit = glmnet::glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, alpha = alpha_seq[a], standardize = FALSE, maxit = 1e6, thresh = 1e-12)
 
     model_fits_lambda_seq = vector("list", n_lambda)
 
