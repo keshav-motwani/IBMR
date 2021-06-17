@@ -7,10 +7,10 @@ IBMR = function(Y_list,
                 Y_list_validation = NULL,
                 category_mappings_validation = NULL,
                 X_list_validation = NULL,
-                n_lambda = 25,
+                n_lambda = 30,
                 lambda_min_ratio = 1e-4,
-                n_rho = 20,
-                rho_min_ratio = 1e-8,
+                n_rho = 10,
+                rho_min_ratio = 1e-4,
                 phi = 1e-3,
                 n_iter = 10000,
                 tolerance = 1e-8,
@@ -58,7 +58,7 @@ IBMR = function(Y_list,
 
       print(c(r, l))
 
-      fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_grid[r, l], rho_sequence[r], n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
+      print(system.time({fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_grid[r, l], rho_sequence[r], n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)}))
       fit$lambda_index = l
       fit$rho_index = r
 
