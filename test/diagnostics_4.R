@@ -26,8 +26,8 @@ fine_category_mapping = category_mappings$categories
 names(fine_category_mapping) = fine_category_mapping
 Y_matrix_list_fine = lapply(1:length(Y_list_fine), function(i) create_Y_matrix(Y_list_fine[[i]], category_mappings$categories, as.list(fine_category_mapping)))
 
-system.time({test = fit_alpha_Beta_Gamma(Y_matrix_list, X_list, X_list, 0.01, 0.5, 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
-system.time({test_fine = fit_alpha_Beta_Gamma(Y_matrix_list_fine, X_list, X_list, 0.01, 0.5, 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test = fit_alpha_Beta_Gamma(Y_matrix_list, X_list, X_list, 0.01, 0.5, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test_fine = fit_alpha_Beta_Gamma(Y_matrix_list_fine, X_list, X_list, 0.01, 0.5, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
 
 all(diff(test$objective[test$objective != 0]) <= 0)
 all(diff(test_fine$objective[test_fine$objective != 0]) <= 0)
@@ -35,8 +35,8 @@ all(diff(test_fine$objective[test_fine$objective != 0]) <= 0)
 check_KKT_IBMR(Y_matrix_list, X_list, X_list, 0.01, 0.5, test$alpha, test$Beta, test$Gamma_list)
 check_KKT_IBMR(Y_matrix_list_fine, X_list, X_list, 0.01, 0.5, test_fine$alpha, test_fine$Beta, test_fine$Gamma_list)
 
-system.time({test_Newton = fit_alpha_Beta_Gamma_Newton(Y_matrix_list, X_list, X_list, 0.01, 0.5, 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
-system.time({test_fine_Newton = fit_alpha_Beta_Gamma_Newton(Y_matrix_list_fine, X_list, X_list, 0.01, 0.5, 1000, 1e-12, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test_Newton = fit_alpha_Beta_Gamma_Newton(Y_matrix_list, X_list, X_list, 0.01, 0.5, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
+system.time({test_fine_Newton = fit_alpha_Beta_Gamma_Newton(Y_matrix_list_fine, X_list, X_list, 0.01, 0.5, 1000, 1e-6, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
 
 all(diff(test_Newton$objective[test_Newton$objective != 0]) <= 0)
 all(diff(test_fine_Newton$objective[test_fine_Newton$objective != 0]) <= 0)
