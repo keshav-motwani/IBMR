@@ -31,6 +31,7 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
       //   Rcout << "Error Beta " << g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) << "\n";
       // }
     } else {
+      // Rcout << "Beta " << step_size / min_step_size << "\n";
       line_search = false;
     }
 
@@ -44,7 +45,7 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
 arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N, double min_step_size) {
 
   bool line_search = true;
-  double step_size = min_step_size * 10;
+  double step_size = min_step_size * 500;
   double shrinkage = 0.5;
 
   arma::colvec alpha_new;
@@ -63,6 +64,7 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
       //   Rcout << "Error alpha " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
       // }
     } else {
+      // Rcout << "alpha " << step_size / min_step_size << "\n";
       line_search = false;
     }
 
@@ -152,6 +154,7 @@ arma::field<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
         //   Rcout << "Error Gamma " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
         // }
       } else {
+        // Rcout << "Gamma " << step_size / min_step_size(i) << "\n";
         line_search = false;
       }
 
