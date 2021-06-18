@@ -70,7 +70,7 @@ List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_l
   int p = X0.ncol();
   int q = Y0.ncol();
 
-  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 100000;
+  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 10000;
   arma::colvec end_step_size_Gamma(K);
 
   arma::colvec alpha(q);
@@ -123,7 +123,7 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
   int q = Y0.ncol();
 
   double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
-  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 100000;
+  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 10000;
   double end_step_size_alpha;
   double end_step_size_Beta;
 
@@ -138,12 +138,12 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
   for (int i = 0; i < n_iter; i++) {
 
     std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list, N, start_step_size_alpha);
-    // Rcout << "alpha " << start_step_size_alpha / end_step_size_alpha << "\n";
+    if (i == 1) Rcout << "alpha " << start_step_size_alpha / end_step_size_alpha << "\n";
 
     // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
 
     std::tie(Beta_new, end_step_size_Beta) = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, N, start_step_size_Beta);
-    // Rcout << "Beta " << start_step_size_Beta / end_step_size_Beta << "\n";
+    if (i == 1) Rcout << "Beta " << start_step_size_Beta / end_step_size_Beta << "\n";
 
     objective(2 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list, lambda, 0, N);
 
@@ -307,7 +307,7 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
   int q = Y0.ncol();
 
   double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
-  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 100000;
+  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 10000;
   double end_step_size_alpha;
   arma::colvec end_step_size_Gamma(K);
 
@@ -363,7 +363,7 @@ List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list
   }
 
   double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
-  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 100000;
+  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 10000;
   double end_step_size_alpha;
   double end_step_size_Beta;
 
@@ -424,8 +424,8 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
   }
 
   double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
-  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 100000;
-  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 100000;
+  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 10000;
+  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 10000;
   double end_step_size_alpha;
   double end_step_size_Beta;
   arma::colvec end_step_size_Gamma(K);
