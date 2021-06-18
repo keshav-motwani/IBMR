@@ -118,19 +118,3 @@ compute_min_step_size_Gamma <- function(Y_matrix_list, Z_list, rho, N) {
     .Call(`_IBMR_compute_min_step_size_Gamma`, Y_matrix_list, Z_list, rho, N)
 }
 
-update_Beta <- function(Y_matrix_list, X_list, Z_list, alpha, Beta_old, Gamma_list, lambda, N, min_step_size) {
-    .Call(`_IBMR_update_Beta`, Y_matrix_list, X_list, Z_list, alpha, Beta_old, Gamma_list, lambda, N, min_step_size)
-}
-
-update_alpha <- function(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N, min_step_size) {
-    .Call(`_IBMR_update_alpha`, Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N, min_step_size)
-}
-
-update_Gamma_list_Newton <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N) {
-    .Call(`_IBMR_update_Gamma_list_Newton`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N)
-}
-
-update_Gamma_list <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N, min_step_size) {
-    .Call(`_IBMR_update_Gamma_list`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N, min_step_size)
-}
-

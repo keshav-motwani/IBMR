@@ -4,11 +4,10 @@
 #include "probabilities.h"
 #include "update.h"
 
-// [[Rcpp::export]]
-arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const arma::field<arma::mat> & Gamma_list, double lambda, int N, double min_step_size) {
+std::tuple<arma::mat, double> update_Beta(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta_old, const arma::field<arma::mat> & Gamma_list, double lambda, int N, double start_step_size) {
 
   bool line_search = true;
-  double step_size = min_step_size * 2000;
+  double step_size = start_step_size;
   double shrinkage = 0.5;
 
   arma::mat Beta_new;
@@ -31,25 +30,25 @@ arma::mat update_Beta(const List & Y_matrix_list, const List & X_list, const Lis
       //   Rcout << "Error Beta " << g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) << "\n";
       // }
     } else {
-      // Rcout << "Beta " << step_size / min_step_size << "\n";
+      // Rcout << "Beta " << start_step_size / step_size << "\n";
       line_search = false;
     }
 
   }
 
-  return Beta_new;
+  return std::make_tuple(Beta_new, step_size);
 
 }
 
-// [[Rcpp::export]]
-arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N, double min_step_size) {
+std::tuple<arma::vec, double> update_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha_old, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N, double start_step_size) {
 
   bool line_search = true;
-  double step_size = min_step_size * 500;
+  double step_size = start_step_size;
   double shrinkage = 0.5;
 
   arma::colvec alpha_new;
   arma::colvec gradient = compute_gradient_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N);
+  double gradient_norm = arma::accu(arma::pow(gradient, 2));
   double g_old = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N);
 
   while(line_search) {
@@ -57,14 +56,14 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
     alpha_new = alpha_old - step_size * gradient;
     double g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list, N);
 
-    if (g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) > 1e-12) {
+    if (g_new - (g_old - 0.5 * step_size * gradient_norm) > 1e-12) {
       step_size = shrinkage * step_size;
       // Rcout << "Shrunk alpha " << step_size << "\n";
       // if (step_size < shrinkage * min_step_size) {
       //   Rcout << "Error alpha " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
       // }
     } else {
-      // Rcout << "alpha " << step_size / min_step_size << "\n";
+      // Rcout << "alpha " << start_step_size / step_size << "\n";
       line_search = false;
     }
 
@@ -72,11 +71,10 @@ arma::vec update_alpha(const List & Y_matrix_list, const List & X_list, const Li
 
   // Rcout << "step_size: " << step_size << "\n";
 
-  return alpha_new;
+  return std::make_tuple(alpha_new, step_size);
 
 }
 
-// [[Rcpp::export]]
 arma::field<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list_old, double rho, int N) {
 
   R_xlen_t K = Y_matrix_list.size();
@@ -116,12 +114,13 @@ arma::field<arma::mat> update_Gamma_list_Newton(const List & Y_matrix_list, cons
 
 }
 
-// [[Rcpp::export]]
-arma::field<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list_old, double rho, int N, arma::colvec min_step_size) {
+std::tuple<arma::field<arma::mat>, arma::colvec> update_Gamma_list(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list_old, double rho, int N, arma::colvec start_step_size) {
 
   R_xlen_t K = Y_matrix_list.size();
 
   arma::field<arma::mat> Gamma_list_new(K);
+
+  arma::colvec end_step_size(K);
 
   for (R_xlen_t i = 0; i < K; i++) {
 
@@ -135,11 +134,12 @@ arma::field<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
     arma::mat Z_(Z.begin(), Z.nrow(), Z.ncol(), false);
 
     bool line_search = true;
-    double step_size = min_step_size(i) * 2000;
+    double step_size = start_step_size(i);
     double shrinkage = 0.5;
 
     arma::mat Gamma_new;
     arma::mat gradient = compute_gradient_Gamma(Y_, X_, Z_, alpha, Beta, Gamma_old, rho, N);
+    double gradient_norm = arma::accu(arma::pow(gradient, 2));
     double g_old = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_old, N) + rho * arma::accu(arma::square(Gamma_old)) / 2;
 
     while(line_search) {
@@ -147,23 +147,24 @@ arma::field<arma::mat> update_Gamma_list(const List & Y_matrix_list, const List 
       Gamma_new = Gamma_old - step_size * gradient;
       double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N) + rho * arma::accu(arma::square(Gamma_new)) / 2;
 
-      if (g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) > 1e-12) {
+      if (g_new - (g_old - 0.5 * step_size * gradient_norm) > 1e-12) {
         step_size = shrinkage * step_size;
         // Rcout << "Shrunk Gamma " << step_size << "\n";
         // if (step_size < shrinkage * min_step_size(i)) {
         //   Rcout << "Error Gamma " << g_new - (g_old - 0.5 * step_size * arma::accu(arma::pow(gradient, 2))) << "\n";
         // }
       } else {
-        // Rcout << "Gamma " << step_size / min_step_size(i) << "\n";
+        // Rcout << "Gamma " << start_step_size(i) / step_size << "\n";
         line_search = false;
       }
 
     }
 
     Gamma_list_new(i) = Gamma_new;
+    end_step_size(i) = step_size;
 
   }
 
-  return Gamma_list_new;
+  return std::make_tuple(Gamma_list_new, end_step_size);
 
 }

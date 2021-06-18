@@ -70,7 +70,8 @@ List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_l
   int p = X0.ncol();
   int q = Y0.ncol();
 
-  arma::colvec min_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N);
+  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 100000;
+  arma::colvec end_step_size_Gamma(K);
 
   arma::colvec alpha(q);
   alpha.zeros();
@@ -82,7 +83,7 @@ List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_l
 
   for (int i = 0; i < n_iter; i++) {
 
-    Gamma_list_new = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N, min_step_size_Gamma);
+    std::tie(Gamma_list_new, end_step_size_Gamma) = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_old, rho, N, start_step_size_Gamma);
 
     objective(i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list_new, 0, rho, N);
 
@@ -93,6 +94,7 @@ List fit_Gamma(const List & Y_matrix_list, const List & X_list, const List & Z_l
     }
 
     Gamma_list_old = Gamma_list_new;
+    start_step_size_Gamma = end_step_size_Gamma * 2;
 
   }
 
@@ -120,8 +122,10 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
   int r = Z0.ncol();
   int q = Y0.ncol();
 
-  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
-  double min_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N);
+  double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
+  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 100000;
+  double end_step_size_alpha;
+  double end_step_size_Beta;
 
   arma::field<arma::mat> Gamma_list(K);
   for (R_xlen_t i = 0; i < K; i++) {
@@ -133,11 +137,13 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
 
   for (int i = 0; i < n_iter; i++) {
 
-    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list, N, min_step_size_alpha);
+    std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list, N, start_step_size_alpha);
+    // Rcout << "alpha " << start_step_size_alpha / end_step_size_alpha << "\n";
 
     // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
 
-    Beta_new = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, N, min_step_size_Beta);
+    std::tie(Beta_new, end_step_size_Beta) = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, N, start_step_size_Beta);
+    // Rcout << "Beta " << start_step_size_Beta / end_step_size_Beta << "\n";
 
     objective(2 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list, lambda, 0, N);
 
@@ -150,6 +156,8 @@ List fit_alpha_Beta(const List & Y_matrix_list, const List & X_list, const List 
 
     alpha_old = alpha_new;
     Beta_old = Beta_new;
+    start_step_size_alpha = end_step_size_alpha * 2;
+    start_step_size_Beta = end_step_size_Beta * 2;
 
   }
 
@@ -181,7 +189,8 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
   int r = Z0.ncol();
   int q = Y0.ncol();
 
-  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
+  double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
+  double end_step_size_alpha;
 
   arma::mat Beta(p, q);
   Beta.zeros();
@@ -195,7 +204,7 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
 
   for (int i = 0; i < n_iter; i++) {
 
-    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N, min_step_size_alpha);
+    std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N, start_step_size_alpha);
 
     objective(i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list, 0, 0, N);
 
@@ -206,6 +215,7 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
     }
 
     alpha_old = alpha_new;
+    start_step_size_alpha = end_step_size_alpha * 2;
 
   }
 
@@ -236,7 +246,8 @@ List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, con
   int r = Z0.ncol();
   int q = Y0.ncol();
 
-  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
+  double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
+  double end_step_size_alpha;
 
   arma::mat Beta(p, q);
   Beta.zeros();
@@ -246,7 +257,7 @@ List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, con
 
   for (int i = 0; i < n_iter; i++) {
 
-    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, min_step_size_alpha);
+    std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, start_step_size_alpha);
 
     // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
 
@@ -263,6 +274,7 @@ List fit_alpha_Gamma_Newton(const List & Y_matrix_list, const List & X_list, con
 
     alpha_old = alpha_new;
     Gamma_list_old = Gamma_list_new;
+    start_step_size_alpha = end_step_size_alpha * 2;
 
   }
 
@@ -294,8 +306,10 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
   int r = Z0.ncol();
   int q = Y0.ncol();
 
-  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
-  arma::colvec min_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N);
+  double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
+  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 100000;
+  double end_step_size_alpha;
+  arma::colvec end_step_size_Gamma(K);
 
   arma::mat Beta(p, q);
   Beta.zeros();
@@ -305,11 +319,11 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
 
   for (int i = 0; i < n_iter; i++) {
 
-    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, min_step_size_alpha);
+    std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, start_step_size_alpha);
 
     // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
 
-    Gamma_list_new = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_old, rho, N, min_step_size_Gamma);
+    std::tie(Gamma_list_new, end_step_size_Gamma) = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_old, rho, N, start_step_size_Gamma);
 
     objective(2 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_new, 0, rho, N);
 
@@ -322,6 +336,8 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
 
     alpha_old = alpha_new;
     Gamma_list_old = Gamma_list_new;
+    start_step_size_alpha = end_step_size_alpha * 2;
+    start_step_size_Gamma = end_step_size_Gamma * 2;
 
   }
 
@@ -346,8 +362,10 @@ List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list
     N += Y.nrow();
   }
 
-  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
-  double min_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N);
+  double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
+  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 100000;
+  double end_step_size_alpha;
+  double end_step_size_Beta;
 
   arma::colvec alpha_new = alpha_old;
   arma::mat Beta_new = Beta_old;
@@ -355,11 +373,11 @@ List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list
 
   for (int i = 0; i < n_iter; i++) {
 
-    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list_old, N, min_step_size_alpha);
+    std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list_old, N, start_step_size_alpha);
 
     // objective(3 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, rho, N);
 
-    Beta_new = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, N, min_step_size_Beta);
+    std::tie(Beta_new, end_step_size_Beta) = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, N, start_step_size_Beta);
 
     // objective(3 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, lambda, rho, N);
 
@@ -378,6 +396,8 @@ List fit_alpha_Beta_Gamma_Newton(const List & Y_matrix_list, const List & X_list
     alpha_old = alpha_new;
     Beta_old = Beta_new;
     Gamma_list_old = Gamma_list_new;
+    start_step_size_alpha = end_step_size_alpha * 2;
+    start_step_size_Beta = end_step_size_Beta * 2;
 
   }
 
@@ -403,9 +423,12 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
     N += Y.nrow();
   }
 
-  double min_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list);
-  double min_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N);
-  arma::colvec min_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N);
+  double start_step_size_alpha = compute_min_step_size_alpha(Y_matrix_list) * 10000;
+  double start_step_size_Beta = compute_min_step_size_Beta(Y_matrix_list, X_list, N) * 100000;
+  arma::colvec start_step_size_Gamma = compute_min_step_size_Gamma(Y_matrix_list, Z_list, rho, N) * 100000;
+  double end_step_size_alpha;
+  double end_step_size_Beta;
+  arma::colvec end_step_size_Gamma(K);
 
   arma::colvec alpha_new = alpha_old;
   arma::mat Beta_new = Beta_old;
@@ -413,15 +436,18 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
 
   for (int i = 0; i < n_iter; i++) {
 
-    alpha_new = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list_old, N, min_step_size_alpha);
+    std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta_old, Gamma_list_old, N, start_step_size_alpha);
+    if (i == 0) Rcout << "alpha " << start_step_size_alpha / end_step_size_alpha << "\n";
 
     // objective(3 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, rho, N);
 
-    Beta_new = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, N, min_step_size_Beta);
+    std::tie(Beta_new, end_step_size_Beta) = update_Beta(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list_old, lambda, N, start_step_size_Beta);
+    if (i == 0) Rcout << "Beta " << start_step_size_Beta / end_step_size_Beta << "\n";
 
     // objective(3 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, lambda, rho, N);
 
-    Gamma_list_new = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, rho, N, min_step_size_Gamma);
+    std::tie(Gamma_list_new, end_step_size_Gamma) = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_old, rho, N, start_step_size_Gamma);
+    if (i == 0) Rcout << "Gamma " << start_step_size_Gamma / end_step_size_Gamma << "\n";
 
     objective(3 * i + 2) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_new, Gamma_list_new, lambda, rho, N);
 
@@ -436,6 +462,9 @@ List fit_alpha_Beta_Gamma(const List & Y_matrix_list, const List & X_list, const
     alpha_old = alpha_new;
     Beta_old = Beta_new;
     Gamma_list_old = Gamma_list_new;
+    start_step_size_alpha = end_step_size_alpha * 2;
+    start_step_size_Beta = end_step_size_Beta * 2;
+    start_step_size_Gamma = end_step_size_Gamma * 2;
 
   }
 
