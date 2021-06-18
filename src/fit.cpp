@@ -205,6 +205,7 @@ List fit_alpha(const List & Y_matrix_list, const List & X_list, const List & Z_l
   for (int i = 0; i < n_iter; i++) {
 
     std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list, N, start_step_size_alpha);
+    if (i == 0) Rcout << "alpha " << start_step_size_alpha / end_step_size_alpha << "\n";
 
     objective(i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list, 0, 0, N);
 
@@ -320,10 +321,12 @@ List fit_alpha_Gamma(const List & Y_matrix_list, const List & X_list, const List
   for (int i = 0; i < n_iter; i++) {
 
     std::tie(alpha_new, end_step_size_alpha) = update_alpha(Y_matrix_list, X_list, Z_list, alpha_old, Beta, Gamma_list_old, N, start_step_size_alpha);
+    if (i == 0) Rcout << "alpha " << start_step_size_alpha / end_step_size_alpha << "\n";
 
     // objective(2 * i) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta_old, Gamma_list, lambda, 0, N);
 
     std::tie(Gamma_list_new, end_step_size_Gamma) = update_Gamma_list(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_old, rho, N, start_step_size_Gamma);
+    if (i == 0) Rcout << "Gamma " << start_step_size_Gamma / end_step_size_Gamma << "\n";
 
     objective(2 * i + 1) = compute_objective_function(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list_new, 0, rho, N);
 

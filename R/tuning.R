@@ -30,6 +30,8 @@ compute_lambda_grid = function(Y_matrix_list, X_list, Z_list, rho_sequence, n_la
 
   for (r in 1:length(rho_sequence)) {
 
+    print(r)
+
     if (r == 1) {
       alpha_old = rep(0, ncol(Y_matrix_list[[1]]))
       Gamma_list_old = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = ncol(Y_matrix_list[[1]])))
