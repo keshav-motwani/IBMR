@@ -16,11 +16,11 @@ compute_rho_sequence = function(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ra
 
   rho = max(rho)
 
-  return(log_seq(rho, rho_min_ratio * rho, n_rho))
+  return(list(sequence = log_seq(rho, rho_min_ratio * rho, n_rho), fitted_alpha = alpha))
 
 }
 
-compute_lambda_grid = function(Y_matrix_list, X_list, Z_list, rho_sequence, n_lambda, lambda_min_ratio, n_iter, tolerance) {
+compute_lambda_grid = function(Y_matrix_list, X_list, Z_list, rho_sequence, n_lambda, lambda_min_ratio, n_iter, tolerance, alpha_old) {
 
   lambda_grid = matrix(nrow = length(rho_sequence), ncol = n_lambda)
 
@@ -28,16 +28,16 @@ compute_lambda_grid = function(Y_matrix_list, X_list, Z_list, rho_sequence, n_la
 
   N = sum(sapply(X_list, nrow))
 
+  fitted_alpha = vector("list", length(rho_sequence))
+  fitted_Gamma_list = vector("list", length(rho_sequence))
+
+  Gamma_list_old = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = ncol(Y_matrix_list[[1]])))
+
   for (r in 1:length(rho_sequence)) {
 
     print(r)
 
-    if (r == 1) {
-      alpha_old = rep(0, ncol(Y_matrix_list[[1]]))
-      Gamma_list_old = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = ncol(Y_matrix_list[[1]])))
-    }
-
-    alpha_Gamma = fit_alpha_Gamma(Y_matrix_list, X_list, Z_list, rho_sequence[r], n_iter, tolerance, alpha_old, Gamma_list_old)
+    print(system.time({alpha_Gamma = fit_alpha_Gamma(Y_matrix_list, X_list, Z_list, rho_sequence[r], n_iter, tolerance, alpha_old, Gamma_list_old)}))
 
     gradient = compute_gradient_Beta(Y_matrix_list, X_list, Z_list, alpha_Gamma$alpha, Beta, alpha_Gamma$Gamma_list, N)
 
@@ -45,12 +45,15 @@ compute_lambda_grid = function(Y_matrix_list, X_list, Z_list, rho_sequence, n_la
 
     lambda_grid[r, ] = log_seq(lambda_max, lambda_min_ratio * lambda_max, n_lambda)
 
+    fitted_alpha[[r]] = alpha_Gamma$alpha
+    fitted_Gamma_list[[r]] = alpha_Gamma$Gamma_list
+
     alpha_old = alpha_Gamma$alpha
     Gamma_list_old = alpha_Gamma$Gamma_list
 
   }
 
-  return(lambda_grid)
+  return(list(grid = lambda_grid, fitted_alpha = fitted_alpha, fitted_Gamma_list = fitted_Gamma_list))
 
 }
 
@@ -67,7 +70,7 @@ compute_lambda_sequence_no_Gamma = function(Y_matrix_list, X_list, Z_list, n_lam
 
   lambda_max = max(apply(gradient, 1, function(x) sqrt(sum(x ^ 2))))
 
-  return(log_seq(lambda_max, lambda_min_ratio * lambda_max, n_lambda))
+  return(list(sequence = log_seq(lambda_max, lambda_min_ratio * lambda_max, n_lambda), fitted_alpha = alpha))
 
 }
 

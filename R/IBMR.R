@@ -29,7 +29,13 @@ IBMR = function(Y_list,
   features = colnames(X_list[[1]])
 
   rho_sequence = compute_rho_sequence(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, phi, n_iter, tolerance)
-  lambda_grid = compute_lambda_grid(Y_matrix_list, X_list, Z_list, rho_sequence, n_lambda, lambda_min_ratio, n_iter, tolerance)
+  fitted_alpha_no_Beta_no_Gamma = rho_sequence$fitted_alpha
+  rho_sequence = rho_sequence$sequence
+
+  lambda_grid = compute_lambda_grid(Y_matrix_list, X_list, Z_list, rho_sequence, n_lambda, lambda_min_ratio, n_iter, tolerance, fitted_alpha_no_Beta_no_Gamma)
+  fitted_alpha_no_Beta = lambda_grid$fitted_alpha
+  fitted_Gamma_no_Beta = lambda_grid$fitted_Gamma_list
+  lambda_grid = lambda_grid$grid
 
   if (Gamma_update == "Newton") {
     fit_function = fit_alpha_Beta_Gamma_Newton
@@ -43,16 +49,9 @@ IBMR = function(Y_list,
 
     model_fits_lambda_sequence = vector("list", n_lambda)
 
-    if (r == 1) {
-      alpha_old = rep(0, length(categories))
-      Beta_old = matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories))
-      Gamma_list_old = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = length(categories)))
-    } else {
-      model_old = model_fits[[r - 1]][[1]]
-      alpha_old = model_old$alpha
-      Beta_old = model_old$Beta
-      Gamma_list_old = model_old$Gamma_list
-    }
+    alpha_old = fitted_alpha_no_Beta[[r]]
+    Beta_old = matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories))
+    Gamma_list_old = fitted_Gamma_no_Beta[[r]]
 
     for (l in 1:n_lambda) {
 
@@ -127,12 +126,13 @@ IBMR_no_Gamma = function(Y_list,
   features = colnames(X_list[[1]])
 
   lambda_sequence = compute_lambda_sequence_no_Gamma(Y_matrix_list, X_list, Z_list, n_lambda, lambda_min_ratio, n_iter, tolerance)
+  fitted_alpha_no_Beta = lambda_sequence$fitted_alpha
+  lambda_sequence = lambda_sequence$sequence
 
   model_fits_lambda_sequence = vector("list", n_lambda)
 
-  alpha_old = rep(0, length(categories))
+  alpha_old = fitted_alpha_no_Beta
   Beta_old = matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories))
-  Gamma_list_old = lapply(Z_list, function(x) matrix(0, nrow = ncol(x), ncol = length(categories)))
 
   for (l in 1:n_lambda) {
 
