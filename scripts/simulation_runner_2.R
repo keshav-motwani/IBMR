@@ -2,6 +2,14 @@ library(IBMR)
 
 source("scripts/simulation_setup.R")
 
+simulate_X_star_list = function(n_k, p, mean = 0, rho = 0.5) {
+
+  X = simulate_X_star(sum(n_k), p, mean, rho)
+
+  lapply(split(X, rep(1:length(n_k), n_k)), matrix, ncol = p)
+
+}
+
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 RESULT_PATH = "results/simulations_2"
 dir.create(RESULT_PATH, recursive = TRUE)
