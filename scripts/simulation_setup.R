@@ -4,6 +4,7 @@ generate_simulation_data_fine_clean = function(q,
                                                p,
                                                nonzero,
                                                b,
+                                               r,
                                                replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
@@ -24,7 +25,7 @@ generate_simulation_data_fine_clean = function(q,
   X_star_list = simulate_X_star_list(rep(N / K, K), p)
   Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
   X_list = X_star_list
-  Z_list = compute_pca_for_Z_list(X_list, 50, TRUE)
+  Z_list = compute_pca_for_Z_list(X_list, r, TRUE)
 
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)

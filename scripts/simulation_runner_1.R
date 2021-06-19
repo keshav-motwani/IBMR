@@ -12,7 +12,8 @@ defaults = list(
   K = 4,
   p = 500,
   nonzero = 75,
-  b = 2
+  b = 2,
+  r = 50
 )
 
 considered_values = list(
