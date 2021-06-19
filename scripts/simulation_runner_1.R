@@ -2,7 +2,7 @@ library(IBMR)
 
 source("scripts/simulation_setup.R")
 
-ARRAY_ID = 1 # as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
+ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 RESULT_PATH = "results/simulations_1"
 dir.create(RESULT_PATH, recursive = TRUE)
 
