@@ -311,6 +311,24 @@ fit_IBMR = function(data) {
 
 }
 
+fit_IBMR_common_Gamma = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_list,
+    data$train$Z_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list,
+    common_Gamma = TRUE
+  )
+
+  return(prepare_output_IBMR(fit))
+
+}
+
 fit_IBMR_no_Gamma = function(data) {
 
   fit = IBMR_no_Gamma(
