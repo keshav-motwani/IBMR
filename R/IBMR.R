@@ -14,9 +14,18 @@ IBMR = function(Y_list,
                 phi = 1e-3,
                 n_iter = 10000,
                 tolerance = 1e-8,
-                Gamma_update = "gradient") {
+                Gamma_update = "gradient",
+                common_Gamma = FALSE) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
+
+  features = colnames(X_list[[1]])
+
+  if (common_Gamma) {
+    Y_matrix_list = list(do.call(rbind, Y_matrix_list))
+    X_list = list(do.call(rbind, X_list))
+    Z_list = list(do.call(rbind, Z_list))
+  }
 
   X_list = standardize_X(X_list)
   X_mean = attr(X_list, "mean")
@@ -25,8 +34,6 @@ IBMR = function(Y_list,
   Z_list = standardize_Z(Z_list)
   Z_mean = attr(Z_list, "mean")
   Z_sd = attr(Z_list, "sd")
-
-  features = colnames(X_list[[1]])
 
   rho_sequence = compute_rho_sequence(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, phi, n_iter, tolerance)
   fitted_alpha_no_Beta_no_Gamma = rho_sequence$fitted_alpha
