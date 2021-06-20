@@ -31,7 +31,7 @@ IBMR = function(Y_list,
   X_mean = attr(X_list, "mean")
   X_sd = attr(X_list, "sd")
 
-  Z_list = standardize_Z(Z_list)
+  Z_list = standardize_X(Z_list)
   Z_mean = attr(Z_list, "mean")
   Z_sd = attr(Z_list, "sd")
 

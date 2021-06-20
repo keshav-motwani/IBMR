@@ -6,6 +6,9 @@ standardize_X = function(X_list) {
   means = colMeans(X)
   vars = matrixStats::colVars(as.matrix(X)) * (nrow(X) - 1) / nrow(X)
 
+  means[vars == 0] = 0
+  vars[vars == 0] = 1
+
   X = X - tcrossprod(rep(1, nrow(X)), means)
   X = X %*% diag(1 / sqrt(vars))
   colnames(X) = colnames(X_list[[1]])
