@@ -77,7 +77,9 @@ simulate_X_star = function(n, p, mean = 0, rho = 0.5) {
 #' @export
 simulate_X_star_list = function(n_k, p, mean = 0, rho = 0.5) {
 
-  lapply(n_k, simulate_X_star, p, mean, rho)
+  X = simulate_X_star(sum(n_k), p, mean, rho)
+
+  lapply(split(X, rep(1:length(n_k), n_k)), matrix, ncol = p)
 
 }
 

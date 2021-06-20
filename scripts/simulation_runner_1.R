@@ -3,7 +3,7 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/simulations_1"
+RESULT_PATH = "results/simulations_1_210619"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 defaults = list(
@@ -18,7 +18,7 @@ defaults = list(
 
 considered_values = list(
   # q = c(2, 4, 8, 16, 32),
-  # K = c(1, 2, 4, 8, 16),
+  K = c(1, 2, 4, 8, 16),
   nonzero = c(20, 50, 75, 100, 125) #,
   # b = c(0.25, 0.5, 1, 1.5, 2)
 )
