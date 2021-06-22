@@ -84,6 +84,40 @@ simulate_X_star_list = function(n_k, p, mean = 0, rho = 0.5) {
 }
 
 #' @export
+simulate_U = function(X_star, rank, batch_effect) {
+
+  n = nrow(X_star)
+  p = ncol(X_star)
+
+  U = matrix(rnorm(n * rank), ncol = rank) %*% matrix(rnorm(rank * p), nrow = rank)
+
+  c = batch_effect * norm(X_star, "F") / norm(U, "F")
+
+  U = c * U
+
+  print(norm(U, "F") / norm(X_star, "F"))
+
+  return(U)
+
+}
+
+#' @export
+simulate_U_list = function(X_star_list, rank, batch_effect) {
+
+  U_list = lapply(X_star_list, simulate_U, rank = rank, batch_effect = batch_effect)
+
+  return(U_list)
+
+}
+
+#' @export
+compute_X_list = function(X_star_list, U_list) {
+
+  mapply(`+`, X_star_list, U_list, SIMPLIFY = FALSE)
+
+}
+
+#' @export
 simulate_alpha = function(categories, lower = -2, upper = 2) {
 
   alpha = runif(length(categories), lower, upper)

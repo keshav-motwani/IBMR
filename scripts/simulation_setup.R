@@ -1,11 +1,13 @@
-generate_simulation_data_fine_clean = function(q,
-                                               N,
-                                               K,
-                                               p,
-                                               nonzero,
-                                               b,
-                                               r,
-                                               replicate) {
+generate_simulation_data_fine = function(q,
+                                         N,
+                                         K,
+                                         p,
+                                         nonzero,
+                                         b,
+                                         r,
+                                         rank,
+                                         batch_effect,
+                                         replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
@@ -24,12 +26,16 @@ generate_simulation_data_fine_clean = function(q,
 
   X_star_list = simulate_X_star_list(rep(N / K, K), p)
   Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
-  X_list = X_star_list
+  U_list = simulate_U_list(X_star_list, rank, batch_effect)
+  X_list = compute_X_list(X_star_list, U_list)
   Z_list = compute_pca_for_Z_list(X_list, r, TRUE)
+  Z_list_int = compute_pca_for_Z_list(X_list, 0, TRUE)
+  Z_star_list = compute_pca_for_Z_list(X_star_list, r, TRUE)
 
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
-  X_list_val = X_star_list_val
+  U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
+  X_list_val = compute_X_list(X_star_list_val, U_list_val)
 
   X_star_list_test = simulate_X_star_list(N, p)
   Y_list_test = simulate_Y_list(category_mappings_fine$categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
@@ -37,6 +43,8 @@ generate_simulation_data_fine_clean = function(q,
   output = list(train = list(X_list = X_list,
                              X_star_list = X_star_list,
                              Z_list = Z_list,
+                             Z_list_int = Z_list_int,
+                             Z_star_list = Z_star_list,
                              Y_list = Y_list,
                              Y_list_fine = get_fine_categories(Y_list),
                              category_mappings = category_mappings,
@@ -124,7 +132,7 @@ evaluate_parameters = function(parameters, simulation_function) {
                                                           data$test$X_star_list,
                                                           data$test$category_mappings_fine$categories)
 
-    if (length(fits) > 1) parameters$method = names(fits)[i]
+    if (length(fits) > 1) parameters$method = paste0(parameters$method, "_", names(fits)[i])
 
     results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit)
 
@@ -312,6 +320,57 @@ fit_IBMR = function(data) {
 
 }
 
+fit_IBMR_int = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_list,
+    data$train$Z_list_int,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list
+  )
+
+  return(prepare_output_IBMR(fit))
+
+}
+
+fit_IBMR_ORC_clean = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$train$Z_star_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list
+  )
+
+  return(prepare_output_IBMR(fit))
+
+}
+
+fit_IBMR_int_ORC_clean = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$train$Z_list_int,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list
+  )
+
+  return(prepare_output_IBMR(fit))
+
+}
+
 fit_IBMR_common_Gamma = function(data) {
 
   fit = IBMR(
@@ -330,6 +389,24 @@ fit_IBMR_common_Gamma = function(data) {
 
 }
 
+fit_IBMR_common_Gamma_ORC_clean = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$train$Z_star_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list,
+    common_Gamma = TRUE
+  )
+
+  return(prepare_output_IBMR(fit))
+
+}
+
 fit_IBMR_no_Gamma = function(data) {
 
   fit = IBMR_no_Gamma(
@@ -340,6 +417,22 @@ fit_IBMR_no_Gamma = function(data) {
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list
+  )
+
+  return(prepare_output_IBMR_no_Gamma(fit))
+
+}
+
+fit_IBMR_no_Gamma_ORC_clean = function(data) {
+
+  fit = IBMR_no_Gamma(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list
   )
 
   return(prepare_output_IBMR_no_Gamma(fit))
