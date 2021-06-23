@@ -37,8 +37,8 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma",
-            "group_lasso")
+methods = c("IBMR", "IBMR_common_Gamma", "IBMR_int", "IBMR_no_Gamma",
+            "IBMR_ORC_clean", "IBMR_common_Gamma_ORC_clean", "IBMR_int_ORC_clean", "IBMR_no_Gamma_ORC_clean")
 
 summary = result %>%
   pivot_longer(Beta_SSE:best_case_error, names_repair = "minimal", values_to = "result") %>%
