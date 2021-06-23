@@ -26,19 +26,22 @@ generate_simulation_data_fine = function(q,
 
   X_star_list = simulate_X_star_list(rep(N / K, K), p)
   Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
-  U_list = simulate_U_list(X_star_list, rank, batch_effect)
-  X_list = compute_X_list(X_star_list, U_list)
-  Z_list = compute_pca_for_Z_list(X_list, r, TRUE)
-  Z_list_int = compute_pca_for_Z_list(X_list, 0, TRUE)
-  Z_star_list = compute_pca_for_Z_list(X_star_list, r, TRUE)
 
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
-  U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
-  X_list_val = compute_X_list(X_star_list_val, U_list_val)
 
   X_star_list_test = simulate_X_star_list(N, p)
   Y_list_test = simulate_Y_list(category_mappings_fine$categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
+
+  U_list = simulate_U_list(X_star_list, rank, batch_effect)
+  X_list = compute_X_list(X_star_list, U_list)
+
+  U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
+  X_list_val = compute_X_list(X_star_list_val, U_list_val)
+
+  Z_list = compute_pca_for_Z_list(X_list, r, TRUE)
+  Z_list_int = compute_pca_for_Z_list(X_list, 0, TRUE)
+  Z_star_list = compute_pca_for_Z_list(X_star_list, r, TRUE)
 
   output = list(train = list(X_list = X_list,
                              X_star_list = X_star_list,
