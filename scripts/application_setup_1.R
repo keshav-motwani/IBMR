@@ -150,7 +150,7 @@ compute_performance = function(fit, data) {
   alpha_hat = fit$best_model$alpha
   Beta_hat = fit$best_model$Beta
 
-  Y_matrix_list_test = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list_test[[i]], categories, category_mappings_test[[i]]))
+  Y_matrix_list_test = lapply(1:length(Y_list_test), function(i) create_Y_matrix(Y_list_test[[i]], categories, category_mappings_test[[i]]))
 
   nll = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_test, X_list_test, alpha_hat, Beta_hat, sum(sapply(Y_matrix_list_test, nrow)))
 
