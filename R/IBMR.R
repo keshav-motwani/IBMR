@@ -15,7 +15,8 @@ IBMR = function(Y_list,
                 n_iter = 10000,
                 tolerance = 1e-8,
                 Gamma_update = "gradient",
-                common_Gamma = FALSE) {
+                common_Gamma = FALSE,
+                n_cores = 1) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
 
@@ -50,38 +51,21 @@ IBMR = function(Y_list,
     fit_function = fit_alpha_Beta_Gamma
   }
 
-  model_fits = vector("list", n_rho)
-
-  for (r in 1:n_rho) {
-
-    model_fits_lambda_sequence = vector("list", n_lambda)
-
-    alpha_old = fitted_alpha_no_Beta[[r]]
-    Beta_old = matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories))
-    Gamma_list_old = fitted_Gamma_no_Beta[[r]]
-
-    for (l in 1:n_lambda) {
-
-      print(c(r, l))
-
-      print(system.time({fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_grid[r, l], rho_sequence[r], n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)}))
-      fit$lambda_index = l
-      fit$rho_index = r
-
-      alpha_old = fit$alpha
-      Beta_old = fit$Beta
-      Gamma_list_old = fit$Gamma_list
-
-      fit$KKT_check = check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda_grid[r, l], rho_sequence[r], fit$alpha, fit$Beta, fit$Gamma_list)
-      print(fit$KKT_check)
-
-      model_fits_lambda_sequence[[l]] = fit
-
-    }
-
-    model_fits[[r]] = model_fits_lambda_sequence
-
-  }
+  model_fits = parallel::mclapply(1:n_rho, function(r)
+    fit_lambda_sequence_fixed_rho(
+      Y_matrix_list,
+      X_list,
+      Z_list,
+      lambda_grid[r,],
+      rho_sequence[r],
+      n_iter,
+      tolerance,
+      fitted_alpha_no_Beta[[r]],
+      matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories)),
+      fitted_Gamma_no_Beta[[r]],
+      r,
+      fit_function
+    ), mc.cores = n_cores)
 
   fit = list(model_fits = model_fits,
              n_lambda = n_lambda,
@@ -107,6 +91,46 @@ IBMR = function(Y_list,
   }
 
   return(fit)
+
+}
+
+fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
+                                         X_list,
+                                         Z_list,
+                                         lambda_sequence,
+                                         rho,
+                                         n_iter,
+                                         tolerance,
+                                         alpha_old,
+                                         Beta_old,
+                                         Gamma_list_old,
+                                         rho_index,
+                                         fit_function) {
+
+  n_lambda = length(lambda_sequence)
+
+  model_fits_lambda_sequence = vector("list", n_lambda)
+
+  for (l in 1:n_lambda) {
+
+    print(c(rho_index, l))
+
+    print(system.time({fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_sequence[l], rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)}))
+    fit$lambda_index = l
+    fit$rho_index = rho_index
+
+    alpha_old = fit$alpha
+    Beta_old = fit$Beta
+    Gamma_list_old = fit$Gamma_list
+
+    fit$KKT_check = check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda_sequence[l], rho, fit$alpha, fit$Beta, fit$Gamma_list)
+    print(fit$KKT_check)
+
+    model_fits_lambda_sequence[[l]] = fit
+
+  }
+
+  return(model_fits_lambda_sequence)
 
 }
 
