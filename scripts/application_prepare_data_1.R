@@ -83,7 +83,7 @@ train_indices = 1:6
 validation_indices = 7:12
 test_indices = 13:24
 
-X = t(logcounts(data))
+X = as.matrix(t(logcounts(data)))
 X_list = lapply(batches, function(x) X[data$split == x, ])
 
 category_mappings = get_category_mappings_train_and_validation(cell_types, FALSE)
