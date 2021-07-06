@@ -127,13 +127,13 @@ compute_tuning_performance_no_Gamma = function(fit,
 
   N = sum(sapply(X_list_validation, nrow))
 
-  nll = matrix(NA, nrow = 1, ncol = fit$n_lambda)
+  nll = rep(NA, fit$n_lambda)
 
   for (l in 1:fit$n_lambda) {
 
     model = fit$model_fits[[l]]
 
-    if (!is.null(model)) nll[1, l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, model$alpha, model$Beta, N)
+    if (!is.null(model)) nll[l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, model$alpha, model$Beta, N)
 
   }
 
