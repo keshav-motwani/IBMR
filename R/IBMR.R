@@ -7,13 +7,13 @@ IBMR = function(Y_list,
                 Y_list_validation = NULL,
                 category_mappings_validation = NULL,
                 X_list_validation = NULL,
-                n_lambda = 25,
-                lambda_min_ratio = 1e-4,
                 n_rho = 20,
                 rho_min_ratio = 1e-6,
+                n_lambda = 25,
+                lambda_min_ratio = 1e-4,
                 phi = 1e-3,
-                n_iter = 10000,
-                tolerance = 1e-8,
+                n_iter = 1e5,
+                tolerance = 1e-7,
                 Gamma_update = "gradient",
                 common_Gamma = FALSE,
                 n_cores = 1) {
@@ -71,16 +71,18 @@ IBMR = function(Y_list,
              n_lambda = n_lambda,
              n_rho = n_rho,
              categories = categories,
-             lambda_grid = lambda_grid,
              rho_sequence = rho_sequence,
+             lambda_grid = lambda_grid,
              Z_mean = Z_mean,
-             Z_sd = Z_sd)
+             Z_sd = Z_sd,
+             common_Gamma = common_Gamma,
+             no_Gamma = FALSE)
 
   fit = adjust_fit(fit, categories, features, X_mean, X_sd)
 
   if (!is.null(Y_list_validation)) {
 
-    validation_negative_log_likelihood = compute_tuning_performance(fit, Y_list_validation, categories, category_mappings_validation, X_list_validation)
+    validation_negative_log_likelihood = compute_tuning_performance(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
     best_tuning_parameters = which_min(validation_negative_log_likelihood)[1, ]
@@ -88,6 +90,12 @@ IBMR = function(Y_list,
     fit$best_tuning_parameters = best_tuning_parameters
     fit$best_model = fit$model_fits[[best_tuning_parameters[1]]][[best_tuning_parameters[2]]]
 
+  }
+
+  if (common_Gamma) {
+    class(fit) = "IBMR_common_Gamma"
+  } else {
+    class(fit) = "IBMR"
   }
 
   return(fit)
@@ -144,8 +152,8 @@ IBMR_no_Gamma = function(Y_list,
                          X_list_validation = NULL,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
-                         n_iter = 10000,
-                         tolerance = 1e-8) {
+                         n_iter = 1e5,
+                         tolerance = 1e-7) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Z_list = lapply(Y_list, function(Y) matrix(1, nrow = length(Y), ncol = 1))
@@ -185,19 +193,21 @@ IBMR_no_Gamma = function(Y_list,
   fit = list(model_fits = model_fits_lambda_sequence,
              n_lambda = n_lambda,
              categories = categories,
-             lambda_sequence = lambda_sequence)
+             lambda_sequence = lambda_sequence,
+             common_Gamma = FALSE,
+             no_Gamma = TRUE)
 
   fit = adjust_fit_no_Gamma(fit, categories, features, X_mean, X_sd)
 
   if (!is.null(Y_list_validation)) {
 
-    validation_negative_log_likelihood = compute_tuning_performance_no_Gamma(fit, Y_list_validation, categories, category_mappings_validation, X_list_validation)
+    validation_negative_log_likelihood = compute_tuning_performance_no_Gamma(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
-    best_tuning_parameters = which_min(validation_negative_log_likelihood)[1, ]
+    best_tuning_parameters = which_min(validation_negative_log_likelihood)
 
     fit$best_tuning_parameters = best_tuning_parameters
-    fit$best_model = fit$model_fits[[best_tuning_parameters[2]]]
+    fit$best_model = fit$model_fits[[best_tuning_parameters]]
 
   }
 

@@ -1,10 +1,10 @@
 library(IBMR)
 
-set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+set.seed(1)
 
 number_of_levels = 2
 number_per_split = 2
-label_levels_per_dataset = list(c(2, 2), c(1, 2))
+label_levels_per_dataset = list(c(2, 1), c(2, 2))
 category_mappings = simulate_category_mappings(number_of_levels, number_per_split, label_levels_per_dataset)
 
 p = 1
@@ -32,9 +32,7 @@ Beta_grid$Beta_3 = Beta[3]
 Beta_grid$Beta_4 = Beta[4]
 
 nll = apply(Beta_grid, 1, function(x) IBMR:::compute_negative_log_likelihood(Y_matrix_list, X_list, X_list, alpha, matrix(x, nrow = 1), lapply(1:2, function(x) matrix(0, nrow = 1, ncol = 4)), sum(n)))
-nll_fine = apply(Beta_grid, 1, function(x) IBMR:::compute_negative_log_likelihood(Y_matrix_list_fine, X_list, X_list, alpha, matrix(x, nrow = 1), lapply(1:2, function(x) matrix(0, nrow = 1, ncol = 4)), sum(n)))
+# nll_fine = apply(Beta_grid, 1, function(x) IBMR:::compute_negative_log_likelihood(Y_matrix_list_fine, X_list, X_list, alpha, matrix(x, nrow = 1), lapply(1:2, function(x) matrix(0, nrow = 1, ncol = 4)), sum(n)))
 
 filled.contour(x = seq(-range, range, length.out = 100), y = seq(-range, range, length.out = 100), z = matrix(nll, nrow = 100, byrow = TRUE))
 # filled.contour(x = seq(-range, range, length.out = 100), y = seq(-range, range, length.out = 100), z = matrix(nll_fine, nrow = 100, byrow = TRUE))
-
-rm(list = ls())

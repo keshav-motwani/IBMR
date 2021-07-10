@@ -234,6 +234,19 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// compute_negative_log_likelihood_from_probabilities
+double compute_negative_log_likelihood_from_probabilities(const List& Y_matrix_list, const List& P_list, int N);
+RcppExport SEXP _IBMR_compute_negative_log_likelihood_from_probabilities(SEXP Y_matrix_listSEXP, SEXP P_listSEXP, SEXP NSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const List& >::type Y_matrix_list(Y_matrix_listSEXP);
+    Rcpp::traits::input_parameter< const List& >::type P_list(P_listSEXP);
+    Rcpp::traits::input_parameter< int >::type N(NSEXP);
+    rcpp_result_gen = Rcpp::wrap(compute_negative_log_likelihood_from_probabilities(Y_matrix_list, P_list, N));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_negative_log_likelihood_1
 double compute_negative_log_likelihood_1(const arma::mat& Y, const arma::mat& X, const arma::mat& Z, const arma::colvec& alpha, const arma::mat& Beta, const arma::mat& Gamma, int N);
 RcppExport SEXP _IBMR_compute_negative_log_likelihood_1(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP alphaSEXP, SEXP BetaSEXP, SEXP GammaSEXP, SEXP NSEXP) {
@@ -427,6 +440,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_compute_gradient_Gamma", (DL_FUNC) &_IBMR_compute_gradient_Gamma, 8},
     {"_IBMR_compute_negative_log_likelihood", (DL_FUNC) &_IBMR_compute_negative_log_likelihood, 7},
     {"_IBMR_compute_negative_log_likelihood_no_Gamma", (DL_FUNC) &_IBMR_compute_negative_log_likelihood_no_Gamma, 5},
+    {"_IBMR_compute_negative_log_likelihood_from_probabilities", (DL_FUNC) &_IBMR_compute_negative_log_likelihood_from_probabilities, 3},
     {"_IBMR_compute_negative_log_likelihood_1", (DL_FUNC) &_IBMR_compute_negative_log_likelihood_1, 7},
     {"_IBMR_group_lasso_penalty", (DL_FUNC) &_IBMR_group_lasso_penalty, 2},
     {"_IBMR_l2_penalty", (DL_FUNC) &_IBMR_l2_penalty, 2},

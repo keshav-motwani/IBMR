@@ -1,10 +1,13 @@
-# check fit_alpha against sample proportions for fine case
+print("Check that probabilities from fit_alpha match sample proportions when all data is at finest resolution")
+
+TOLERANCE = 1e-12
+PROB_THRESHOLD = 1e-4
+
+set.seed(1)
 
 library(IBMR)
 library(glmnet)
 library(CVXR)
-
-set.seed(11, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
 number_of_levels = 2
 number_per_split = 2
@@ -22,8 +25,12 @@ Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse
 
 Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], category_mappings$categories, category_mappings$category_mappings[[i]]))
 
-system.time({test = fit_alpha(Y_matrix_list, X_list, X_list, 1000, 1e-12, rep(0, 4))})
+system.time({test = fit_alpha(Y_matrix_list, X_list, X_list, 1000, TOLERANCE, rep(0, 4))})
 
-all(diff(test$objective[test$objective != 0]) <= 0)
+test_that("Probabilities from fit_alpha for fine resolution data match sample proportions", {
+  expect(all(abs(exp(test$alpha)/sum(exp(test$alpha)) - colMeans(do.call(rbind, Y_matrix_list))) < PROB_THRESHOLD), "probabilities don't match")
+})
 
-all(abs(exp(test$alpha)/sum(exp(test$alpha)) - colMeans(do.call(rbind, Y_matrix_list))) < 1e-8)
+test_that("Objective function for fit_alpha is always decreasing", {
+  expect(all(diff(test$objective[test$objective != 0]) <= 1e-12), "objective function increased somewhere")
+})

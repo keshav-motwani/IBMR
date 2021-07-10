@@ -89,10 +89,9 @@ log_seq = function(from, to, length) {
 compute_tuning_performance = function(fit,
                                       Y_list_validation,
                                       categories,
-                                      category_mappings_validation,
                                       X_list_validation) {
 
-  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings_validation[[i]]))
+  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], fit$categories, category_mappings_validation[[i]]))
 
   N = sum(sapply(X_list_validation, nrow))
 
@@ -119,11 +118,10 @@ compute_tuning_performance = function(fit,
 #' @export
 compute_tuning_performance_no_Gamma = function(fit,
                                                Y_list_validation,
-                                               categories,
                                                category_mappings_validation,
                                                X_list_validation) {
 
-  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings_validation[[i]]))
+  Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], fit$categories, category_mappings_validation[[i]]))
 
   N = sum(sapply(X_list_validation, nrow))
 

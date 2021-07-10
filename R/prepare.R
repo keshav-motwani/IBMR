@@ -9,6 +9,7 @@ create_Y_matrix = function(Y, categories, category_mapping) {
 
 }
 
+#' @export
 create_fine_category_mappings = function(categories, K) {
 
   names(categories) = categories

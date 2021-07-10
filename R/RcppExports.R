@@ -53,12 +53,19 @@ compute_gradient_Gamma <- function(Y, X, Z, alpha, Beta, Gamma, rho, N) {
     .Call(`_IBMR_compute_gradient_Gamma`, Y, X, Z, alpha, Beta, Gamma, rho, N)
 }
 
+#' @export
 compute_negative_log_likelihood <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N) {
     .Call(`_IBMR_compute_negative_log_likelihood`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
 }
 
+#' @export
 compute_negative_log_likelihood_no_Gamma <- function(Y_matrix_list, X_list, alpha, Beta, N) {
     .Call(`_IBMR_compute_negative_log_likelihood_no_Gamma`, Y_matrix_list, X_list, alpha, Beta, N)
+}
+
+#' @export
+compute_negative_log_likelihood_from_probabilities <- function(Y_matrix_list, P_list, N) {
+    .Call(`_IBMR_compute_negative_log_likelihood_from_probabilities`, Y_matrix_list, P_list, N)
 }
 
 compute_negative_log_likelihood_1 <- function(Y, X, Z, alpha, Beta, Gamma, N) {

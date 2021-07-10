@@ -1,7 +1,7 @@
 print("Check that fit_alpha_Beta matches glmnet group lasso regression estimate when Gamma = 0")
 
 TOLERANCE = 1e-12
-KKT_THRESHOLD = 1e-6
+KKT_THRESHOLD = 1e-5
 COEF_THRESHOLD = 1e-4
 
 set.seed(1)

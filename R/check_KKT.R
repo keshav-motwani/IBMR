@@ -15,8 +15,8 @@ check_KKT_IBMR = function(Y_matrix_list,
 
   nonzero = rowSums(Beta) != 0
   grad_Beta = IBMR:::compute_gradient_Beta(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
-  KKT_Beta = max(abs(grad_Beta[nonzero, , drop = FALSE] + lambda * (Beta[nonzero, , drop = FALSE] / apply(Beta[nonzero, , drop = FALSE], 1, function(x) sqrt(sum(x ^ 2))))))
-  KKT_Beta_0 = max(apply(-grad_Beta[!nonzero, , drop = FALSE] / lambda, 1, function(x) sqrt(sum(x ^ 2))))
+  KKT_Beta = suppressWarnings(max(abs(grad_Beta[nonzero, , drop = FALSE] + lambda * (Beta[nonzero, , drop = FALSE] / apply(Beta[nonzero, , drop = FALSE], 1, function(x) sqrt(sum(x ^ 2)))))))
+  KKT_Beta_0 = suppressWarnings(max(apply(-grad_Beta[!nonzero, , drop = FALSE] / lambda, 1, function(x) sqrt(sum(x ^ 2)))))
   if (sum(nonzero) == 0) KKT_Beta = 0
   if (sum(!nonzero) == 0) KKT_Beta_0 = 1
 
@@ -43,8 +43,8 @@ check_KKT_IBMR_no_Gamma = function(Y_matrix_list,
 
   nonzero = rowSums(Beta) != 0
   grad_Beta = IBMR:::compute_gradient_Beta(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
-  KKT_Beta = max(abs(grad_Beta[nonzero, , drop = FALSE] + lambda * (Beta[nonzero, , drop = FALSE] / apply(Beta[nonzero, , drop = FALSE], 1, function(x) sqrt(sum(x ^ 2))))))
-  KKT_Beta_0 = max(apply(-grad_Beta[!nonzero, , drop = FALSE] / lambda, 1, function(x) sqrt(sum(x ^ 2))))
+  KKT_Beta = suppressWarnings(max(abs(grad_Beta[nonzero, , drop = FALSE] + lambda * (Beta[nonzero, , drop = FALSE] / apply(Beta[nonzero, , drop = FALSE], 1, function(x) sqrt(sum(x ^ 2)))))))
+  KKT_Beta_0 = suppressWarnings(max(apply(-grad_Beta[!nonzero, , drop = FALSE] / lambda, 1, function(x) sqrt(sum(x ^ 2)))))
   if (sum(nonzero) == 0) KKT_Beta = 0
   if (sum(!nonzero) == 0) KKT_Beta_0 = 1
 
