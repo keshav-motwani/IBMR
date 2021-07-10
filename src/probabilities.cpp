@@ -1,6 +1,5 @@
 #include "probabilities.h"
 
-//' @export
 // [[Rcpp::export]]
 arma::mat compute_linear_predictor(const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma) {
 
@@ -11,7 +10,6 @@ arma::mat compute_linear_predictor(const arma::mat & X, const arma::mat & Z, con
 
 }
 
-//' @export
 // [[Rcpp::export]]
 arma::mat compute_linear_predictor_no_Gamma(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
 
@@ -22,7 +20,6 @@ arma::mat compute_linear_predictor_no_Gamma(const arma::mat & X, const arma::col
 
 }
 
-//' @export
 // [[Rcpp::export]]
 arma::mat compute_probabilities(const arma::mat & X, const arma::mat & Z, const arma::colvec & alpha, const arma::mat & Beta, const arma::mat & Gamma) {
 
@@ -32,7 +29,6 @@ arma::mat compute_probabilities(const arma::mat & X, const arma::mat & Z, const 
 
 }
 
-//' @export
 // [[Rcpp::export]]
 arma::mat compute_probabilities_no_Gamma(const arma::mat & X, const arma::colvec & alpha, const arma::mat & Beta) {
 
@@ -42,7 +38,6 @@ arma::mat compute_probabilities_no_Gamma(const arma::mat & X, const arma::colvec
 
 }
 
-//' @export
 // [[Rcpp::export]]
 arma::mat compute_conditional_probabilities(const arma::mat & Y_matrix, const arma::mat & P) {
 

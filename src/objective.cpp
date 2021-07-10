@@ -1,7 +1,6 @@
 #include "probabilities.h"
 #include "objective.h"
 
-//' @export
 // [[Rcpp::export]]
 double compute_negative_log_likelihood(const List & Y_matrix_list, const List & X_list, const List & Z_list, const arma::colvec & alpha, const arma::mat & Beta, const arma::field<arma::mat> & Gamma_list, int N) {
 
