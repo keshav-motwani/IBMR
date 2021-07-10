@@ -53,7 +53,6 @@ compute_gradient_Gamma <- function(Y, X, Z, alpha, Beta, Gamma, rho, N) {
     .Call(`_IBMR_compute_gradient_Gamma`, Y, X, Z, alpha, Beta, Gamma, rho, N)
 }
 
-#' @export
 compute_negative_log_likelihood <- function(Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N) {
     .Call(`_IBMR_compute_negative_log_likelihood`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, N)
 }
@@ -84,27 +83,22 @@ compute_objective_function <- function(Y_matrix_list, X_list, Z_list, alpha, Bet
     .Call(`_IBMR_compute_objective_function`, Y_matrix_list, X_list, Z_list, alpha, Beta, Gamma_list, lambda, rho, N)
 }
 
-#' @export
 compute_linear_predictor <- function(X, Z, alpha, Beta, Gamma) {
     .Call(`_IBMR_compute_linear_predictor`, X, Z, alpha, Beta, Gamma)
 }
 
-#' @export
 compute_linear_predictor_no_Gamma <- function(X, alpha, Beta) {
     .Call(`_IBMR_compute_linear_predictor_no_Gamma`, X, alpha, Beta)
 }
 
-#' @export
 compute_probabilities <- function(X, Z, alpha, Beta, Gamma) {
     .Call(`_IBMR_compute_probabilities`, X, Z, alpha, Beta, Gamma)
 }
 
-#' @export
 compute_probabilities_no_Gamma <- function(X, alpha, Beta) {
     .Call(`_IBMR_compute_probabilities_no_Gamma`, X, alpha, Beta)
 }
 
-#' @export
 compute_conditional_probabilities <- function(Y_matrix, P) {
     .Call(`_IBMR_compute_conditional_probabilities`, Y_matrix, P)
 }
