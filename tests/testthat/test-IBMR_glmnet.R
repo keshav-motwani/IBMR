@@ -59,7 +59,6 @@ abline(0, 1)
 
 fit = cv.glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
 
-# should be equal to probabilities from cv.glmnet when just 1 dataset at finest resolution
 test = fit_glmnet_split(list(unlist(Y_list)), category_mappings$categories, category_mappings$category_mappings, list(do.call(rbind, X_list)), n_lambda = 25, lambda_min_ratio = 1e-4)
 
 probs_cv_glmnet = predict(fit, X_list[[1]], type = "response", s = fit$lambda.min)[, , 1]

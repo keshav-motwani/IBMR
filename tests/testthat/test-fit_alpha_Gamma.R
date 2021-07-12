@@ -59,19 +59,19 @@ obj = obj + (rho * sum(Gamma_1 ^ 2) / 2) + (rho * sum(Gamma_2 ^ 2) / 2)
 prob = Problem(Minimize(obj))
 result = CVXR::solve(prob, FEASTOL = TOLERANCE, RELTOL = TOLERANCE, ABSTOL = TOLERANCE, verbose = FALSE, num_iter = 1000)
 
-test_that("Estimated Gamma_1 from fit_alpha_Beta_Gamma matches CVXR", {
+test_that("Estimated Gamma_1 from fit_alpha_Gamma matches CVXR", {
   expect(all(abs(result$getValue(Gamma_1) - test$Gamma_list[[1]]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
-test_that("Estimated Gamma_1 from fit_alpha_Beta_Gamma_Newton matches CVXR", {
+test_that("Estimated Gamma_1 from fit_alpha_Gamma_Newton matches CVXR", {
   expect(all(abs(result$getValue(Gamma_1) - test_Newton$Gamma_list[[1]]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
-test_that("Estimated Gamma_2 from fit_alpha_Beta_Gamma matches CVXR", {
+test_that("Estimated Gamma_2 from fit_alpha_Gamma matches CVXR", {
   expect(all(abs(result$getValue(Gamma_2) - test$Gamma_list[[2]]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
-test_that("Estimated Gamma_2 from fit_alpha_Beta_Gamma_Newton matches CVXR", {
+test_that("Estimated Gamma_2 from fit_alpha_Gamma_Newton matches CVXR", {
   expect(all(abs(result$getValue(Gamma_2) - test_Newton$Gamma_list[[2]]) < COEF_THRESHOLD), "coefficients not equal")
 })
 

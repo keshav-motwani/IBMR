@@ -1,4 +1,4 @@
-print("Check that fit_alpha_Beta_Gamma matches CVXR when all data is at finest resolution")
+print("Check that fit_alpha_Beta_Gamma satisfies KKT conditions and objective function always decreases with coarse data")
 
 TOLERANCE = 1e-12
 KKT_THRESHOLD = 1e-6
@@ -33,11 +33,11 @@ rho = 0.5
 system.time({test = fit_alpha_Beta_Gamma(Y_matrix_list, X_list, Z_list, lambda, rho, 1000, TOLERANCE, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
 system.time({test_Newton = fit_alpha_Beta_Gamma_Newton(Y_matrix_list, X_list, Z_list, lambda, rho, 1000, TOLERANCE, rep(0, 4), matrix(0, nrow = 20, ncol = 4), lapply(1:length(X_list), function(x) matrix(0, nrow = 20, ncol = 4)))})
 
-test_that("Estimate from fit_alpha_Beta_Gamma for fine resolution data satisfies KKT conditions (sufficient for optimality as convex)", {
+test_that("Estimate from fit_alpha_Beta_Gamma for coarse resolution data satisfies KKT conditions (necessary, but not sufficient for optimality as nonconvex)", {
   expect(all(check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda, rho, test$alpha, test$Beta, test$Gamma_list) - c(0, 0, 1, 0) < KKT_THRESHOLD), "doesn't satisfy KKT")
 })
 
-test_that("Estimate from fit_alpha_Beta_Gamma_Newton for fine resolution data satisfies KKT conditions (sufficient for optimality as convex)", {
+test_that("Estimate from fit_alpha_Beta_Gamma_Newton for coarse resolution data satisfies KKT conditions (necessary, but not sufficient for optimality as nonconvex)", {
   expect(all(check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda, rho, test_Newton$alpha, test_Newton$Beta, test_Newton$Gamma_list) - c(0, 0, 1, 0) < KKT_THRESHOLD), "doesn't satisfy KKT")
 })
 
