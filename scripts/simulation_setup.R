@@ -119,21 +119,21 @@ evaluate_parameters = function(parameters, simulation_function) {
 
     fit = fits[[i]]
 
-    performance = compute_performance(data$alpha,
-                                      data$Beta,
-                                      fit$alpha,
-                                      fit$Beta,
-                                      data$test$Y_list_fine,
+    performance = compute_performance(data$test$Y_list_fine,
                                       data$test$X_star_list,
-                                      data$test$category_mappings_fine$categories)
+                                      data$alpha,
+                                      data$Beta,
+                                      fit$alpha_hat,
+                                      fit$Beta_hat,
+                                      fit$test_estimated_probabilities)
 
-    best_case_performance = compute_best_case_performance(data$alpha,
-                                                          data$Beta,
-                                                          fit$all_alphas,
-                                                          fit$all_Betas,
-                                                          data$test$Y_list_fine,
+    best_case_performance = compute_best_case_performance(data$test$Y_list_fine,
                                                           data$test$X_star_list,
-                                                          data$test$category_mappings_fine$categories)
+                                                          data$alpha,
+                                                          data$Beta,
+                                                          fit$all_alpha_hats,
+                                                          fit$all_Beta_hats,
+                                                          fit$all_test_estimated_probabilities)
 
     if (length(fits) > 1) parameters$method = paste0(parameters$method, "_", names(fits)[i])
 
@@ -145,30 +145,40 @@ evaluate_parameters = function(parameters, simulation_function) {
 
 }
 
-compute_performance = function(alpha, Beta, alpha_hat, Beta_hat, Y_list_test, X_list_test, categories) {
+compute_performance = function(Y_list_test, X_list_test, alpha, Beta, alpha_hat, Beta_hat, test_estimated_probabilities) {
 
-  Beta_SSE = Beta_SSE(Beta_hat, Beta)
-  Beta_FPR = Beta_FPR(Beta_hat, Beta)
-  Beta_TPR = Beta_TPR(Beta_hat, Beta)
+  if (!is.null(alpha_hat)) {
 
-  KL_divergence = mean(sapply(X_list_test, function(X) mean(kl_divergence(compute_probabilities_no_Gamma(X, alpha_hat, Beta_hat),
-                                                                          compute_probabilities_no_Gamma(X, alpha, Beta)))))
+    Beta_SSE = Beta_SSE(Beta_hat, Beta)
+    Beta_FPR = Beta_FPR(Beta_hat, Beta)
+    Beta_TPR = Beta_TPR(Beta_hat, Beta)
 
-  hellinger_distance = mean(sapply(X_list_test, function(X) mean(hellinger_distance(compute_probabilities_no_Gamma(X, alpha_hat, Beta_hat),
-                                                                                    compute_probabilities_no_Gamma(X, alpha, Beta)))))
+  } else {
 
-  error = mean(sapply(1:length(Y_list_test), function(k) error(predict_categories(X_list_test[[k]], alpha_hat, Beta_hat, categories), Y_list_test[[k]])))
+    Beta_SSE = Beta_FPR = Beta_TPR = NA
 
-  return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error, alpha = alpha, Beta = Beta, alpha_hat = alpha_hat, Beta_hat = Beta_hat))
+  }
+
+  KL_divergence = mean(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(kl_divergence(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE))
+
+  hellinger_distance = mean(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE))
+
+  predicted_categories = predict_categories(test_estimated_probabilities)
+
+  error = mean(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE))
+
+  return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error))
 
 }
 
-compute_best_case_performance = function(alpha, Beta, all_alpha_hats, all_Beta_hats, Y_list_test, X_list_test, categories) {
+compute_best_case_performance = function(Y_list_test, X_list_test, alpha, Beta, all_alpha_hats, all_Beta_hats, all_test_estimated_probabilities) {
 
   keep = c("Beta_SSE", "KL_divergence", "hellinger_distance", "error")
 
-  result = mapply(alpha_hat = all_alpha_hats, Beta_hat = all_Beta_hats, FUN = function(alpha_hat, Beta_hat) {
-    compute_performance(alpha, Beta, alpha_hat, Beta_hat, Y_list_test, X_list_test, categories)[keep]
+  if (is.null(all_alpha_hats) & is.null(all_Beta_hats)) all_alpha_hats = all_Beta_hats = vector("list", length(all_test_estimated_probabilities))
+
+  result = mapply(alpha_hat = all_alpha_hats, Beta_hat = all_Beta_hats, test_estimated_probabilities = all_test_estimated_probabilities, FUN = function(alpha_hat, Beta_hat, test_estimated_probabilities) {
+    compute_performance(Y_list_test, X_list_test, alpha, Beta, alpha_hat, Beta_hat, test_estimated_probabilities)[keep]
   }, SIMPLIFY = FALSE)
 
   result = matrix(unlist(result), nrow = length(keep))
@@ -180,10 +190,11 @@ compute_best_case_performance = function(alpha, Beta, all_alpha_hats, all_Beta_h
 
 }
 
-get_all_alphas_Betas_IBMR = function(fit) {
+get_all_estimates_two_tuning_parameters = function(fit, X_list_test) {
 
   alphas = list()
   Betas = list()
+  probabilities = list()
 
   for (r in 1:fit$n_rho) {
 
@@ -193,8 +204,9 @@ get_all_alphas_Betas_IBMR = function(fit) {
 
       if (!is.null(model)) {
 
-        alphas = c(alphas, list(fit$model_fits[[r]][[l]]$alpha))
-        Betas = c(Betas, list(fit$model_fits[[r]][[l]]$Beta))
+        alphas = c(alphas, list(model$alpha))
+        Betas = c(Betas, list(model$Beta))
+        probabilities = c(probabilities, list(predict_probabilities(model, X_list_test)))
 
       }
 
@@ -202,14 +214,15 @@ get_all_alphas_Betas_IBMR = function(fit) {
 
   }
 
-  return(list(all_alphas = alphas, all_Betas = Betas))
+  return(list(all_alpha_hats = alphas, all_Beta_hats = Betas, all_test_estimated_probabilities = probabilities))
 
 }
 
-get_all_alphas_Betas_IBMR_no_Gamma = function(fit) {
+get_all_estimates_one_tuning_parameter = function(fit, X_list_test) {
 
   alphas = list()
   Betas = list()
+  probabilities = list()
 
   for (l in 1:fit$n_lambda) {
 
@@ -217,92 +230,58 @@ get_all_alphas_Betas_IBMR_no_Gamma = function(fit) {
 
     if (!is.null(model)) {
 
-      alphas = c(alphas, list(fit$model_fits[[l]]$alpha))
-      Betas = c(Betas, list(fit$model_fits[[l]]$Beta))
+      alphas = c(alphas, list(model$alpha))
+      Betas = c(Betas, list(model$Beta))
+      probabilities = c(probabilities, list(predict_probabilities(model, X_list_test)))
 
     }
 
   }
 
-  return(list(all_alphas = alphas, all_Betas = Betas))
+  return(list(all_alpha_hats = alphas, all_Beta_hats = Betas, all_test_estimated_probabilities = probabilities))
 
 }
 
-get_all_alphas_Betas_group_lasso = function(fit) {
-
-  alphas = list()
-  Betas = list()
-
-  a = 1
-
-  for (l in 1:fit$n_lambda) {
-
-    model = fit$model_fits[[a]][[l]]
-
-    if (!is.null(model)) {
-
-      alphas = c(alphas, list(fit$model_fits[[a]][[l]]$alpha))
-      Betas = c(Betas, list(fit$model_fits[[a]][[l]]$Beta))
-
-    }
-
-  }
-
-  return(list(all_alphas = alphas, all_Betas = Betas))
-
-}
-
-prepare_output_IBMR = function(fit) {
+prepare_output_IBMR = function(fit, X_list_test) {
 
   IBMR = list(
-    alpha = fit$best_model$alpha,
-    Beta = fit$best_model$Beta,
+    alpha_hat = fit$best_model$alpha,
+    Beta_hat = fit$best_model$Beta,
+    test_estimated_probabilities = predict_probabilities(fit$best_model, X_list_test),
     tuning_parameters = fit$best_tuning_parameters,
     validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
     best_model = fit$best_model
   )
-  IBMR = c(IBMR, get_all_alphas_Betas_IBMR(fit))
+  IBMR = c(IBMR, get_all_estimates_two_tuning_parameters(fit, X_list_test))
 
   return(list(IBMR = IBMR))
 
 }
 
-prepare_output_IBMR_no_Gamma = function(fit) {
+prepare_output_IBMR_no_Gamma = function(fit, X_list_test) {
 
   IBMR = list(
-    alpha = fit$best_model$alpha,
-    Beta = fit$best_model$Beta,
+    alpha_hat = fit$best_model$alpha,
+    Beta_hat = fit$best_model$Beta,
+    test_estimated_probabilities = predict_probabilities(fit$best_model, X_list_test),
     tuning_parameters = fit$best_tuning_parameters,
     validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
     best_model = fit$best_model
   )
-  IBMR = c(IBMR, get_all_alphas_Betas_IBMR_no_Gamma(fit))
+  IBMR = c(IBMR, get_all_estimates_one_tuning_parameter(fit, X_list_test))
 
   return(list(IBMR_no_Gamma = IBMR))
 
 }
 
-prepare_output_glmnet = function(fit) {
+prepare_output_glmnet_split = function(fit, X_list_test) {
 
-  elastic_net = list(
-    alpha = fit$best_model$alpha,
-    Beta = fit$best_model$Beta,
-    tuning_parameters = fit$best_tuning_parameters,
-    validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
-    best_model = fit$best_model
+  glmnet_split = list(
+    test_estimated_probabilities = predict_probabilities_glmnet_split(fit, X_list_test),
+    all_test_estimated_probabilities = list(predict_probabilities_glmnet_split(fit, X_list_test))
   )
-  elastic_net = c(elastic_net, get_all_alphas_Betas_IBMR(fit))
 
-  group_lasso = list(
-    alpha = fit$best_model_group_lasso$alpha,
-    Beta = fit$best_model_group_lasso$Beta,
-    tuning_parameters = fit$best_tuning_parameters_group_lasso,
-    validation_negative_log_likelihood = fit$validation_negative_log_likelihood[1,],
-    best_model = fit$best_model_group_lasso
-  )
-  group_lasso = c(group_lasso, get_all_alphas_Betas_group_lasso(fit))
-
-  return(list(elastic_net = elastic_net, group_lasso = group_lasso))
+  return(list(glmnet_split = glmnet_split))
 
 }
 
@@ -319,24 +298,7 @@ fit_IBMR = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR(fit))
-
-}
-
-fit_IBMR_int = function(data) {
-
-  fit = IBMR(
-    data$train$Y_list,
-    data$train$category_mappings$categories,
-    data$train$category_mappings$category_mappings,
-    data$train$X_list,
-    data$train$Z_list_int,
-    data$validation$Y_list,
-    data$validation$category_mappings$category_mappings,
-    data$validation$X_list
-  )
-
-  return(prepare_output_IBMR(fit))
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
@@ -353,7 +315,24 @@ fit_IBMR_ORC_clean = function(data) {
     data$validation$X_star_list
   )
 
-  return(prepare_output_IBMR(fit))
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
+
+}
+
+fit_IBMR_int = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_list,
+    data$train$Z_list_int,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list
+  )
+
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
@@ -370,7 +349,7 @@ fit_IBMR_int_ORC_clean = function(data) {
     data$validation$X_star_list
   )
 
-  return(prepare_output_IBMR(fit))
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
@@ -388,7 +367,7 @@ fit_IBMR_common_Gamma = function(data) {
     common_Gamma = TRUE
   )
 
-  return(prepare_output_IBMR(fit))
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
@@ -406,7 +385,7 @@ fit_IBMR_common_Gamma_ORC_clean = function(data) {
     common_Gamma = TRUE
   )
 
-  return(prepare_output_IBMR(fit))
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
@@ -422,7 +401,7 @@ fit_IBMR_no_Gamma = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR_no_Gamma(fit))
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
 
 }
 
@@ -438,21 +417,103 @@ fit_IBMR_no_Gamma_ORC_clean = function(data) {
     data$validation$X_star_list
   )
 
-  return(prepare_output_IBMR_no_Gamma(fit))
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
 
 }
 
-fit_elastic_net = function(data) {
+fit_glmnet_subset = function(data) {
 
-  fit = fit_glmnet(
+  fit = glmnet_subset(
     data$train$Y_list,
     data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
     data$train$X_list,
     data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
     data$validation$X_list
   )
 
-  return(prepare_output_glmnet(fit))
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
+
+}
+
+fit_glmnet_subset_ORC_clean = function(data) {
+
+  fit = glmnet_subset(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list
+  )
+
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
+
+}
+
+fit_glmnet_split = function(data) {
+
+  fit = glmnet_split(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list
+  )
+
+  return(prepare_output_glmnet_split(fit, data$test$X_star_list))
+
+}
+
+fit_glmnet_split_ORC_clean = function(data) {
+
+  fit = glmnet_split(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list
+  )
+
+  return(prepare_output_glmnet_split(fit, data$test$X_star_list))
+
+}
+
+fit_glmnet_relabel = function(data) {
+
+  fit = glmnet_relabel(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list
+  )
+
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
+
+}
+
+fit_glmnet_relabel_ORC_clean = function(data) {
+
+  fit = glmnet_relabel(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_star_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_star_list
+  )
+
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
@@ -460,12 +521,14 @@ fit_ORACLE = function(data) {
 
   list(
     ORACLE = list(
-      alpha = data$alpha,
-      Beta = data$Beta,
+      alpha_hat = data$alpha,
+      Beta_hat = data$Beta,
+      test_estimated_probabilities = predict_probabilities(list(alpha = data$alpha, Beta = data$Beta), data$test$X_star_list),
       tuning_parameters = 0,
       validation_negative_log_likelihood = 0,
       all_alphas = list(data$alpha),
-      all_Betas = list(data$Beta)
+      all_Betas = list(data$Beta),
+      all_test_estimated_probabilities = list(predict_probabilities(list(alpha = data$alpha, Beta = data$Beta), data$test$X_star_list))
     )
   )
 
