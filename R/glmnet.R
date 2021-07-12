@@ -54,7 +54,7 @@ glmnet_subset = function(Y_list,
     validation_negative_log_likelihood = compute_tuning_performance_no_Gamma(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
-    best_tuning_parameters = which_min(validation_negative_log_likelihood)
+    best_tuning_parameters = which_min(validation_negative_log_likelihood)[1]
 
     fit$best_tuning_parameters = best_tuning_parameters
     fit$best_model = fit$model_fits[[best_tuning_parameters]]
@@ -179,7 +179,7 @@ glmnet_relabel = function(Y_list,
     validation_negative_log_likelihood = compute_tuning_performance(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
-    best_tuning_parameters = which_min(validation_negative_log_likelihood)
+    best_tuning_parameters = which_min(validation_negative_log_likelihood)[1, ]
 
     fit$best_tuning_parameters = best_tuning_parameters
     fit$best_model = fit$model_fits[[best_tuning_parameters]]
