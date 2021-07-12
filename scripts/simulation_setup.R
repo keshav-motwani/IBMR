@@ -135,6 +135,12 @@ evaluate_parameters = function(parameters, simulation_function) {
                                                           fit$all_Beta_hats,
                                                           fit$all_test_estimated_probabilities)
 
+    fit$test_estimated_probabilities = NULL
+
+    fit$all_alpha_hats = NULL
+    fit$all_Beta_hats = NULL
+    fit$all_test_estimated_probabilities = NULL
+
     if (length(fits) > 1) parameters$method = paste0(parameters$method, "_", names(fits)[i])
 
     results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit)
