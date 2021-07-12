@@ -159,13 +159,13 @@ compute_performance = function(Y_list_test, X_list_test, alpha, Beta, alpha_hat,
 
   }
 
-  KL_divergence = mean(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(kl_divergence(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE))
+  KL_divergence = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(kl_divergence(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
 
-  hellinger_distance = mean(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE))
+  hellinger_distance = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
 
   predicted_categories = predict_categories(test_estimated_probabilities)
 
-  error = mean(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE))
+  error = mean(unlist(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE)))
 
   return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error))
 
