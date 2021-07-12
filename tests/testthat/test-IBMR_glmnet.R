@@ -38,9 +38,9 @@ plot(coef(fit, fit$lambda[10])[[1]][-1], test$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
 # should be equal to IBMR_no_Gamma when all are at finest resolution
-test2 = fit_glmnet_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_lambda = 25, lambda_min_ratio = 1e-4, tolerance = TOLERANCE)
+test2 = glmnet_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_lambda = 25, lambda_min_ratio = 1e-4, tolerance = TOLERANCE)
 
-test_that("Estimated Beta from fit_glmnet_subset matches glmnet for fine resolution data", {
+test_that("Estimated Beta from glmnet_subset matches glmnet for fine resolution data", {
   expect(all(abs(coef(fit, fit$lambda[10])[[1]][-1] - test2$model_fits[[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
@@ -48,9 +48,9 @@ plot(coef(fit, fit$lambda[10])[[1]][-1], test2$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
 # should be equal to IBMR_no_Gamma when all are at finest resolution
-test = fit_glmnet_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_rho = 20, rho_min_ratio = 1e-3, n_lambda = 25, lambda_min_ratio = 1e-4, tolerance = TOLERANCE)
+test = glmnet_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_rho = 20, rho_min_ratio = 1e-3, n_lambda = 25, lambda_min_ratio = 1e-4, tolerance = TOLERANCE)
 
-test_that("Estimated Beta from fit_glmnet_relabel matches glmnet for fine resolution data", {
+test_that("Estimated Beta from glmnet_relabel matches glmnet for fine resolution data", {
   expect(all(abs(coef(fit, fit$lambda[10])[[1]][-1] - test$model_fits[[4]][[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
@@ -59,13 +59,13 @@ abline(0, 1)
 
 fit = cv.glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
 
-test = fit_glmnet_split(list(unlist(Y_list)), category_mappings$categories, category_mappings$category_mappings, list(do.call(rbind, X_list)), n_lambda = 25, lambda_min_ratio = 1e-4)
+test = glmnet_split(list(unlist(Y_list)), category_mappings$categories, category_mappings$category_mappings, list(do.call(rbind, X_list)), n_lambda = 25, lambda_min_ratio = 1e-4)
 
 probs_cv_glmnet = predict(fit, X_list[[1]], type = "response", s = fit$lambda.min)[, , 1]
 
 probs_glmnet_split = predict_probabilities_glmnet_split(test, list(X_list[[1]]))[[1]]
 
-test_that("Estimated probabilities from fit_glmnet_split matches cv.glmnet for fine resolution data with 1 dataset", {
+test_that("Estimated probabilities from glmnet_split matches cv.glmnet for fine resolution data with 1 dataset", {
   expect(all(abs(probs_cv_glmnet - probs_glmnet_split) < COEF_THRESHOLD), "probabilities not equal")
 })
 

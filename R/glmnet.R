@@ -1,5 +1,5 @@
 #' @export
-fit_glmnet_subset = function(Y_list,
+glmnet_subset = function(Y_list,
                              categories,
                              category_mappings,
                              X_list,
@@ -68,7 +68,7 @@ fit_glmnet_subset = function(Y_list,
 }
 
 #' @export
-fit_glmnet_split = function(Y_list,
+glmnet_split = function(Y_list,
                             categories,
                             category_mappings,
                             X_list,
@@ -117,7 +117,7 @@ fit_glmnet_split = function(Y_list,
 }
 
 #' @export
-fit_glmnet_relabel = function(Y_list,
+glmnet_relabel = function(Y_list,
                               categories,
                               category_mappings,
                               X_list,
@@ -131,7 +131,7 @@ fit_glmnet_relabel = function(Y_list,
                               n_iter = 1e5,
                               tolerance = 1e-7) {
 
-  fit_subset = fit_glmnet_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance)
+  fit_subset = glmnet_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance)
 
   model_fits = vector("list", n_rho)
 
