@@ -37,8 +37,8 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_common_Gamma", "IBMR_int", "IBMR_no_Gamma",
-            "IBMR_ORC_clean", "IBMR_common_Gamma_ORC_clean", "IBMR_int_ORC_clean", "IBMR_no_Gamma_ORC_clean")
+methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_split", "glmnet_relabel")
+methods = c(methods, paste0(methods, "_ORC_clean"))
 
 summary = result %>%
   pivot_longer(Beta_SSE:best_case_error, names_repair = "minimal", values_to = "result") %>%
@@ -68,7 +68,7 @@ for (i in 1:nrow(experiments)) {
           fill = method
         )
       ) +
-        geom_boxplot(lwd=.5, outlier.size = .4) + 
+        geom_boxplot(lwd=.5, outlier.size = .4) +
         # geom_point(size = 2, position=position_dodge(0.2)) +
         # geom_line(position=position_dodge(0.2)) +
         # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
