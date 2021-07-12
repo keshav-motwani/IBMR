@@ -88,7 +88,7 @@ log_seq = function(from, to, length) {
 #' @export
 compute_tuning_performance = function(fit,
                                       Y_list_validation,
-                                      categories,
+                                      category_mappings_validation,
                                       X_list_validation) {
 
   Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], fit$categories, category_mappings_validation[[i]]))
