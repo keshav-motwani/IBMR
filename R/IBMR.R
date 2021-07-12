@@ -153,7 +153,7 @@ IBMR_no_Gamma = function(Y_list,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
                          n_iter = 1e5,
-                         tolerance = 1e-7) {
+                         tolerance = 1e-8) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Z_list = lapply(Y_list, function(Y) matrix(1, nrow = length(Y), ncol = 1))
