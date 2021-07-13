@@ -32,7 +32,7 @@ X = as.matrix(t(logcounts(data)))
 Y = data$cell_type_2
 
 require(doMC)
-registerDoMC(cores = 10)
+registerDoMC(cores = 64)
 fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
 saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit.rds"))
 
