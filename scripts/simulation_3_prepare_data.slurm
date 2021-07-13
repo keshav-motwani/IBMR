@@ -4,13 +4,13 @@
 #SBATCH --mail-type=END
 #SBATCH --account=amolstad
 #SBATCH --qos=amolstad-b
-#SBATCH --job-name=IBMR_application_1
+#SBATCH --job-name=IBMR
 #SBATCH --mem-per-cpu=6gb
 #SBATCH -t 4320
 #SBATCH --output=logs/simulation_3_prepare_data.log
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=64
 
 export OMP_NUM_THREADS=1
 

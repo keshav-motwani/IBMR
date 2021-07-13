@@ -31,4 +31,48 @@ Y = data$cell_type_2
 require(doMC)
 registerDoMC(cores = 10)
 fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
-saveRDS(fit, "data/simulation/Hao_glmnet_fit.rds")
+saveRDS(fit, "data/simulation/hao_glmnet_fit.rds")
+
+cell_types = colData(data)[, c("cell_type_1", "cell_type_2")]
+cell_types = cell_types[!duplicated(cell_types), ]
+cell_types = cell_types[order(cell_types$cell_type_1), ]
+
+get_category_mappings = function(cell_types) {
+
+  coarse_cell_types = sort(unique(cell_types$cell_type_1))
+  fine_cell_types = sort(cell_types$cell_type_2)
+  C = length(coarse_cell_types)
+
+  inverse_category_mappings = vector("list", C)
+  category_mappings = inverse_category_mappings
+
+  replace = "cell_type_1"
+
+  for (i in 1:C) {
+
+    keep_fine = coarse_cell_types[i]
+
+    inverse_category_mapping = c(cell_types[cell_types$cell_type_1 == keep_fine, "cell_type_2"], cell_types[cell_types$cell_type_1 != keep_fine, replace])
+    names(inverse_category_mapping) = c(cell_types[cell_types$cell_type_1 == keep_fine, "cell_type_2"], cell_types[cell_types$cell_type_1 != keep_fine, "cell_type_2"])
+    inverse_category_mapping = inverse_category_mapping[fine_cell_types]
+
+    category_mapping = list()
+
+    for (label in unique(inverse_category_mapping)) {
+
+      category_mapping[[label]] = names(inverse_category_mapping)[which(inverse_category_mapping == label)]
+
+    }
+
+    inverse_category_mappings[[i]] = inverse_category_mapping
+    category_mappings[[i]] = category_mapping
+
+  }
+
+  return(list(inverse_category_mappings = inverse_category_mappings, category_mappings = category_mappings, categories = fine_cell_types))
+
+}
+
+category_mappings = get_category_mappings(cell_types, FALSE)
+
+saveRDS(fit, "data/simulation/hao_category_mappings.rds")
