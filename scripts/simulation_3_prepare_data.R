@@ -1,7 +1,10 @@
-DATA_PATH = "data/application_1/"
+library(CITEseqData)
+library(SingleCellExperiment)
+
+DATA_PATH = "data/simulation/"
 dir.create(DATA_PATH, recursive = TRUE)
 
-data = CITEseqData::get_hao_3_prime_data(DATA_PATH)
+data = get_hao_3_prime_data(DATA_PATH)
 
 data$split = paste0(data$donor, "_", data$time)
 split = lapply(unique(data$split), function(x) data[, which(data$split == x)])
@@ -31,7 +34,7 @@ Y = data$cell_type_2
 require(doMC)
 registerDoMC(cores = 10)
 fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
-saveRDS(fit, "data/simulation/hao_glmnet_fit.rds")
+saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit.rds"))
 
 cell_types = colData(data)[, c("cell_type_1", "cell_type_2")]
 cell_types = cell_types[!duplicated(cell_types), ]
@@ -75,4 +78,4 @@ get_category_mappings = function(cell_types) {
 
 category_mappings = get_category_mappings(cell_types, FALSE)
 
-saveRDS(fit, "data/simulation/hao_category_mappings.rds")
+saveRDS(fit, file.path(DATA_PATH, "hao_category_mappings.rds"))
