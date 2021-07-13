@@ -1,10 +1,13 @@
 library(CITEseqData)
 library(SingleCellExperiment)
 
-DATA_PATH = "data/simulation/"
+DATA_PATH = "data/application_1/"
 dir.create(DATA_PATH, recursive = TRUE)
 
 data = get_hao_3_prime_data(DATA_PATH)
+
+DATA_PATH = "data/simulation/"
+dir.create(DATA_PATH, recursive = TRUE)
 
 data$split = paste0(data$donor, "_", data$time)
 split = lapply(unique(data$split), function(x) data[, which(data$split == x)])
