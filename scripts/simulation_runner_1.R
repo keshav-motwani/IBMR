@@ -13,7 +13,6 @@ defaults = list(
   p = 500,
   nonzero = 75,
   b = 2,
-  r = 50,
   rank = 20,
   batch_effect = 0.1
 )

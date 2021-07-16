@@ -4,7 +4,6 @@ generate_simulation_data_fine = function(q,
                                          p,
                                          nonzero,
                                          b,
-                                         r,
                                          rank,
                                          batch_effect,
                                          replicate) {
@@ -39,15 +38,8 @@ generate_simulation_data_fine = function(q,
   U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
   X_list_val = compute_X_list(X_star_list_val, U_list_val)
 
-  Z_list = compute_pca_for_Z_list(X_list, r, TRUE)
-  Z_list_int = compute_pca_for_Z_list(X_list, 0, TRUE)
-  Z_star_list = compute_pca_for_Z_list(X_star_list, r, TRUE)
-
   output = list(train = list(X_list = X_list,
                              X_star_list = X_star_list,
-                             Z_list = Z_list,
-                             Z_list_int = Z_list_int,
-                             Z_star_list = Z_star_list,
                              Y_list = Y_list,
                              Y_list_fine = get_fine_categories(Y_list),
                              category_mappings = category_mappings,
@@ -65,6 +57,75 @@ generate_simulation_data_fine = function(q,
                 Beta = Beta)
 
   return(output)
+
+}
+
+generate_simulation_data_from_real = function(X_star,
+                                              glmnet_fit,
+                                              category_mappings,
+                                              N,
+                                              sparsity,
+                                              rank,
+                                              batch_effect,
+                                              replicate) {
+
+  set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+
+  coef = extract_alpha_Beta_from_glmnet(glmnet_fit, sparsity)
+  alpha = coef$alpha
+  Beta = coef$Beta
+
+  K = length(category_mappings)
+
+  categories = colnames(Beta)
+  category_mappings_fine = create_fine_category_mappings(categories, length(category_mappings))
+
+  X_star_list = lapply(rep(N / K, K), function(n_k) X_star[sample(1:nrow(X_star), n_k)])
+  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+
+  X_star_list_val = lapply(rep(N / K, K), function(n_k) X_star[sample(1:nrow(X_star), n_k)])
+  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
+
+  X_star_list_test = lapply(c(N), function(n_k) X_star[sample(1:nrow(X_star), n_k)])
+  Y_list_test = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_test, alpha, Beta)
+
+  U_list = simulate_U_list(X_star_list, rank, batch_effect)
+  X_list = compute_X_list(X_star_list, U_list)
+
+  U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
+  X_list_val = compute_X_list(X_star_list_val, U_list_val)
+
+  output = list(train = list(X_list = X_list,
+                             X_star_list = X_star_list,
+                             Y_list = Y_list,
+                             Y_list_fine = get_fine_categories(Y_list),
+                             category_mappings = category_mappings,
+                             category_mappings_fine = category_mappings_fine),
+                validation = list(X_list = X_list_val,
+                                  X_star_list = X_star_list_val,
+                                  Y_list = Y_list_val,
+                                  Y_list_fine = get_fine_categories(Y_list_val),
+                                  category_mappings = category_mappings,
+                                  category_mappings_fine = category_mappings_fine),
+                test = list(X_star_list = X_star_list_test,
+                            Y_list_fine = get_fine_categories(Y_list_test)),
+                alpha = alpha,
+                Beta = Beta)
+
+  return(output)
+
+}
+
+extract_alpha_Beta_from_glmnet = function(glmnet_fit, sparsity) {
+
+  p = glmnet_fit$glmnet.fit$dim[1]
+
+  lambda_index = which.min(abs(glmnet_fit$nzero/p - sparsity))
+
+  coef = as.matrix(do.call(cbind, glmnet::coef(test, s = glmnet_fit$lambda[lambda_index])))
+  colnames(coef) = glmnet_fit$glmnet.fit$classnames
+
+  return(list(alpha = coef[1, , drop = TRUE], Beta = coef[-1, , drop = FALSE]))
 
 }
 
@@ -299,13 +360,14 @@ fit_IBMR = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    data$train$Z_list,
+    compute_pca_for_Z_list(data$train$X_list, 50, TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list
   )
 
   return(prepare_output_IBMR(fit, data$test$X_star_list))
+
 
 }
 
@@ -316,7 +378,7 @@ fit_IBMR_ORC_clean = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_star_list,
-    data$train$Z_star_list,
+    compute_pca_for_Z_list(data$train$X_star_list, 50, TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_star_list
@@ -333,7 +395,7 @@ fit_IBMR_int = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    data$train$Z_list_int,
+    lapply(data$train$X_list, function(X) matrix(1, nrow = nrow(X), ncol = 1)),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list
@@ -350,7 +412,7 @@ fit_IBMR_int_ORC_clean = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_star_list,
-    data$train$Z_list_int,
+    lapply(data$train$X_star_list, function(X) matrix(1, nrow = nrow(X), ncol = 1)),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_star_list
@@ -367,7 +429,7 @@ fit_IBMR_common_Gamma = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    data$train$Z_list,
+    compute_pca_for_Z_list(data$train$X_list, 50, TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list,
@@ -385,7 +447,7 @@ fit_IBMR_common_Gamma_ORC_clean = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_star_list,
-    data$train$Z_star_list,
+    compute_pca_for_Z_list(data$train$X_star_list, 50, TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_star_list,
