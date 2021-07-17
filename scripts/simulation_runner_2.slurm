@@ -6,7 +6,7 @@
 #SBATCH --account=amolstad
 #SBATCH --qos=amolstad-b
 #SBATCH --job-name=IBMR
-#SBATCH --mem-per-cpu=2gb
+#SBATCH --mem-per-cpu=6gb
 #SBATCH -t 4320
 #SBATCH --output=logs_2/IBMR_%a.log
 
