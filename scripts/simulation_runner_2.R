@@ -13,17 +13,18 @@ defaults = list(
   p = 20,
   nonzero = 20,
   b = 2,
-  r = 10
+  rank = 1,
+  batch_effect = 0
 )
 
 considered_values = list(
   K = c(1, 2, 4, 8, 16)
 )
 
-methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma", "elastic_net")
+methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_split", "glmnet_relabel")
 
 parameters = expand_parameters("fine_clean_low_dim_simulations", considered_values, defaults, 50, methods)
 
 current_parameters = parameters[[ARRAY_ID]]
-system.time({result = evaluate_parameters(current_parameters, generate_simulation_data_fine_clean)})
+system.time({result = evaluate_parameters(current_parameters, generate_simulation_data_fine)})
 saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))

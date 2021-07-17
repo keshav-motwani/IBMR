@@ -171,6 +171,7 @@ evaluate_parameters = function(parameters, simulation_function) {
   method_function = get(paste0("fit_", method))
 
   data = do.call(simulation_function, parameters[formalArgs(simulation_function)])
+  data$parameters = parameters
 
   fits = method_function(data)
 
@@ -204,7 +205,7 @@ evaluate_parameters = function(parameters, simulation_function) {
 
     if (length(fits) > 1) parameters$method = paste0(parameters$method, "_", names(fits)[i])
 
-    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit)
+    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit, true = list(alpha = alpha, Beta = Beta))
 
   }
 
@@ -360,7 +361,7 @@ fit_IBMR = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    compute_pca_for_Z_list(data$train$X_list, 50, TRUE),
+    compute_pca_for_Z_list(data$train$X_list, ifelse(data$parameters$p > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list
@@ -378,7 +379,7 @@ fit_IBMR_ORC_clean = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_star_list,
-    compute_pca_for_Z_list(data$train$X_star_list, 50, TRUE),
+    compute_pca_for_Z_list(data$train$X_star_list, ifelse(data$parameters$p > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_star_list
@@ -429,7 +430,7 @@ fit_IBMR_common_Gamma = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    compute_pca_for_Z_list(data$train$X_list, 50, TRUE),
+    compute_pca_for_Z_list(data$train$X_list, ifelse(data$parameters$p > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list,
@@ -447,7 +448,7 @@ fit_IBMR_common_Gamma_ORC_clean = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_star_list,
-    compute_pca_for_Z_list(data$train$X_star_list, 50, TRUE),
+    compute_pca_for_Z_list(data$train$X_star_list, ifelse(data$parameters$p > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_star_list,
