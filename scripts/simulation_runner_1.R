@@ -35,9 +35,12 @@ considered_values = list(
 
 parameters = c(parameters, expand_parameters("fine_intercept_batch_effect", considered_values, defaults, 50, methods))
 
-for (i in 1:6) {
 
-  PARAMETER_ID = (ARRAY_ID - 1) * length(methods) + i
+chunk_size = 6
+
+for (i in 1:chunk_size) {
+
+  PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
   current_parameters = parameters[[PARAMETER_ID]]
   system.time({result = evaluate_parameters(current_parameters, generate_simulation_data_fine)})
   saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
