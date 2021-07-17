@@ -205,7 +205,7 @@ evaluate_parameters = function(parameters, simulation_function) {
 
     if (length(fits) > 1) parameters$method = paste0(parameters$method, "_", names(fits)[i])
 
-    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit, true = list(alpha = alpha, Beta = Beta))
+    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit, true = list(alpha = data$alpha, Beta = data$Beta))
 
   }
 
