@@ -89,7 +89,16 @@ simulate_U = function(X_star, rank, batch_effect) {
   n = nrow(X_star)
   p = ncol(X_star)
 
-  U = matrix(rnorm(n * rank), ncol = rank) %*% matrix(rnorm(rank * p), nrow = rank)
+  if (rank == "int") {
+
+    U = matrix(rep(1, nrow(X_star)), ncol = 1) %*% matrix(rnorm(p), nrow = 1)
+
+  } else {
+
+    rank = as.numeric(rank)
+    U = matrix(rnorm(n * rank), ncol = rank) %*% matrix(rnorm(rank * p), nrow = rank)
+
+  }
 
   c = batch_effect * norm(X_star, "F") / norm(U, "F")
 
