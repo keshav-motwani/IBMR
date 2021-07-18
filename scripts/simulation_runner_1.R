@@ -6,7 +6,7 @@ ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 RESULT_PATH = "results/simulations_1_new"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_split", "glmnet_relabel")
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_split", "glmnet_relabel")
 methods = c(methods, paste0(methods, "_ORC_clean"))
 
 defaults = list(
