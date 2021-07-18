@@ -36,7 +36,7 @@ considered_values = list(
 parameters = c(parameters, expand_parameters("fine_intercept_batch_effect", considered_values, defaults, 50, methods))
 
 
-chunk_size = 6
+chunk_size = 7
 
 for (i in 1:chunk_size) {
 
