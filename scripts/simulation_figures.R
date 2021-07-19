@@ -37,8 +37,9 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_split", "glmnet_relabel")
-methods = c(methods, paste0(methods, "_ORC_clean"))
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
+methods = c(methods, paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
+methods = methods[methods %in% result$method]
 
 summary = result %>%
   pivot_longer(Beta_SSE:best_case_error, names_repair = "minimal", values_to = "result") %>%
@@ -57,13 +58,21 @@ experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
 
 for (i in 1:nrow(experiments)) {
+
+  data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
+
+  levels = gtools::mixedsort(unique(data$value))
+  if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
+
+  data$value = factor(data$value, levels = levels)
+
   plots = c(
     plots,
     list(
       ggplot(
-        summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1]),
+        data,
         aes(
-          x = as.factor(value),
+          x = value,
           y = result,
           fill = method
         )
@@ -100,11 +109,19 @@ experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
 
 for (i in 1:nrow(experiments)) {
+
+  data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
+
+  levels = gtools::mixedsort(unique(data$value))
+  if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
+
+  data$value = factor(data$value, levels = levels)
+
   plots = c(
     plots,
     list(
       ggplot(
-        summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1]),
+        data,
         aes(
           x = value,
           y = mean,

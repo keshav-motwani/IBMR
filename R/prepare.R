@@ -14,6 +14,8 @@ create_fine_category_mappings = function(categories, K) {
 
   names(categories) = categories
 
-  replicate(K, as.list(categories), simplify = FALSE)
+  list(category_mappings = replicate(K, as.list(categories), simplify = FALSE),
+       inverse_category_mappings = replicate(K, categories, simplify = FALSE),
+       categories = categories)
 
 }

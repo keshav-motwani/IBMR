@@ -69,6 +69,21 @@ test_that("Estimated probabilities from glmnet_split matches cv.glmnet for fine 
   expect(all(abs(probs_cv_glmnet - probs_glmnet_split) < COEF_THRESHOLD), "probabilities not equal")
 })
 
+fit = cv.glmnet(X_list[[1]], Y_list[[1]], family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
+fit2 = cv.glmnet(X_list[[2]], Y_list[[2]], family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
+
+test = glmnet_split(Y_list[1:2], category_mappings$categories, category_mappings$category_mappings[1:2], X_list[1:2], n_lambda = 25, lambda_min_ratio = 1e-4)
+
+probs_cv_glmnet = predict(fit, X_list[[1]], type = "response", s = fit$lambda.min)[, , 1]
+probs_cv_glmnet2 = predict(fit2, X_list[[1]], type = "response", s = fit2$lambda.min)[, , 1]
+probs_cv_glmnet = (probs_cv_glmnet + probs_cv_glmnet2) / 2
+
+probs_glmnet_split = predict_probabilities_glmnet_split(test, list(X_list[[1]]))[[1]]
+
+test_that("Estimated probabilities from glmnet_split matches cv.glmnet for fine resolution data with 2 datasets", {
+  expect(all(abs(probs_cv_glmnet - probs_glmnet_split) < COEF_THRESHOLD), "probabilities not equal")
+})
+
 plot(probs_cv_glmnet, probs_glmnet_split)
 abline(0, 1)
 
