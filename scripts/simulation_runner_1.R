@@ -7,7 +7,7 @@ RESULT_PATH = "results/simulations_1_new"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
-methods = c(methods, paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
+methods = c(methods, paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
   category_mappings = simulate_category_mappings(4, 2, list(c(2, 2), c(3, 3), c(2, 4), c(4, 2))),

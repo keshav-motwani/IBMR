@@ -9,7 +9,6 @@ files = files[grepl("rds", files)]
 
 results = lapply(files, function(x) {
   if (file.info(x)$size > 0) {
-    print(x)
     results = readRDS(x)
     data = list()
     for (result in results) {
