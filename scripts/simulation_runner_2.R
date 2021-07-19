@@ -27,5 +27,5 @@ methods = c("IBMR", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmn
 parameters = expand_parameters("fine_clean_low_dim_simulations", considered_values, defaults, 50, methods)
 
 current_parameters = parameters[[ARRAY_ID]]
-system.time({result = evaluate_parameters(current_parameters, generate_simulation_data_fine)})
+system.time({result = evaluate_parameters(current_parameters, generate_simulation_data)})
 saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
