@@ -14,7 +14,8 @@ defaults = list(
   nonzero = 20,
   b = 2,
   rank = 1,
-  batch_effect = 0
+  batch_effect = 0,
+  category_mappings = NULL
 )
 
 considered_values = list(
