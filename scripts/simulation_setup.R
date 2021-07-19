@@ -21,7 +21,8 @@ generate_simulation_data = function(category_mappings,
 
   } else {
 
-    category_mappings_fine = create_fine_category_mappings(category_mappings$categories, length(category_mappings$category_mappings))
+    K = length(category_mappings$category_mappings)
+    category_mappings_fine = create_fine_category_mappings(category_mappings$categories, K)
 
   }
 
@@ -218,11 +219,11 @@ evaluate_parameters = function(parameters, simulation_function) {
   method = parameters$method
   ORC_type = paste0("ORC", strsplit(method, "ORC")[[1]][2])
   ORC_type = ifelse(ORC_type == "ORCNA", "normal", ORC_type)
-  method = strsplit(strsplit(method, "_ORC")[[1]][1], "fit_")[[1]][2]
+  method = strsplit(strsplit(method, "_ORC")[[1]][1], "fit_")[[1]][1]
 
   method_function = get(paste0("fit_", method))
 
-  data = do.call(simulation_function, parameters[formalArgs(simulation_function)])[[ORC_type]]
+  data = do.call(simulation_function, parameters[intersect(names(parameters), formalArgs(simulation_function))])[[ORC_type]]
   data$parameters = parameters
 
   fits = method_function(data)
