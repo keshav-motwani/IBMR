@@ -9,6 +9,7 @@ files = files[grepl("rds", files)]
 
 results = lapply(files, function(x) {
   if (file.info(x)$size > 0) {
+    print(x)
     results = readRDS(x)
     data = list()
     for (result in results) {
@@ -36,7 +37,7 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel", "glmnet_split")
 methods = c(methods, paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
 methods = methods[methods %in% result$method]
 
@@ -60,7 +61,7 @@ for (i in 1:nrow(experiments)) {
 
   data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-  levels = gtools::mixedsort(unique(data$value))
+  levels = gtools::mixedsort(as.character(unique(data$value)))
   if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
 
   data$value = factor(data$value, levels = levels)
@@ -111,7 +112,7 @@ for (i in 1:nrow(experiments)) {
 
   data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-  levels = gtools::mixedsort(unique(data$value))
+  levels = gtools::mixedsort(as.character(unique(data$value)))
   if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
 
   data$value = factor(data$value, levels = levels)
