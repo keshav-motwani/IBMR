@@ -37,7 +37,7 @@ data = list(
   glmnet_fit = readRDS(file.path(DATA_PATH, "hao_glmnet_fit.rds"))
 )
 
-chunk_size = 12
+chunk_size = 24
 
 for (i in 1:chunk_size) {
 
