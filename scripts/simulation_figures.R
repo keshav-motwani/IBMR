@@ -122,7 +122,7 @@ for (glmnet in c(TRUE, FALSE)) {
 
     data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-    if (!glmnet) data = summary %>% filter(!grepl("glmnet", method))
+    if (!glmnet) data = data %>% filter(!grepl("glmnet", method))
 
     levels = gtools::mixedsort(as.character(unique(data$value)))
     if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
