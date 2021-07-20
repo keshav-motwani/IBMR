@@ -43,12 +43,16 @@ result$method = sapply(strsplit(result$method, "_ORC"), `[`, 1)
 methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
 methods = methods[methods %in% result$method]
 
+oracles = c("observed", "ORC_fine", "ORC_clean", "ORC_fine_clean")
+oracles = oracles[oracles %in% result$oracle]
+
 summary = result %>%
   pivot_longer(Beta_SSE:best_case_error, names_repair = "minimal", values_to = "result") %>%
   # filter(method != "ORACLE" | name == "error" | name == "best_case_error") %>%
   filter(method %in% methods) %>%
   mutate(value = factor(value)) %>%
   mutate(method = factor(method, levels = methods)) %>%
+  mutate(oracle = factor(oracle, levels = oracles)) %>%
   mutate(group = paste0(experiment, method, oracle, name))
 
 
