@@ -34,6 +34,8 @@ data$cell_type_2[data$cell_type_2 == "NK"] = "NK_CD56dim"
 X = as.matrix(t(logcounts(data)))
 Y = data$cell_type_2
 
+saveRDS(X, file.path(DATA_PATH, "hao_X.rds"))
+
 require(doMC)
 registerDoMC(cores = 64)
 fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
