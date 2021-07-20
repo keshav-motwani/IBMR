@@ -37,8 +37,10 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel", "glmnet_split")
-methods = c(methods, paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
+result$oracle = gsub("ORCNA", "observed", paste0("ORC", sapply(strsplit(result$method, "ORC"), `[`, 2)))
+result$method = sapply(strsplit(result$method, "_ORC"), `[`, 1)
+
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
 methods = methods[methods %in% result$method]
 
 summary = result %>%
@@ -47,15 +49,16 @@ summary = result %>%
   filter(method %in% methods) %>%
   mutate(value = factor(value)) %>%
   mutate(method = factor(method, levels = methods)) %>%
-  mutate(group = paste0(experiment, method, name))
+  mutate(group = paste0(experiment, method, oracle, name))
+
 
 plasma_pal = viridis::plasma(n = length(methods) + 2)[1:length(methods)]
 names(plasma_pal) = methods
 
-plots = list()
-
 experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
+
+pdf(file = file.path(RESULT_PATH, "figures", "simulation_figures_box.pdf"), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
 
 for (i in 1:nrow(experiments)) {
 
@@ -66,47 +69,42 @@ for (i in 1:nrow(experiments)) {
 
   data$value = factor(data$value, levels = levels)
 
-  plots = c(
-    plots,
-    list(
-      ggplot(
-        data,
-        aes(
-          x = value,
-          y = result,
-          fill = method
-        )
-      ) +
-        geom_boxplot(lwd=.5, outlier.size = .4) +
-        # geom_point(size = 2, position=position_dodge(0.2)) +
-        # geom_line(position=position_dodge(0.2)) +
-        # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-        facet_wrap( ~ name, scales = "free", nrow = 1) +
-        theme_classic() +
-        theme(strip.background = element_blank(), strip.placement = "outside") +
-        scale_fill_manual(values = plasma_pal) +
-        theme(legend.position = "bottom") +
-        xlab(experiments[i, 2]) +
-        ylab(NULL) +
-        labs(subtitle = experiments[i, 1]) +
-        scale_shape_manual(values=1:length(methods))
+  plot = ggplot(
+    data,
+    aes(
+      x = value,
+      y = result,
+      fill = method
     )
-  )
+  ) +
+    geom_boxplot(lwd=.5, outlier.size = .4) +
+    # geom_point(size = 2, position=position_dodge(0.2)) +
+    # geom_line(position=position_dodge(0.2)) +
+    # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
+    facet_grid(name ~ oracle, scales = "free_y") +
+    theme_classic() +
+    theme(strip.background = element_blank(), strip.placement = "outside") +
+    scale_fill_manual(values = plasma_pal) +
+    theme(legend.position = "bottom") +
+    xlab(experiments[i, 2]) +
+    ylab(NULL) +
+    labs(subtitle = experiments[i, 1]) +
+    scale_shape_manual(values=1:length(methods))
+
+  print(plot)
+
 }
 
-wrap_plots(plots, nrow = length(plots)) + plot_layout(guides = "collect") &
-  theme(legend.position='bottom')
-
-ggsave(file.path(RESULT_PATH, "figures", "simulation_figures_box.pdf"), height = 4.2 * nrow(experiments), width = 32)
+dev.off()
 
 summary = summary %>%
-  group_by(run, experiment, value, method, name) %>%
+  group_by(run, experiment, value, method, oracle, name) %>%
   summarize(mean = mean(result), two_se = 2 * sd(result)/sqrt(n()))
-
-plots = list()
 
 experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
+
+pdf(file = file.path(RESULT_PATH, "figures", "simulation_figures_line.pdf"), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
 
 for (i in 1:nrow(experiments)) {
 
@@ -117,42 +115,37 @@ for (i in 1:nrow(experiments)) {
 
   data$value = factor(data$value, levels = levels)
 
-  plots = c(
-    plots,
-    list(
-      ggplot(
-        data,
-        aes(
-          x = value,
-          y = mean,
-          color = method,
-          group = method,
-          linetype = method,
-          shape = method,
-          ymin = mean - two_se,
-          ymax = mean + two_se
-        )
-      ) +
-        geom_point(size = 2, position=position_dodge(0.2)) +
-        geom_line(position=position_dodge(0.2)) +
-        geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-        facet_wrap( ~ name, scales = "free", nrow = 1) +
-        theme_classic() +
-        theme(strip.background = element_blank(), strip.placement = "outside") +
-        scale_color_manual(values = plasma_pal) +
-        theme(legend.position = "bottom") +
-        xlab(experiments[i, 2]) +
-        ylab(NULL) +
-        labs(subtitle = experiments[i, 1]) +
-        scale_shape_manual(values=1:length(methods))
+  plot = ggplot(
+    data,
+    aes(
+      x = value,
+      y = mean,
+      color = method,
+      group = method,
+      linetype = method,
+      shape = method,
+      ymin = mean - two_se,
+      ymax = mean + two_se
     )
-  )
+  ) +
+    geom_point(size = 2, position=position_dodge(0.2)) +
+    geom_line(position=position_dodge(0.2)) +
+    geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
+    facet_grid(name ~ oracle, scales = "free_y") +
+    theme_classic() +
+    theme(strip.background = element_blank(), strip.placement = "outside") +
+    scale_color_manual(values = plasma_pal) +
+    theme(legend.position = "bottom") +
+    xlab(experiments[i, 2]) +
+    ylab(NULL) +
+    labs(subtitle = experiments[i, 1]) +
+    scale_shape_manual(values=1:length(methods))
+
+  print(plot)
+
 }
 
-wrap_plots(plots, nrow = length(plots)) + plot_layout(guides = "collect") &
-  theme(legend.position='bottom')
-
-ggsave(file.path(RESULT_PATH, "figures", "simulation_figures_line.pdf"), height = 4.2 * nrow(experiments), width = 32)
+dev.off()
 
 write.csv(result, file.path(RESULT_PATH, "figures", "simulation_results.csv"))
 write.csv(summary, file.path(RESULT_PATH, "figures", "simulation_result_summary.csv"))
