@@ -18,10 +18,10 @@ defaults = list(
 )
 
 considered_values = list(
-  sparsity = c(0.25, 0.5, 0.765, 0.8725),
   batch_effect = c(0.025, 0.05, 0.1, 0.2, 0.4),
-  rank = c("int", 1, 5, 20),
-  N = c(600, 1200, 2400, 4800)
+  sparsity = c(0.25, 0.5, 0.765, 0.8725),
+  N = c(600, 1200, 2400, 4800),
+  rank = c("int", 1, 5, 20)
 )
 
 parameters = expand_parameters("low_rank_batch_effect", considered_values, defaults, 50, methods)
