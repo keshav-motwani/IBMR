@@ -223,7 +223,7 @@ extract_alpha_Beta_from_glmnet = function(glmnet_fit, sparsity) {
 
   lambda_index = which.min(abs(glmnet_fit$nzero/p - sparsity))
 
-  coef = as.matrix(do.call(cbind, coef(test, s = glmnet_fit$lambda[lambda_index])))
+  coef = as.matrix(do.call(cbind, coef(glmnet_fit, s = glmnet_fit$lambda[lambda_index])))
   colnames(coef) = glmnet_fit$glmnet.fit$classnames
 
   return(list(alpha = coef[1, , drop = TRUE], Beta = coef[-1, , drop = FALSE]))
