@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/simulations_1"
+RESULT_PATH = "results/simulations_1_new"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -62,13 +62,15 @@ names(plasma_pal) = methods
 experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
 
-for (free in c("free_y", "free")) {
+for (glmnet in c(TRUE, FALSE)) {
 
-  pdf(file = file.path(RESULT_PATH, "figures", paste0("simulation_figures_box_", free, ".pdf")), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
+  pdf(file = file.path(RESULT_PATH, "figures", paste0("simulation_figures_box_", ifelse(glmnet, "with_glmnet", "no_glmnet"), ".pdf")), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
 
   for (i in 1:nrow(experiments)) {
 
     data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
+
+    if (!glmnet) data = summary %>% filter(!grepl("glmnet", method))
 
     levels = gtools::mixedsort(as.character(unique(data$value)))
     if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
@@ -87,7 +89,7 @@ for (free in c("free_y", "free")) {
       # geom_point(size = 2, position=position_dodge(0.2)) +
       # geom_line(position=position_dodge(0.2)) +
       # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-      facet_grid(name ~ oracle, scales = free) +
+      facet_grid(name ~ oracle, scales = "free_y") +
       theme_classic() +
       theme(strip.background = element_blank(), strip.placement = "outside") +
       scale_fill_manual(values = plasma_pal) +
@@ -112,13 +114,15 @@ summary = summary %>%
 experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
 
-for (free in c("free_y", "free")) {
+for (glmnet in c(TRUE, FALSE)) {
 
-  pdf(file = file.path(RESULT_PATH, "figures", paste0("simulation_figures_line_", free, ".pdf")), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
+  pdf(file = file.path(RESULT_PATH, "figures", paste0("simulation_figures_line_", ifelse(glmnet, "with_glmnet", "no_glmnet"), ".pdf")), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
 
   for (i in 1:nrow(experiments)) {
 
     data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
+
+    if (!glmnet) data = summary %>% filter(!grepl("glmnet", method))
 
     levels = gtools::mixedsort(as.character(unique(data$value)))
     if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
@@ -141,7 +145,7 @@ for (free in c("free_y", "free")) {
       geom_point(size = 2, position=position_dodge(0.2)) +
       geom_line(position=position_dodge(0.2)) +
       geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-      facet_grid(name ~ oracle, scales = free) +
+      facet_grid(name ~ oracle, scales = "free_y") +
       theme_classic() +
       theme(strip.background = element_blank(), strip.placement = "outside") +
       scale_color_manual(values = plasma_pal) +
