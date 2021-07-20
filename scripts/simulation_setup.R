@@ -466,7 +466,7 @@ fit_IBMR = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    compute_pca_for_Z_list(data$train$X_list, ifelse(data$parameters$p > 100, 50, 10), TRUE),
+    compute_pca_for_Z_list(data$train$X_list, ifelse(ncol(data$train$X_list[[1]]) > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list
@@ -500,7 +500,7 @@ fit_IBMR_common_Gamma = function(data) {
     data$train$category_mappings$categories,
     data$train$category_mappings$category_mappings,
     data$train$X_list,
-    compute_pca_for_Z_list(data$train$X_list, ifelse(data$parameters$p > 100, 50, 10), TRUE),
+    compute_pca_for_Z_list(data$train$X_list, ifelse(ncol(data$train$X_list[[1]]) > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list,
