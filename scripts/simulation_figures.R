@@ -62,44 +62,48 @@ names(plasma_pal) = methods
 experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
 
-pdf(file = file.path(RESULT_PATH, "figures", "simulation_figures_box.pdf"), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
+for (free in c("free_y", "free")) {
 
-for (i in 1:nrow(experiments)) {
+  pdf(file = file.path(RESULT_PATH, "figures", paste0("simulation_figures_box_", free, ".pdf")), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
 
-  data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
+  for (i in 1:nrow(experiments)) {
 
-  levels = gtools::mixedsort(as.character(unique(data$value)))
-  if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
+    data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-  data$value = factor(data$value, levels = levels)
+    levels = gtools::mixedsort(as.character(unique(data$value)))
+    if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
 
-  plot = ggplot(
-    data,
-    aes(
-      x = value,
-      y = result,
-      fill = method
-    )
-  ) +
-    geom_boxplot(lwd=.5, outlier.size = .4) +
-    # geom_point(size = 2, position=position_dodge(0.2)) +
-    # geom_line(position=position_dodge(0.2)) +
-    # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-    facet_grid(name ~ oracle, scales = "free_y") +
-    theme_classic() +
-    theme(strip.background = element_blank(), strip.placement = "outside") +
-    scale_fill_manual(values = plasma_pal) +
-    theme(legend.position = "bottom") +
-    xlab(experiments[i, 2]) +
-    ylab(NULL) +
-    labs(subtitle = experiments[i, 1]) +
-    scale_shape_manual(values=1:length(methods))
+    data$value = factor(data$value, levels = levels)
 
-  print(plot)
+    plot = ggplot(
+      data,
+      aes(
+        x = value,
+        y = result,
+        fill = method
+      )
+    ) +
+      geom_boxplot(lwd=.5, outlier.size = .4) +
+      # geom_point(size = 2, position=position_dodge(0.2)) +
+      # geom_line(position=position_dodge(0.2)) +
+      # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
+      facet_grid(name ~ oracle, scales = free) +
+      theme_classic() +
+      theme(strip.background = element_blank(), strip.placement = "outside") +
+      scale_fill_manual(values = plasma_pal) +
+      theme(legend.position = "bottom") +
+      xlab(experiments[i, 2]) +
+      ylab(NULL) +
+      labs(subtitle = experiments[i, 1]) +
+      scale_shape_manual(values=1:length(methods))
+
+    print(plot)
+
+  }
+
+  dev.off()
 
 }
-
-dev.off()
 
 summary = summary %>%
   group_by(run, experiment, value, method, oracle, name) %>%
@@ -108,48 +112,52 @@ summary = summary %>%
 experiments = cbind(summary$run, summary$experiment)
 experiments = experiments[!duplicated(experiments), , drop = FALSE]
 
-pdf(file = file.path(RESULT_PATH, "figures", "simulation_figures_line.pdf"), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
+for (free in c("free_y", "free")) {
 
-for (i in 1:nrow(experiments)) {
+  pdf(file = file.path(RESULT_PATH, "figures", paste0("simulation_figures_line_", free, ".pdf")), height = 3 * length(unique(summary$name)), width = length(unique(summary$oracle)) * 4)
 
-  data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
+  for (i in 1:nrow(experiments)) {
 
-  levels = gtools::mixedsort(as.character(unique(data$value)))
-  if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
+    data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-  data$value = factor(data$value, levels = levels)
+    levels = gtools::mixedsort(as.character(unique(data$value)))
+    if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
 
-  plot = ggplot(
-    data,
-    aes(
-      x = value,
-      y = mean,
-      color = method,
-      group = method,
-      linetype = method,
-      shape = method,
-      ymin = mean - two_se,
-      ymax = mean + two_se
-    )
-  ) +
-    geom_point(size = 2, position=position_dodge(0.2)) +
-    geom_line(position=position_dodge(0.2)) +
-    geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-    facet_grid(name ~ oracle, scales = "free_y") +
-    theme_classic() +
-    theme(strip.background = element_blank(), strip.placement = "outside") +
-    scale_color_manual(values = plasma_pal) +
-    theme(legend.position = "bottom") +
-    xlab(experiments[i, 2]) +
-    ylab(NULL) +
-    labs(subtitle = experiments[i, 1]) +
-    scale_shape_manual(values=1:length(methods))
+    data$value = factor(data$value, levels = levels)
 
-  print(plot)
+    plot = ggplot(
+      data,
+      aes(
+        x = value,
+        y = mean,
+        color = method,
+        group = method,
+        linetype = method,
+        shape = method,
+        ymin = mean - two_se,
+        ymax = mean + two_se
+      )
+    ) +
+      geom_point(size = 2, position=position_dodge(0.2)) +
+      geom_line(position=position_dodge(0.2)) +
+      geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
+      facet_grid(name ~ oracle, scales = free) +
+      theme_classic() +
+      theme(strip.background = element_blank(), strip.placement = "outside") +
+      scale_color_manual(values = plasma_pal) +
+      theme(legend.position = "bottom") +
+      xlab(experiments[i, 2]) +
+      ylab(NULL) +
+      labs(subtitle = experiments[i, 1]) +
+      scale_shape_manual(values=1:length(methods))
+
+    print(plot)
+
+  }
+
+  dev.off()
 
 }
-
-dev.off()
 
 write.csv(result, file.path(RESULT_PATH, "figures", "simulation_results.csv"))
 write.csv(summary, file.path(RESULT_PATH, "figures", "simulation_result_summary.csv"))
