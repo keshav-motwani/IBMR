@@ -4,7 +4,7 @@ source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 DATA_PATH = "data/simulations"
-RESULT_PATH = "results/simulations_1_new"
+RESULT_PATH = "results/simulations_3"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
@@ -43,7 +43,7 @@ for (i in 1:chunk_size) {
 
   PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
   current_parameters = c(parameters[[PARAMETER_ID]], data)
-  system.time({result = evaluate_parameters(current_parameters, generate_simulation_data)})
+  system.time({result = evaluate_parameters(current_parameters, generate_simulation_data_from_real)})
   saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
 
 }
