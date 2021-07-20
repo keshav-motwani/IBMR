@@ -33,7 +33,7 @@ parameters = c(parameters, expand_parameters("intercept_batch_effect", considere
 
 data = list(
   category_mappings = readRDS(file.path(DATA_PATH, "hao_category_mappings.rds")),
-  X_star = readRDS(file.path(DATA_PATH, "hao_glmnet_fit.rds")),
+  X_star = readRDS(file.path(DATA_PATH, "hao_X.rds")),
   glmnet_fit = readRDS(file.path(DATA_PATH, "hao_glmnet_fit.rds"))
 )
 

@@ -36,11 +36,6 @@ Y = data$cell_type_2
 
 saveRDS(X, file.path(DATA_PATH, "hao_X.rds"))
 
-require(doMC)
-registerDoMC(cores = 64)
-fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
-saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit.rds"))
-
 cell_types = colData(data)[, c("cell_type_1", "cell_type_2")]
 cell_types = cell_types[!duplicated(cell_types), ]
 cell_types = cell_types[order(cell_types$cell_type_1), ]
@@ -81,6 +76,13 @@ get_category_mappings = function(cell_types) {
 
 }
 
-category_mappings = get_category_mappings(cell_types, FALSE)
+category_mappings = get_category_mappings(cell_types)
 
-saveRDS(fit, file.path(DATA_PATH, "hao_category_mappings.rds"))
+saveRDS(category_mappings, file.path(DATA_PATH, "hao_category_mappings.rds"))
+
+require(doMC)
+registerDoMC(cores = 10)
+
+fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
+
+saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit.rds"))

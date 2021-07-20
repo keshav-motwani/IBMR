@@ -132,7 +132,7 @@ generate_simulation_data_from_real = function(category_mappings,
   X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
 
   n_k = c(rep(N / K, K), rep(N / K, K), N)
-  indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:i-1]) + 1):sum(n_k[1:i]))
+  indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
   indices_list = c(list(1:(n_k[1])), indices_list)
 
   X_star_list = lapply(indices_list[1:K], function(indices) X_star[indices, ])
