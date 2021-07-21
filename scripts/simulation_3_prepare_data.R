@@ -1,3 +1,5 @@
+set.seed(1)
+
 library(CITEseqData)
 library(SingleCellExperiment)
 
@@ -18,12 +20,14 @@ select_genes = function(sce_list, n_genes) {
 
   genes = Reduce(intersect, lapply(sce_list, rownames))
   ranks = sapply(sce_list, function(x) rank(-1 * Seurat::FindVariableFeatures(assay(x, "logcounts"))$vst.variance.standardized))
-  genes = genes[order(rowMeans(ranks))][1:n_genes]
-  return(genes)
+  selected_genes = genes[order(rowMeans(ranks))][1:n_genes]
+  selected_genes = c(selected_genes, sample(setdiff(genes, selected_genes), n_genes))
+  print(selected_genes)
+  return(selected_genes)
 
 }
 
-genes = select_genes(split, 2000)
+genes = select_genes(split, 250)
 data = data[genes, ]
 
 data = data[, !grepl("other", data$cell_type_1)]
@@ -85,4 +89,4 @@ registerDoMC(cores = 10)
 
 fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
 
-saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit.rds"))
+saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit_500.rds"))
