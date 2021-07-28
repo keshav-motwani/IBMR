@@ -221,7 +221,7 @@ extract_alpha_Beta_from_glmnet = function(glmnet_fit, sparsity) {
 
   p = glmnet_fit$glmnet.fit$dim[1]
 
-  lambda_index = which.min(abs(glmnet_fit$nzero/p - sparsity))
+  lambda_index = which.min(abs(glmnet_fit$nzero/p - sparsity))[1]
 
   coef = as.matrix(do.call(cbind, coef(glmnet_fit, s = glmnet_fit$lambda[lambda_index])))
   colnames(coef) = glmnet_fit$glmnet.fit$classnames
@@ -309,6 +309,9 @@ evaluate_parameters = function(parameters, simulation_function) {
     fit$all_test_estimated_probabilities = NULL
 
     if (length(fits) > 1) parameters$method = paste0(parameters$method, "_", names(fits)[i])
+
+    parameters$X_star = NULL
+    parameters$glmnet_fit = NULL
 
     results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit, true = list(alpha = data$alpha, Beta = data$Beta))
 

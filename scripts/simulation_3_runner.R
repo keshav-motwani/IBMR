@@ -11,7 +11,7 @@ methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_su
 methods = c(methods, paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
-  sparsity = 0.765,
+  sparsity = 0.84,
   N = 2400,
   rank = 20,
   batch_effect = 0.1
@@ -19,7 +19,7 @@ defaults = list(
 
 considered_values = list(
   batch_effect = c(0.025, 0.05, 0.1, 0.2, 0.4),
-  sparsity = c(0.25, 0.5, 0.765, 0.8725),
+  sparsity = c(0.2, 0.5, 0.84, 0.87),
   N = c(600, 1200, 2400, 4800),
   rank = c("int", 1, 5, 20)
 )
@@ -33,8 +33,8 @@ parameters = c(parameters, expand_parameters("intercept_batch_effect", considere
 
 data = list(
   category_mappings = readRDS(file.path(DATA_PATH, "hao_category_mappings.rds")),
-  X_star = readRDS(file.path(DATA_PATH, "hao_X.rds")),
-  glmnet_fit = readRDS(file.path(DATA_PATH, "hao_glmnet_fit.rds"))
+  X_star = readRDS(file.path(DATA_PATH, "hao_X_500.rds")),
+  glmnet_fit = readRDS(file.path(DATA_PATH, "hao_glmnet_fit_500.rds"))
 )
 
 chunk_size = 24

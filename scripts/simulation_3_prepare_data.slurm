@@ -5,7 +5,7 @@
 #SBATCH --account=amolstad
 #SBATCH --qos=amolstad
 #SBATCH --job-name=IBMR
-#SBATCH --mem-per-cpu=6gb
+#SBATCH --mem-per-cpu=24gb
 #SBATCH -t 4320
 #SBATCH --output=logs/simulation_3_prepare_data.log
 #SBATCH --nodes=1

@@ -32,13 +32,12 @@ data = data[genes, ]
 
 data = data[, !grepl("other", data$cell_type_1)]
 data = data[, !grepl("Proliferating", data$cell_type_2)]
-data = data[, !grepl("ASDC|cDC1", data$cell_type_2)]
-data$cell_type_2[data$cell_type_2 == "NK"] = "NK_CD56dim"
+data = data[, data$cell_type_2 %in% names(which(table(data$cell_type_2) / ncol(data) > 0.01))]
 
 X = as.matrix(t(logcounts(data)))
 Y = data$cell_type_2
 
-saveRDS(X, file.path(DATA_PATH, "hao_X.rds"))
+saveRDS(X, file.path(DATA_PATH, "hao_X_500.rds"))
 
 cell_types = colData(data)[, c("cell_type_1", "cell_type_2")]
 cell_types = cell_types[!duplicated(cell_types), ]
@@ -87,6 +86,6 @@ saveRDS(category_mappings, file.path(DATA_PATH, "hao_category_mappings.rds"))
 require(doMC)
 registerDoMC(cores = 10)
 
-fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE)
+fit = glmnet::cv.glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", trace.it = 1, parallel = TRUE, maxit = 1e7)
 
 saveRDS(fit, file.path(DATA_PATH, "hao_glmnet_fit_500.rds"))
