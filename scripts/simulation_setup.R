@@ -35,7 +35,7 @@ generate_simulation_data = function(category_mappings,
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
 
-  X_star_list_test = simulate_X_star_list(N, p)
+  X_star_list_test = simulate_X_star_list(10000, p)
   Y_list_test = simulate_Y_list(category_mappings_fine$categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
 
   U_list = simulate_U_list(X_star_list, rank, batch_effect)
@@ -131,7 +131,7 @@ generate_simulation_data_from_real = function(category_mappings,
 
   X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
 
-  n_k = c(rep(N / K, K), rep(N / K, K), N)
+  n_k = c(rep(N / K, K), rep(N / K, K), 10000)
   indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
   indices_list = c(list(1:(n_k[1])), indices_list)
 
