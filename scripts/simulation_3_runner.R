@@ -20,7 +20,7 @@ defaults = list(
 
 considered_values = list(
   sparsity = c(0.05, 0.1, 0.2, 0.4, 0.8),
-  N = c(600, 1200, 2400, 4800, 9600)
+  N = c(1200, 2400, 4800, 9600, 19200)
 )
 
 parameters = expand_parameters("category_mappings_1", considered_values, defaults, 50, methods)
