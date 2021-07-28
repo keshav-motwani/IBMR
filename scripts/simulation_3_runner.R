@@ -12,7 +12,7 @@ methods = c(methods, paste0(methods, "_ORC_fine"))
 
 defaults = list(
   sparsity = 0.2,
-  N = 2400,
+  N = 4800,
   category_mappings = 1,
   rank = 1,
   batch_effect = 0
