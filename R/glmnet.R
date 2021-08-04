@@ -8,8 +8,8 @@ glmnet_subset = function(Y_list,
                              X_list_validation = NULL,
                              n_lambda = 25,
                              lambda_min_ratio = 1e-4,
-                             n_iter = 1e5,
-                             tolerance = 1e-7) {
+                             n_iter = 1e6,
+                             tolerance = 1e-9) {
 
   names(categories) = categories
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, as.list(categories)))
@@ -77,8 +77,8 @@ glmnet_split = function(Y_list,
                             X_list_validation = NULL,
                             n_lambda = 25,
                             lambda_min_ratio = 1e-4,
-                            n_iter = 1e5,
-                            tolerance = 1e-7) {
+                            n_iter = 1e6,
+                            tolerance = 1e-9) {
 
   Y_list = c(Y_list, Y_list_validation)
   category_mappings = c(category_mappings, category_mappings_validation)
@@ -118,54 +118,46 @@ glmnet_split = function(Y_list,
 
 #' @export
 glmnet_relabel = function(Y_list,
-                              categories,
-                              category_mappings,
-                              X_list,
-                              Y_list_validation = NULL,
-                              category_mappings_validation = NULL,
-                              X_list_validation = NULL,
-                              n_rho = 25,
-                              rho_min_ratio = 1e-4,
-                              n_lambda = 25,
-                              lambda_min_ratio = 1e-4,
-                              n_iter = 1e5,
-                              tolerance = 1e-7) {
+                          categories,
+                          category_mappings,
+                          X_list,
+                          Y_list_validation,
+                          category_mappings_validation,
+                          X_list_validation,
+                          n_rho = 25,
+                          rho_min_ratio = 1e-4,
+                          n_lambda = 25,
+                          lambda_min_ratio = 1e-4,
+                          n_iter = 1e6,
+                          tolerance = 1e-9) {
 
   fit_subset = glmnet_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance)
-
-  model_fits = vector("list", n_rho)
 
   X = do.call(rbind, X_list)
 
   features = colnames(X_list[[1]])
 
-  for (r in 1:fit_subset$n_lambda) {
+  probabilities = predict_probabilities(fit_subset$best_model, X_list)
+  conditional_probabilities = predict_conditional_probabilities(probabilities, Y_list, category_mappings)
+  conditional_categories = predict_categories(conditional_probabilities)
+  Y = unlist(conditional_categories)
 
-    probabilities = predict_probabilities(fit_subset$model_fits[[r]], X_list)
-    conditional_probabilities = predict_conditional_probabilities(probabilities, Y_list, category_mappings)
-    conditional_categories = predict_categories(conditional_probabilities)
-    Y = unlist(conditional_categories)
+  fit = glmnet::glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, trace.it = 1, thresh = tolerance, maxit = n_iter)
 
-    fit = glmnet::glmnet(x = X, y = Y, family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, trace.it = 1, thresh = tolerance, maxit = n_iter)
+  model_fits = vector("list", n_lambda)
 
-    model_fits_fixed_rho = vector("list", n_lambda)
+  for (i in 1:length(fit$lambda)) {
 
-    for (i in 1:length(fit$lambda)) {
+    result = list(alpha = fit$a0[categories, i],
+                  Beta = do.call(cbind, lapply(fit$beta[categories], function(x) x[, i])),
+                  lambda_index = i,
+                  rho_index = fit_subset$best_tuning_parameters)
 
-      result = list(alpha = fit$a0[categories, i],
-                    Beta = do.call(cbind, lapply(fit$beta[categories], function(x) x[, i])),
-                    lambda_index = i,
-                    rho_index = r)
+    names(result$alpha) = categories
+    colnames(result$Beta) = categories
+    rownames(result$Beta) = features
 
-      names(result$alpha) = categories
-      colnames(result$Beta) = categories
-      rownames(result$Beta) = features
-
-      model_fits_fixed_rho[[i]] = result
-
-    }
-
-    model_fits[[r]] = model_fits_fixed_rho
+    model_fits[[i]] = result
 
   }
 
@@ -176,10 +168,10 @@ glmnet_relabel = function(Y_list,
 
   if (!is.null(Y_list_validation)) {
 
-    validation_negative_log_likelihood = compute_tuning_performance(fit, Y_list_validation, category_mappings_validation, X_list_validation)
+    validation_negative_log_likelihood = compute_tuning_performance_no_Gamma(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
-    best_tuning_parameters = which_min(validation_negative_log_likelihood)[1, ]
+    best_tuning_parameters = which_min(validation_negative_log_likelihood)[1]
 
     fit$best_tuning_parameters = best_tuning_parameters
     fit$best_model = fit$model_fits[[best_tuning_parameters]]

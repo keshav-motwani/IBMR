@@ -48,13 +48,13 @@ plot(coef(fit, fit$lambda[10])[[1]][-1], test2$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
 # should be equal to IBMR_no_Gamma when all are at finest resolution
-test = glmnet_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_rho = 20, rho_min_ratio = 1e-3, n_lambda = 25, lambda_min_ratio = 1e-4, tolerance = TOLERANCE)
+test = glmnet_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_val, category_mappings$category_mappings, X_list_val, n_rho = 20, rho_min_ratio = 1e-3, n_lambda = 25, lambda_min_ratio = 1e-4, tolerance = TOLERANCE)
 
 test_that("Estimated Beta from glmnet_relabel matches glmnet for fine resolution data", {
-  expect(all(abs(coef(fit, fit$lambda[10])[[1]][-1] - test$model_fits[[4]][[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
+  expect(all(abs(coef(fit, fit$lambda[10])[[1]][-1] - test$model_fits[[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
-plot(coef(fit, fit$lambda[10])[[1]][-1], test$model_fits[[4]][[10]]$Beta[, 1])
+plot(coef(fit, fit$lambda[10])[[1]][-1], test$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
 fit = cv.glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
