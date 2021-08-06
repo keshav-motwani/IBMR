@@ -12,6 +12,9 @@ generate_data_random_X_and_Beta = function(category_mappings,
   alpha = simulate_alpha(category_mappings$categories)
   Beta = simulate_Beta(category_mappings$categories, p, nonzero, -b, b)
 
+  K = length(category_mappings$category_mappings)
+  category_mappings_fine = create_fine_category_mappings(category_mappings$categories, K)
+
   X_star_list = simulate_X_star_list(rep(N / K, K), p)
   Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
 
@@ -38,7 +41,7 @@ generate_data_random_X_and_Beta = function(category_mappings,
                         X_list_validation = X_list_val,
                         X_star_list_validation = X_star_list_val,
                         Y_list_test = Y_list_test,
-                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
+                        category_mappings_test = list(categories = category_mappings_fine$categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
                         X_list_test = X_star_list_test,
                         alpha = alpha,
                         Beta = Beta)
@@ -512,7 +515,7 @@ fit_IBMR = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR(fit, data$test$X_star_list))
+  return(prepare_output_IBMR(fit, data$test$X_list))
 
 }
 
@@ -529,7 +532,7 @@ fit_IBMR_int = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR(fit, data$test$X_star_list))
+  return(prepare_output_IBMR(fit, data$test$X_list))
 
 }
 
@@ -547,7 +550,7 @@ fit_IBMR_common_Gamma = function(data) {
     common_Gamma = TRUE
   )
 
-  return(prepare_output_IBMR(fit, data$test$X_star_list))
+  return(prepare_output_IBMR(fit, data$test$X_list))
 
 }
 
@@ -563,7 +566,7 @@ fit_IBMR_no_Gamma = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
 
 }
 
@@ -579,7 +582,7 @@ fit_glmnet_subset = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
 
 }
 
@@ -595,7 +598,7 @@ fit_glmnet_split = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_glmnet_split(fit, data$test$X_star_list))
+  return(prepare_output_glmnet_split(fit, data$test$X_list))
 
 }
 
@@ -611,7 +614,7 @@ fit_glmnet_relabel = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
 
 }
 
@@ -621,12 +624,12 @@ fit_ORACLE = function(data) {
     ORACLE = list(
       alpha_hat = data$alpha,
       Beta_hat = data$Beta,
-      test_estimated_probabilities = predict_probabilities(list(alpha = data$alpha, Beta = data$Beta), data$test$X_star_list),
+      test_estimated_probabilities = predict_probabilities(list(alpha = data$alpha, Beta = data$Beta), data$test$X_list),
       tuning_parameters = 0,
       validation_negative_log_likelihood = 0,
       all_alphas = list(data$alpha),
       all_Betas = list(data$Beta),
-      all_test_estimated_probabilities = list(predict_probabilities(list(alpha = data$alpha, Beta = data$Beta), data$test$X_star_list))
+      all_test_estimated_probabilities = list(predict_probabilities(list(alpha = data$alpha, Beta = data$Beta), data$test$X_list))
     )
   )
 
