@@ -79,13 +79,18 @@ predict_conditional_probabilities = function(predicted_probabilities, Y_list, ca
 }
 
 #' @export
-predict_categories = function(predicted_probabilities) {
+predict_categories = function(predicted_probabilities, category_mappings = NULL) {
 
     categories = colnames(predicted_probabilities[[1]])
 
     predictions = vector("list", length(predicted_probabilities))
 
     for (k in 1:length(predictions)) {
+
+      if (!is.null(category_mappings)) {
+        predicted_probabilities[[k]] = sapply(category_mappings[[k]], function(map) rowSums(predicted_probabilities[[k]][, map]))
+        categories = names(category_mappings[[k]])
+      }
 
       predictions[[k]] = categories[apply(predicted_probabilities[[k]], 1, which.max)]
 

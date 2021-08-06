@@ -1,11 +1,11 @@
-generate_data_random_X_and_Beta = function(category_mappings,
-                                           N,
-                                           p,
-                                           nonzero,
-                                           b,
-                                           rank,
-                                           batch_effect,
-                                           replicate) {
+generate_simulation_data = function(category_mappings,
+                                    N,
+                                    p,
+                                    nonzero,
+                                    b,
+                                    rank,
+                                    batch_effect,
+                                    replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
@@ -18,7 +18,7 @@ generate_data_random_X_and_Beta = function(category_mappings,
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
 
-  X_star_list_test = simulate_X_star_list(N, p)
+  X_star_list_test = simulate_X_star_list(10000, p)
   Y_list_test = simulate_Y_list(category_mappings_fine$categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
 
   U_list = simulate_U_list(X_star_list, rank, batch_effect)
@@ -27,94 +27,79 @@ generate_data_random_X_and_Beta = function(category_mappings,
   U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
   X_list_val = compute_X_list(X_star_list_val, U_list_val)
 
-  output = prepare_data(Y_list = Y_list,
-                        category_mappings = category_mappings,
-                        category_mappings_fine = category_mappings_fine,
-                        X_list = X_list,
-                        X_star_list = X_star_list,
-                        Y_list_validation = Y_list_val,
-                        category_mappings_validation = category_mappings,
-                        category_mappings_fine_validation = category_mappings_fine,
-                        X_list_validation = X_list_val,
-                        X_star_list_validation = X_star_list_val,
-                        Y_list_test = Y_list_test,
-                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
-                        X_list_test = X_star_list_test,
-                        alpha = alpha,
-                        Beta = Beta)
+  output = list(
+    observed = list(
+      train = list(
+        X_list = X_list,
+        Y_list = Y_list,
+        category_mappings = category_mappings
+      ),
+      validation = list(
+        X_list = X_list_val,
+        Y_list = Y_list_val,
+        category_mappings = category_mappings
+      )
+    ),
+    ORC_clean = list(
+      train = list(
+        X_list = X_star_list,
+        Y_list = Y_list,
+        category_mappings = category_mappings
+      ),
+      validation = list(
+        X_list = X_star_list_val,
+        Y_list = Y_list_val,
+        category_mappings = category_mappings
+      )
+    ),
+    ORC_fine = list(
+      train = list(
+        X_list = X_list,
+        Y_list = get_fine_categories(Y_list),
+        category_mappings = category_mappings_fine
+      ),
+      validation = list(
+        X_list = X_list_val,
+        Y_list = get_fine_categories(Y_list_val),
+        category_mappings = category_mappings_fine
+      )
+    ),
+    ORC_fine_clean = list(
+      train = list(
+        X_list = X_star_list,
+        Y_list = get_fine_categories(Y_list),
+        category_mappings = category_mappings_fine
+      ),
+      validation = list(
+        X_list = X_star_list_val,
+        Y_list = get_fine_categories(Y_list_val),
+        category_mappings = category_mappings_fine
+      )
+    )
+  )
+
+  for (ORC_type in names(output)) {
+
+    output[[ORC_type]]$test = list(X_star_list = X_star_list_test,
+                                   Y_list_fine = Y_list_test)
+
+    output[[ORC_type]]$alpha = alpha
+    output[[ORC_type]]$Beta = Beta
+
+  }
 
   return(output)
 
 }
 
-generate_data_real_X_and_random_Beta = function(category_mappings,
-                                                X_star,
-                                                N,
-                                                nonzero,
-                                                b,
-                                                rank,
-                                                batch_effect,
-                                                replicate) {
-
-  set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
-
-  alpha = simulate_alpha(category_mappings$categories)
-  Beta = simulate_Beta(category_mappings$categories, p, nonzero, -b, b)
-
-  K = length(category_mappings$category_mappings)
-
-  categories = colnames(Beta)
-  category_mappings_fine = create_fine_category_mappings(categories, K)
-
-  X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
-
-  n_k = c(rep(N / K, K), rep(N / K, K), 10000)
-  indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
-  indices_list = c(list(1:(n_k[1])), indices_list)
-
-  X_star_list = lapply(indices_list[1:K], function(indices) X_star[indices, ])
-  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
-
-  X_star_list_val = lapply(indices_list[(K + 1):(2 * K)], function(indices) X_star[indices, ])
-  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
-
-  X_star_list_test = lapply(indices_list[2 * K + 1], function(indices) X_star[indices, ])
-  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
-
-  U_list = simulate_U_list(X_star_list, rank, batch_effect)
-  X_list = compute_X_list(X_star_list, U_list)
-
-  U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
-  X_list_val = compute_X_list(X_star_list_val, U_list_val)
-
-  output = prepare_data(Y_list = Y_list,
-                        category_mappings = category_mappings,
-                        category_mappings_fine = category_mappings_fine,
-                        X_list = X_list,
-                        X_star_list = X_star_list,
-                        Y_list_validation = Y_list_val,
-                        category_mappings_validation = category_mappings,
-                        category_mappings_fine_validation = category_mappings_fine,
-                        X_list_validation = X_list_val,
-                        X_star_list_validation = X_star_list_val,
-                        Y_list_test = Y_list_test,
-                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
-                        X_list_test = X_star_list_test,
-                        alpha = alpha,
-                        Beta = Beta)
-
-  return(output)
-
-}
-
-generate_data_real_X_and_Beta = function(category_mappings,
-                                         X_star,
-                                         glmnet_fit,
-                                         N,
-                                         sparsity,
-                                         rank,
-                                         batch_effect,
-                                         replicate) {
+generate_simulation_data_from_real = function(category_mappings,
+                                              X_star,
+                                              glmnet_fit,
+                                              N,
+                                              sparsity,
+                                              rank,
+                                              batch_effect,
+                                              replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
@@ -148,42 +133,6 @@ generate_data_real_X_and_Beta = function(category_mappings,
   U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
   X_list_val = compute_X_list(X_star_list_val, U_list_val)
 
-  output = prepare_data(Y_list = Y_list,
-                        category_mappings = category_mappings,
-                        category_mappings_fine = category_mappings_fine,
-                        X_list = X_list,
-                        X_star_list = X_star_list,
-                        Y_list_validation = Y_list_val,
-                        category_mappings_validation = category_mappings,
-                        category_mappings_fine_validation = category_mappings_fine,
-                        X_list_validation = X_list_val,
-                        X_star_list_validation = X_star_list_val,
-                        Y_list_test = Y_list_test,
-                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
-                        X_list_test = X_star_list_test,
-                        alpha = alpha,
-                        Beta = Beta)
-
-  return(output)
-
-}
-
-prepare_data = function(Y_list,
-                        category_mappings,
-                        category_mappings_fine,
-                        X_list,
-                        X_star_list,
-                        Y_list_validation,
-                        category_mappings_validation,
-                        category_mappings_fine_validation,
-                        X_list_validation,
-                        X_star_list_validation,
-                        Y_list_test,
-                        category_mappings_test,
-                        X_list_test,
-                        alpha = NULL,
-                        Beta = NULL) {
-
   output = list(
     observed = list(
       train = list(
@@ -192,9 +141,9 @@ prepare_data = function(Y_list,
         category_mappings = category_mappings
       ),
       validation = list(
-        X_list = X_list_validation,
-        Y_list = Y_list_validation,
-        category_mappings = category_mappings_validation
+        X_list = X_list_val,
+        Y_list = Y_list_val,
+        category_mappings = category_mappings
       )
     ),
     ORC_clean = list(
@@ -204,9 +153,9 @@ prepare_data = function(Y_list,
         category_mappings = category_mappings
       ),
       validation = list(
-        X_list = X_star_list_validation,
-        Y_list = Y_list_validation,
-        category_mappings = category_mappings_validation
+        X_list = X_star_list_val,
+        Y_list = Y_list_val,
+        category_mappings = category_mappings
       )
     ),
     ORC_fine = list(
@@ -216,9 +165,9 @@ prepare_data = function(Y_list,
         category_mappings = category_mappings_fine
       ),
       validation = list(
-        X_list = X_list_validation,
-        Y_list = get_fine_categories(Y_list_validation),
-        category_mappings = category_mappings_fine_validation
+        X_list = X_list_val,
+        Y_list = get_fine_categories(Y_list_val),
+        category_mappings = category_mappings_fine
       )
     ),
     ORC_fine_clean = list(
@@ -228,18 +177,17 @@ prepare_data = function(Y_list,
         category_mappings = category_mappings_fine
       ),
       validation = list(
-        X_list = X_star_list_validation,
-        Y_list = get_fine_categories(Y_list_validation),
-        category_mappings = category_mappings_fine_validation
+        X_list = X_star_list_val,
+        Y_list = get_fine_categories(Y_list_val),
+        category_mappings = category_mappings_fine
       )
     )
   )
 
   for (ORC_type in names(output)) {
 
-    output[[ORC_type]]$test = list(X_list = X_list_test,
-                                   Y_list = Y_list_test,
-                                   category_mappings = category_mappings_test)
+    output[[ORC_type]]$test = list(X_star_list = X_star_list_test,
+                                   Y_list_fine = Y_list_test)
 
     output[[ORC_type]]$alpha = alpha
     output[[ORC_type]]$Beta = Beta
@@ -321,18 +269,16 @@ evaluate_parameters = function(parameters, simulation_function) {
 
     fit = fits[[i]]
 
-    performance = compute_performance(data$test$Y_list,
-                                      data$test$category_mappings,
-                                      data$test$X_list,
+    performance = compute_performance(data$test$Y_list_fine,
+                                      data$test$X_star_list,
                                       data$alpha,
                                       data$Beta,
                                       fit$alpha_hat,
                                       fit$Beta_hat,
                                       fit$test_estimated_probabilities)
 
-    best_case_performance = compute_best_case_performance(data$test$Y_list,
-                                                          data$test$category_mappings,
-                                                          data$test$X_list,
+    best_case_performance = compute_best_case_performance(data$test$Y_list_fine,
+                                                          data$test$X_star_list,
                                                           data$alpha,
                                                           data$Beta,
                                                           fit$all_alpha_hats,
@@ -376,7 +322,7 @@ compute_performance = function(Y_list_test, category_mappings_test, X_list_test,
 
   hellinger_distance = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
 
-  predicted_categories = predict_categories(test_estimated_probabilities, category_mappings_test)
+  predicted_categories = predict_categories(test_estimated_probabilities)
 
   error = mean(unlist(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE)))
 
@@ -611,7 +557,7 @@ fit_glmnet_relabel = function(data) {
     data$validation$X_list
   )
 
-  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_star_list))
+  return(prepare_output_IBMR(fit, data$test$X_star_list))
 
 }
 
