@@ -387,14 +387,14 @@ compute_performance = function(Y_list_test, category_mappings_test, X_list_test,
 
 }
 
-compute_best_case_performance = function(Y_list_test, X_list_test, alpha, Beta, all_alpha_hats, all_Beta_hats, all_test_estimated_probabilities) {
+compute_best_case_performance = function(Y_list_test, category_mappings_test, X_list_test, alpha, Beta, all_alpha_hats, all_Beta_hats, all_test_estimated_probabilities) {
 
   keep = c("Beta_SSE", "KL_divergence", "hellinger_distance", "error")
 
   if (is.null(all_alpha_hats) & is.null(all_Beta_hats)) all_alpha_hats = all_Beta_hats = vector("list", length(all_test_estimated_probabilities))
 
   result = mapply(alpha_hat = all_alpha_hats, Beta_hat = all_Beta_hats, test_estimated_probabilities = all_test_estimated_probabilities, FUN = function(alpha_hat, Beta_hat, test_estimated_probabilities) {
-    compute_performance(Y_list_test, X_list_test, alpha, Beta, alpha_hat, Beta_hat, test_estimated_probabilities)[keep]
+    compute_performance(Y_list_test, category_mappings_test, X_list_test, alpha, Beta, alpha_hat, Beta_hat, test_estimated_probabilities)[keep]
   }, SIMPLIFY = FALSE)
 
   result = matrix(unlist(result), nrow = length(keep))
