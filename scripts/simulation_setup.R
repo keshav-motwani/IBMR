@@ -379,7 +379,7 @@ compute_performance = function(Y_list_test, category_mappings_test, X_list_test,
 
   hellinger_distance = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
 
-  predicted_categories = predict_categories(test_estimated_probabilities, category_mappings_test)
+  predicted_categories = predict_categories(test_estimated_probabilities, category_mappings_test$category_mappings)
 
   error = mean(unlist(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE)))
 
