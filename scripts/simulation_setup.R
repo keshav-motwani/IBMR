@@ -80,6 +80,8 @@ generate_data_real_X_and_structured_Beta = function(number_of_levels,
 
   n_k = c(rep(N / K, K), rep(N / K, K), 10000)
 
+  Y = predict_categories(list(compute_probabilities_no_Gamma(X_star, alpha, Beta)))[[1]]
+
   weights = 1 / table(Y)
   indices = sample(1:nrow(X_star), sum(n_k), prob = weights[Y])
   X_star = X_star[indices, ]
