@@ -38,6 +38,7 @@ X = as.matrix(t(logcounts(data)))
 Y = data$cell_type_2
 
 saveRDS(X, file.path(DATA_PATH, "hao_X.rds"))
+saveRDS(Y, file.path(DATA_PATH, "hao_Y.rds"))
 
 cell_types = colData(data)[, c("cell_type_1", "cell_type_2")]
 cell_types = cell_types[!duplicated(cell_types), ]
@@ -122,6 +123,12 @@ saveRDS(category_mappings_1, file.path(DATA_PATH, "hao_category_mappings_1.rds")
 category_mappings_2 = get_category_mappings_2(cell_types)
 
 saveRDS(category_mappings_2, file.path(DATA_PATH, "hao_category_mappings_2.rds"))
+
+weights = 1 / table(Y)
+indices = sample(1:nrow(X), 30000, prob = weights[Y])
+X = X[indices, ]
+Y = Y[indices]
+print(table(Y))
 
 require(doMC)
 registerDoMC(cores = 10)

@@ -127,6 +127,12 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
     fit$lambda_index = l
     fit$rho_index = rho_index
 
+    fit$objective = fit$objective[fit$objective != 0]
+    if (length(fit$objective) == n_iter) {
+      warning(paste0("Did not converge for ", rho_index, " value of rho and ", l, " value of lambda"))
+      break
+    }
+
     alpha_old = fit$alpha
     Beta_old = fit$Beta
     Gamma_list_old = fit$Gamma_list
@@ -177,8 +183,14 @@ IBMR_no_Gamma = function(Y_list,
 
     print(l)
 
-    fit = fit_alpha_Beta(Y_matrix_list, X_list, Z_list, lambda_sequence[l], n_iter, tolerance, alpha_old, Beta_old)
+    print(system.time({fit = fit_alpha_Beta(Y_matrix_list, X_list, Z_list, lambda_sequence[l], n_iter, tolerance, alpha_old, Beta_old)}))
     fit$lambda_index = l
+
+    fit$objective = fit$objective[fit$objective != 0]
+    if (length(fit$objective) == n_iter) {
+      warning(paste0("Did not converge for ", l, " value of lambda"))
+      break
+    }
 
     alpha_old = fit$alpha
     Beta_old = fit$Beta
