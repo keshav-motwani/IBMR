@@ -11,7 +11,7 @@ methods = c("IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
 methods = c(methods, paste0(methods, "_ORC_fine"))
 
 defaults = list(
-  sparsity = 0.2,
+  nonsparsity = 0.2,
   N = 4800,
   category_mappings = 1,
   rank = 1,
@@ -19,7 +19,7 @@ defaults = list(
 )
 
 considered_values = list(
-  sparsity = c(0.05, 0.1, 0.2, 0.4, 0.8),
+  nonsparsity = c(0.05, 0.1, 0.2, 0.4, 0.8),
   N = c(2400, 4800, 9600, 19200)
 )
 
