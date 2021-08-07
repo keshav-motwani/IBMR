@@ -50,28 +50,41 @@ generate_data_random_X_and_Beta = function(category_mappings,
 
 }
 
-generate_data_real_X_and_random_Beta = function(category_mappings,
-                                                X_star,
-                                                N,
-                                                nonzero,
-                                                b,
-                                                rank,
-                                                batch_effect,
-                                                replicate) {
+generate_data_real_X_and_structured_Beta = function(number_of_levels,
+                                                    number_per_split,
+                                                    label_levels_per_dataset,
+                                                    Y,
+                                                    X_star,
+                                                    N,
+                                                    nonsparsity,
+                                                    pct_de,
+                                                    b,
+                                                    sigma,
+                                                    rank,
+                                                    batch_effect,
+                                                    replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
+  category_mappings = simulate_category_mappings(number_of_levels, number_per_split, label_levels_per_dataset)
+
   alpha = simulate_alpha(category_mappings$categories)
-  Beta = simulate_Beta(category_mappings$categories, p, nonzero, -b, b)
+  Beta = simulate_structured_Beta(number_of_levels, number_per_split, ncol(X_star), nonsparsity, pct_de, -b, b, sigma)
 
   K = length(category_mappings$category_mappings)
 
-  categories = colnames(Beta)
+  categories = category_mappings$categories
   category_mappings_fine = create_fine_category_mappings(categories, K)
 
   X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
 
   n_k = c(rep(N / K, K), rep(N / K, K), 10000)
+
+  weights = 1 / table(Y)
+  indices = sample(1:nrow(X_star), sum(n_k), prob = weights[Y])
+  X_star = X_star[indices, ]
+  print(table(Y[indices]))
+
   indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
   indices_list = c(list(1:(n_k[1])), indices_list)
 
