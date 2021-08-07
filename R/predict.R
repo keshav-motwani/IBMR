@@ -88,7 +88,7 @@ predict_categories = function(predicted_probabilities, category_mappings = NULL)
     for (k in 1:length(predictions)) {
 
       if (!is.null(category_mappings)) {
-        predicted_probabilities[[k]] = sapply(category_mappings[[k]], function(map) rowSums(predicted_probabilities[[k]][, map]))
+        predicted_probabilities[[k]] = sapply(category_mappings[[k]], function(map) rowSums(predicted_probabilities[[k]][, map, drop = FALSE]))
         categories = names(category_mappings[[k]])
       }
 
