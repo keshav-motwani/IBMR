@@ -114,14 +114,14 @@ generate_data_real_X_and_Beta = function(category_mappings,
                                          X_star,
                                          glmnet_fit,
                                          N,
-                                         sparsity,
+                                         nonsparsity,
                                          rank,
                                          batch_effect,
                                          replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
-  coef = extract_alpha_Beta_from_glmnet(glmnet_fit, sparsity)
+  coef = extract_alpha_Beta_from_glmnet(glmnet_fit, nonsparsity)
   alpha = coef$alpha
   Beta = coef$Beta
 
@@ -253,13 +253,13 @@ prepare_data = function(Y_list,
 
 }
 
-extract_alpha_Beta_from_glmnet = function(glmnet_fit, sparsity) {
+extract_alpha_Beta_from_glmnet = function(glmnet_fit, nonsparsity) {
 
   library(glmnet)
 
   p = glmnet_fit$glmnet.fit$dim[1]
 
-  lambda_index = which.min(abs(glmnet_fit$nzero/p - sparsity))[1]
+  lambda_index = which.min(abs(glmnet_fit$nzero/p - nonsparsity))[1]
 
   coef = as.matrix(do.call(cbind, coef(glmnet_fit, s = glmnet_fit$lambda[lambda_index])))
   colnames(coef) = glmnet_fit$glmnet.fit$classnames
