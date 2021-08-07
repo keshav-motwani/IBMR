@@ -200,6 +200,10 @@ prepare_data = function(Y_list,
                         alpha = NULL,
                         Beta = NULL) {
 
+  print(table(unlist((Y_list))))
+  print("fine:")
+  print(table(unlist(get_fine_categories(Y_list))))
+
   output = list(
     observed = list(
       train = list(
