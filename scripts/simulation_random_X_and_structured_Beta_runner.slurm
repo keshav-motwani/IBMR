@@ -10,6 +10,8 @@
 #SBATCH -t 1000
 #SBATCH --output=logs/simulation_random_X_and_structured_Beta_%a.log
 
+export OMP_NUM_THREADS=1
+
 ml R/4
 
 Rscript scripts/simulation_random_X_and_structured_Beta_runner.R
