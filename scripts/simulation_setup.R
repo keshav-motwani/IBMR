@@ -21,7 +21,7 @@ generate_data_random_X_and_Beta = function(category_mappings,
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
 
-  X_star_list_test = simulate_X_star_list(N, p)
+  X_star_list_test = simulate_X_star_list(10000, p)
   Y_list_test = simulate_Y_list(category_mappings_fine$categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
 
   U_list = simulate_U_list(X_star_list, rank, batch_effect)
@@ -50,54 +50,33 @@ generate_data_random_X_and_Beta = function(category_mappings,
 
 }
 
-generate_data_real_X_and_structured_Beta = function(number_of_levels,
-                                                    number_per_split,
-                                                    label_levels_per_dataset,
-                                                    Y,
-                                                    X_star,
-                                                    N,
-                                                    nonsparsity,
-                                                    pct_de,
-                                                    b,
-                                                    sigma,
-                                                    rank,
-                                                    batch_effect,
-                                                    replicate) {
+generate_data_random_X_and_structured_Beta = function(category_mappings,
+                                                      N,
+                                                      p,
+                                                      nonsparsity,
+                                                      pct_de,
+                                                      b,
+                                                      sigma,
+                                                      rank,
+                                                      batch_effect,
+                                                      replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
-
-  category_mappings = simulate_category_mappings(number_of_levels, number_per_split, label_levels_per_dataset)
 
   alpha = simulate_alpha(category_mappings$categories)
-  Beta = simulate_structured_Beta(number_of_levels, number_per_split, ncol(X_star), nonsparsity, pct_de, -b, b, sigma)
+  Beta = simulate_structured_Beta(category_mappings$number_of_levels, category_mappings$number_per_split, p, nonsparsity, pct_de, -b, b, sigma)
 
   K = length(category_mappings$category_mappings)
+  category_mappings_fine = create_fine_category_mappings(category_mappings$categories, K)
 
-  categories = category_mappings$categories
-  category_mappings_fine = create_fine_category_mappings(categories, K)
+  X_star_list = simulate_X_star_list(rep(N / K, K), p)
+  Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
 
-  X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
+  X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
+  Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
 
-  n_k = c(rep(N / K, K), rep(N / K, K), 10000)
-
-  Y = predict_categories(list(compute_probabilities_no_Gamma(X_star, alpha, Beta)))[[1]]
-
-  weights = 1 / table(Y)
-  indices = sample(1:nrow(X_star), sum(n_k), prob = weights[Y])
-  X_star = X_star[indices, ]
-  print(table(Y[indices]))
-
-  indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
-  indices_list = c(list(1:(n_k[1])), indices_list)
-
-  X_star_list = lapply(indices_list[1:K], function(indices) X_star[indices, ])
-  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
-
-  X_star_list_val = lapply(indices_list[(K + 1):(2 * K)], function(indices) X_star[indices, ])
-  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
-
-  X_star_list_test = lapply(indices_list[2 * K + 1], function(indices) X_star[indices, ])
-  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
+  X_star_list_test = simulate_X_star_list(10000, p)
+  Y_list_test = simulate_Y_list(category_mappings_fine$categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
 
   U_list = simulate_U_list(X_star_list, rank, batch_effect)
   X_list = compute_X_list(X_star_list, U_list)
@@ -116,68 +95,7 @@ generate_data_real_X_and_structured_Beta = function(number_of_levels,
                         X_list_validation = X_list_val,
                         X_star_list_validation = X_star_list_val,
                         Y_list_test = Y_list_test,
-                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
-                        X_list_test = X_star_list_test,
-                        alpha = alpha,
-                        Beta = Beta)
-
-  return(output)
-
-}
-
-generate_data_real_X_and_Beta = function(category_mappings,
-                                         X_star,
-                                         glmnet_fit,
-                                         N,
-                                         nonsparsity,
-                                         rank,
-                                         batch_effect,
-                                         replicate) {
-
-  set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
-
-  coef = extract_alpha_Beta_from_glmnet(glmnet_fit, nonsparsity)
-  alpha = coef$alpha
-  Beta = coef$Beta
-
-  K = length(category_mappings$category_mappings)
-
-  categories = colnames(Beta)
-  category_mappings_fine = create_fine_category_mappings(categories, K)
-
-  X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
-
-  n_k = c(rep(N / K, K), rep(N / K, K), 10000)
-  indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
-  indices_list = c(list(1:(n_k[1])), indices_list)
-
-  X_star_list = lapply(indices_list[1:K], function(indices) X_star[indices, ])
-  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
-
-  X_star_list_val = lapply(indices_list[(K + 1):(2 * K)], function(indices) X_star[indices, ])
-  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
-
-  X_star_list_test = lapply(indices_list[2 * K + 1], function(indices) X_star[indices, ])
-  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
-
-  U_list = simulate_U_list(X_star_list, rank, batch_effect)
-  X_list = compute_X_list(X_star_list, U_list)
-
-  U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
-  X_list_val = compute_X_list(X_star_list_val, U_list_val)
-
-  output = prepare_data(Y_list = Y_list,
-                        category_mappings = category_mappings,
-                        category_mappings_fine = category_mappings_fine,
-                        X_list = X_list,
-                        X_star_list = X_star_list,
-                        Y_list_validation = Y_list_val,
-                        category_mappings_validation = category_mappings,
-                        category_mappings_fine_validation = category_mappings_fine,
-                        X_list_validation = X_list_val,
-                        X_star_list_validation = X_star_list_val,
-                        Y_list_test = Y_list_test,
-                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
+                        category_mappings_test = list(categories = category_mappings_fine$categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
                         X_list_test = X_star_list_test,
                         alpha = alpha,
                         Beta = Beta)
@@ -203,7 +121,6 @@ prepare_data = function(Y_list,
                         Beta = NULL) {
 
   print(table(unlist((Y_list))))
-  print("fine:")
   print(table(unlist(get_fine_categories(Y_list))))
 
   output = list(
@@ -653,3 +570,145 @@ fit_ORACLE = function(data) {
   )
 
 }
+
+
+
+
+
+
+# generate_data_real_X_and_structured_Beta = function(number_of_levels,
+#                                                     number_per_split,
+#                                                     label_levels_per_dataset,
+#                                                     Y,
+#                                                     X_star,
+#                                                     N,
+#                                                     nonsparsity,
+#                                                     pct_de,
+#                                                     b,
+#                                                     sigma,
+#                                                     rank,
+#                                                     batch_effect,
+#                                                     replicate) {
+#
+#   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+#
+#   category_mappings = simulate_category_mappings(number_of_levels, number_per_split, label_levels_per_dataset)
+#
+#   alpha = simulate_alpha(category_mappings$categories)
+#   Beta = simulate_structured_Beta(number_of_levels, number_per_split, ncol(X_star), nonsparsity, pct_de, -b, b, sigma)
+#
+#   K = length(category_mappings$category_mappings)
+#
+#   categories = category_mappings$categories
+#   category_mappings_fine = create_fine_category_mappings(categories, K)
+#
+#   X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
+#
+#   n_k = c(rep(N / K, K), rep(N / K, K), 10000)
+#
+#   Y = predict_categories(list(compute_probabilities_no_Gamma(X_star, alpha, Beta)))[[1]]
+#
+#   weights = 1 / table(Y)
+#   indices = sample(1:nrow(X_star), sum(n_k), prob = weights[Y])
+#   X_star = X_star[indices, ]
+#   print(table(Y[indices]))
+#
+#   indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
+#   indices_list = c(list(1:(n_k[1])), indices_list)
+#
+#   X_star_list = lapply(indices_list[1:K], function(indices) X_star[indices, ])
+#   Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+#
+#   X_star_list_val = lapply(indices_list[(K + 1):(2 * K)], function(indices) X_star[indices, ])
+#   Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
+#
+#   X_star_list_test = lapply(indices_list[2 * K + 1], function(indices) X_star[indices, ])
+#   Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
+#
+#   U_list = simulate_U_list(X_star_list, rank, batch_effect)
+#   X_list = compute_X_list(X_star_list, U_list)
+#
+#   U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
+#   X_list_val = compute_X_list(X_star_list_val, U_list_val)
+#
+#   output = prepare_data(Y_list = Y_list,
+#                         category_mappings = category_mappings,
+#                         category_mappings_fine = category_mappings_fine,
+#                         X_list = X_list,
+#                         X_star_list = X_star_list,
+#                         Y_list_validation = Y_list_val,
+#                         category_mappings_validation = category_mappings,
+#                         category_mappings_fine_validation = category_mappings_fine,
+#                         X_list_validation = X_list_val,
+#                         X_star_list_validation = X_star_list_val,
+#                         Y_list_test = Y_list_test,
+#                         category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
+#                         X_list_test = X_star_list_test,
+#                         alpha = alpha,
+#                         Beta = Beta)
+#
+#   return(output)
+#
+# }
+#
+# generate_data_real_X_and_Beta = function(category_mappings,
+#                                          X_star,
+#                                          glmnet_fit,
+#                                          N,
+#                                          nonsparsity,
+#                                          rank,
+#                                          batch_effect,
+#                                          replicate) {
+#
+#   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+#
+#   coef = extract_alpha_Beta_from_glmnet(glmnet_fit, nonsparsity)
+#   alpha = coef$alpha
+#   Beta = coef$Beta
+#
+#   K = length(category_mappings$category_mappings)
+#
+#   categories = colnames(Beta)
+#   category_mappings_fine = create_fine_category_mappings(categories, K)
+#
+#   X_star = X_star[sample(1:nrow(X_star), nrow(X_star)), ]
+#
+#   n_k = c(rep(N / K, K), rep(N / K, K), 10000)
+#   indices_list = lapply(2:length(n_k), function(i) (sum(n_k[1:(i-1)]) + 1):sum(n_k[1:i]))
+#   indices_list = c(list(1:(n_k[1])), indices_list)
+#
+#   X_star_list = lapply(indices_list[1:K], function(indices) X_star[indices, ])
+#   Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+#
+#   X_star_list_val = lapply(indices_list[(K + 1):(2 * K)], function(indices) X_star[indices, ])
+#   Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
+#
+#   X_star_list_test = lapply(indices_list[2 * K + 1], function(indices) X_star[indices, ])
+#   Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
+#
+#   U_list = simulate_U_list(X_star_list, rank, batch_effect)
+#   X_list = compute_X_list(X_star_list, U_list)
+#
+#   U_list_val = simulate_U_list(X_star_list_val, rank, batch_effect)
+#   X_list_val = compute_X_list(X_star_list_val, U_list_val)
+#
+#   output = prepare_data(Y_list = Y_list,
+#                         category_mappings = category_mappings,
+#                         category_mappings_fine = category_mappings_fine,
+#                         X_list = X_list,
+#                         X_star_list = X_star_list,
+#                         Y_list_validation = Y_list_val,
+#                         category_mappings_validation = category_mappings,
+#                         category_mappings_fine_validation = category_mappings_fine,
+#                         X_list_validation = X_list_val,
+#                         X_star_list_validation = X_star_list_val,
+#                         Y_list_test = Y_list_test,
+#                         category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
+#                         X_list_test = X_star_list_test,
+#                         alpha = alpha,
+#                         Beta = Beta)
+#
+#   return(output)
+#
+# }
+

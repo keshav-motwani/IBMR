@@ -8,8 +8,8 @@
 #SBATCH --job-name=IBMR
 #SBATCH --mem-per-cpu=6gb
 #SBATCH -t 1000
-#SBATCH --output=logs/simulation_random_X_and_Beta_%a.log
+#SBATCH --output=logs/simulation_random_X_and_structured_Beta_%a.log
 
 ml R/4
 
-Rscript scripts/simulation_random_X_and_Beta_runner.R
+Rscript scripts/simulation_random_X_and_structured_Beta_runner.R
