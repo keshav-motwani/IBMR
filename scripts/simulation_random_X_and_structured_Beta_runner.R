@@ -34,7 +34,7 @@ for (i in 1:chunk_size) {
 
   PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
   current_parameters = parameters[[PARAMETER_ID]]
-  system.time({result = evaluate_parameters(current_parameters, generate_data_random_X_and_Beta)})
+  system.time({result = evaluate_parameters(current_parameters, generate_data_random_X_and_structured_Beta)})
   saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
 
 }
