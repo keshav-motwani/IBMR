@@ -89,11 +89,14 @@ adjust_fit = function(fit, categories, features, X_mean, X_sd) {
 adjust_fit_no_Gamma = function(fit, categories, features, X_mean, X_sd) {
 
   for (l in 1:fit$n_lambda) {
-    fit$model_fits[[l]]$alpha = adjust_alpha(fit$model_fits[[l]]$alpha, fit$model_fits[[l]]$Beta, X_mean, X_sd)
-    fit$model_fits[[l]]$Beta = adjust_Beta(fit$model_fits[[l]]$Beta, X_sd)
-    names(fit$model_fits[[l]]$alpha) = categories
-    colnames(fit$model_fits[[l]]$Beta) = categories
-    rownames(fit$model_fits[[l]]$Beta) = features
+    model = fit$model_fits[[l]]
+    if (!is.null(model)) {
+      fit$model_fits[[l]]$alpha = adjust_alpha(model$alpha, model$Beta, X_mean, X_sd)
+      fit$model_fits[[l]]$Beta = adjust_Beta(model$Beta, X_sd)
+      names(fit$model_fits[[l]]$alpha) = categories
+      colnames(fit$model_fits[[l]]$Beta) = categories
+      rownames(fit$model_fits[[l]]$Beta) = features
+    }
   }
 
   return(fit)

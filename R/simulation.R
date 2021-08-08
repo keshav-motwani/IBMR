@@ -19,7 +19,9 @@ simulate_category_mappings = function(number_of_levels, number_per_split, label_
 
   return(list(category_mappings = lapply(category_mappings, `[[`, "category_mapping"),
               inverse_category_mappings = lapply(category_mappings, `[[`, "inverse_category_mapping"),
-              categories = label_tree[nrow(label_tree), ]))
+              categories = label_tree[nrow(label_tree), ],
+              number_of_levels = number_of_levels,
+              number_per_split = number_per_split))
 
 }
 
