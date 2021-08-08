@@ -23,7 +23,7 @@ defaults = list(
 
 considered_values = list(
   nonsparsity = c(0.05, 0.1, 0.2, 0.4, 0.8),
-  N = c(600, 1200, 2400, 4800)
+  N = c(1200, 2400, 4800, 9600)
 )
 
 parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 50, methods)
