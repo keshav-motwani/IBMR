@@ -1,7 +1,8 @@
+
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/simulations_random_X_and_structured_Beta"
+RESULT_PATH = "results/simulations_3"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -89,7 +90,7 @@ for (glmnet in c(TRUE, FALSE)) {
       # geom_point(size = 2, position=position_dodge(0.2)) +
       # geom_line(position=position_dodge(0.2)) +
       # geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-      facet_grid(name ~ oracle, scales = "free_y") +
+      facet_wrap(name ~ oracle, scales = "free", ncol = 2) +
       theme_classic() +
       theme(strip.background = element_blank(), strip.placement = "outside") +
       scale_fill_manual(values = plasma_pal) +
@@ -145,7 +146,7 @@ for (glmnet in c(TRUE, FALSE)) {
       geom_point(size = 2, position=position_dodge(0.2)) +
       geom_line(position=position_dodge(0.2)) +
       geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
-      facet_grid(name ~ oracle, scales = "free_y") +
+      facet_wrap(name ~ oracle, scales = "free", ncol = 2) +
       theme_classic() +
       theme(strip.background = element_blank(), strip.placement = "outside") +
       scale_color_manual(values = plasma_pal) +

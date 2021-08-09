@@ -11,7 +11,7 @@ methods = c(methods, paste0(methods, "_ORC_fine"))
 
 defaults = list(
   category_mappings = simulate_category_mappings(3, c(6, 2, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), c(rep(3, 3), rep(2, 3)), c(rep(2, 3), rep(3, 3)))),
-  N = 2400,
+  N = 4800,
   p = 500,
   nonsparsity = 0.2,
   pct_de = 0.1,
@@ -23,7 +23,7 @@ defaults = list(
 
 considered_values = list(
   nonsparsity = c(0.05, 0.1, 0.2, 0.4, 0.8),
-  N = c(1200, 2400, 4800, 9600)
+  N = c(2400, 4800, 9600, 19200)
 )
 
 parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 50, methods)

@@ -7,7 +7,7 @@
 #SBATCH --qos=amolstad-b
 #SBATCH --job-name=IBMR
 #SBATCH --mem-per-cpu=6gb
-#SBATCH -t 1000
+#SBATCH -t 600
 #SBATCH --output=logs/simulation_random_X_and_structured_Beta_%a.log
 
 export OMP_NUM_THREADS=1
