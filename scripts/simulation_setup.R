@@ -1,3 +1,85 @@
+generate_data_splatter_X_and_Beta = function(category_mappings,
+                                             N,
+                                             p,
+                                             nonsparsity,
+                                             batch_effect,
+                                             replicate) {
+
+  set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+
+  K = length(category_mappings$category_mappings)
+  categories = category_mappings$categories
+  category_mappings_fine = create_fine_category_mappings(categories, K)
+
+  params = newSplatParams(nGenes = p,
+                          batchCells = c(rep(N / K, K), rep(N / K, K), 10000),
+                          batch.facLoc = batch_effect,
+                          batch.facScale = batch_effect,
+                          batch.rmEffect = TRUE,
+                          splits.per.level = category_mappings$splits_per_level,
+                          de.prob.per.level = c(0.075, 0.05, 0.025),
+                          de.facLoc.per.level = 0.1,
+                          de.facScale.per.level = 0.4,
+                          seed = replicate)
+
+  data = splatSimulate(params, method = "hierarchical", verbose = FALSE)
+
+  fit = glmnet(x = t(as.matrix(logcounts(data))), y = data$Group,
+               family = "multinomial", type.multinomial = "grouped",
+               trace.it = TRUE)
+
+  coef = extract_alpha_Beta_from_glmnet(fit, nonsparsity)
+  alpha = coef$alpha[categories]
+  Beta = coef$Beta[, categories]
+
+  X_star = t(as.matrix(logcounts(data)))
+  X_star_list_all = lapply(sort(unique(data$Batch)), function(batch) X_star[data$Batch == batch, , drop = FALSE])
+
+  X_star_list = X_star_list_all[1:K]
+  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+
+  X_star_list_val = X_star_list_all[(K + 1):(2 * K)]
+  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
+
+  X_star_list_test = X_star_list_all[2 * K + 1]
+  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
+
+  params = setParam(params, "batch.rmEffect", FALSE)
+
+  data = splatSimulate(params, method = "hierarchical", verbose = FALSE)
+
+  X = t(as.matrix(logcounts(data)))
+  X_list_all = lapply(sort(unique(data$Batch)), function(batch) X[data$Batch == batch, , drop = FALSE])
+
+  X_list = X_list_all[1:K]
+  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)
+
+  X_list_val = X_list_all[(K + 1):(2 * K)]
+  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_list_val, alpha, Beta)
+
+  X_list_test = X_list_all[2 * K + 1]
+  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_list_test, alpha, Beta)
+
+  output = prepare_data(Y_list = Y_list,
+                        category_mappings = category_mappings,
+                        category_mappings_fine = category_mappings_fine,
+                        X_list = X_list,
+                        X_star_list = X_star_list,
+                        Y_list_validation = Y_list_val,
+                        category_mappings_validation = category_mappings,
+                        category_mappings_fine_validation = category_mappings_fine,
+                        X_list_validation = X_list_val,
+                        X_star_list_validation = X_star_list_val,
+                        Y_list_test = Y_list_test,
+                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
+                        X_list_test = X_star_list_test,
+                        alpha = alpha,
+                        Beta = Beta)
+
+  return(output)
+
+}
+
 generate_data_random_X_and_Beta = function(category_mappings,
                                            N,
                                            p,
@@ -64,7 +146,7 @@ generate_data_random_X_and_structured_Beta = function(category_mappings,
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
   alpha = simulate_alpha(category_mappings$categories)
-  Beta = simulate_structured_Beta(category_mappings$number_of_levels, category_mappings$splits_per_level, p, nonsparsity, pct_de, -b, b, sigma)
+  Beta = simulate_structured_Beta(category_mappings$number_of_levels, category_mappings$number_per_split, p, nonsparsity, pct_de, -b, b, sigma)
 
   K = length(category_mappings$category_mappings)
   category_mappings_fine = create_fine_category_mappings(category_mappings$categories, K)
