@@ -11,29 +11,32 @@ generate_data_splatter_X_and_Beta = function(category_mappings,
   categories = category_mappings$categories
   category_mappings_fine = create_fine_category_mappings(categories, K)
 
-  params = newSplatParams(nGenes = p,
-                          batchCells = c(rep(N / K, K), rep(N / K, K), 10000),
-                          batch.facLoc = batch_effect,
-                          batch.facScale = batch_effect,
-                          batch.rmEffect = TRUE,
-                          splits.per.level = category_mappings$splits_per_level,
-                          de.prob.per.level = 0.15 / sum(1:length(category_mappings$splits_per_level)) * length(category_mappings$splits_per_level):1,
-                          de.facLoc.per.level = 0.1,
-                          de.facScale.per.level = 0.4,
-                          seed = replicate)
+  params = splatter::newSplatParams(nGenes = p,
+                                    batchCells = c(rep(N / K, K), rep(N / K, K), 10000),
+                                    batch.facLoc = batch_effect,
+                                    batch.facScale = batch_effect,
+                                    batch.rmEffect = TRUE,
+                                    splits.per.level = category_mappings$splits_per_level,
+                                    de.prob.per.level = 0.15 / sum(1:length(category_mappings$splits_per_level)) * length(category_mappings$splits_per_level):1,
+                                    de.facLoc.per.level = 0.1,
+                                    de.facScale.per.level = 0.4,
+                                    seed = replicate)
 
-  data = splatSimulate(params, method = "hierarchical", verbose = FALSE)
+  data = splatter::splatSimulate(params, method = "hierarchical", verbose = FALSE)
+  data = scater::logNormCounts(data)
+  data$Group = gsub("Group", "", data$Group)
 
-  fit = glmnet(x = t(as.matrix(logcounts(data))), y = data$Group,
-               family = "multinomial", type.multinomial = "grouped",
-               trace.it = TRUE)
+  fit_indices = sample(1:ncol(data), 2000)
+  fit = glmnet::glmnet(x = t(as.matrix(SingleCellExperiment::logcounts(data)))[fit_indices, ], y = data$Group[fit_indices],
+                       family = "multinomial", type.multinomial = "grouped",
+                       trace.it = TRUE)
 
   coef = extract_alpha_Beta_from_glmnet(fit, nonsparsity)
   alpha = coef$alpha[categories]
   Beta = coef$Beta[, categories]
 
-  X_star = t(as.matrix(logcounts(data)))
-  X_star_list_all = lapply(sort(unique(data$Batch)), function(batch) X_star[data$Batch == batch, , drop = FALSE])
+  X_star = t(as.matrix(SingleCellExperiment::logcounts(data)))
+  X_star_list_all = lapply(paste0("Batch", 1:(2 * K + 1)), function(batch) X_star[data$Batch == batch, , drop = FALSE])
 
   X_star_list = X_star_list_all[1:K]
   Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
@@ -44,21 +47,18 @@ generate_data_splatter_X_and_Beta = function(category_mappings,
   X_star_list_test = X_star_list_all[2 * K + 1]
   Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
 
-  params = setParam(params, "batch.rmEffect", FALSE)
+  params = splatter::setParam(params, "batch.rmEffect", FALSE)
 
-  data = splatSimulate(params, method = "hierarchical", verbose = FALSE)
+  data = splatter::splatSimulate(params, method = "hierarchical", verbose = FALSE)
+  data = scater::logNormCounts(data)
 
-  X = t(as.matrix(logcounts(data)))
+  X = t(as.matrix(SingleCellExperiment::logcounts(data)))
   X_list_all = lapply(sort(unique(data$Batch)), function(batch) X[data$Batch == batch, , drop = FALSE])
-
   X_list = X_list_all[1:K]
-  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)
-
   X_list_val = X_list_all[(K + 1):(2 * K)]
-  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_list_val, alpha, Beta)
-
   X_list_test = X_list_all[2 * K + 1]
-  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_list_test, alpha, Beta)
+
+  print(table(names(Y_list[[1]]), names(simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)[[1]])))
 
   output = prepare_data(Y_list = Y_list,
                         category_mappings = category_mappings,
@@ -202,7 +202,7 @@ prepare_data = function(Y_list,
                         alpha = NULL,
                         Beta = NULL) {
 
-  print(table(unlist((Y_list))))
+  print(table(unlist((Y_list)))[nchar(names(table(unlist((Y_list))))) == 3])
   print(table(unlist(get_fine_categories(Y_list))))
 
   output = list(
@@ -275,12 +275,14 @@ extract_alpha_Beta_from_glmnet = function(glmnet_fit, nonsparsity) {
 
   library(glmnet)
 
-  p = glmnet_fit$glmnet.fit$dim[1]
+  p = nrow(glmnet_fit$beta[[1]])
 
-  lambda_index = which.min(abs(glmnet_fit$nzero/p - nonsparsity))[1]
+  lambda_index = which.min(abs(glmnet_fit$df/p - nonsparsity))[1]
+
+  stopifnot(abs(glmnet_fit$df[lambda_index]/p - nonsparsity) < 0.05)
 
   coef = as.matrix(do.call(cbind, coef(glmnet_fit, s = glmnet_fit$lambda[lambda_index])))
-  colnames(coef) = glmnet_fit$glmnet.fit$classnames
+  colnames(coef) = glmnet_fit$classnames
 
   return(list(alpha = coef[1, , drop = TRUE], Beta = coef[-1, , drop = FALSE]))
 
