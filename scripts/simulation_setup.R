@@ -53,7 +53,7 @@ generate_data_splatter_X_and_Beta = function(category_mappings,
   data = scater::logNormCounts(data)
 
   X = t(as.matrix(SingleCellExperiment::logcounts(data)))
-  X_list_all = lapply(sort(unique(data$Batch)), function(batch) X[data$Batch == batch, , drop = FALSE])
+  X_list_all = lapply(paste0("Batch", 1:(2 * K + 1)), function(batch) X[data$Batch == batch, , drop = FALSE])
   X_list = X_list_all[1:K]
   X_list_val = X_list_all[(K + 1):(2 * K)]
   X_list_test = X_list_all[2 * K + 1]
