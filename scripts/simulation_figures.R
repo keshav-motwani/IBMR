@@ -24,11 +24,11 @@ results = lapply(files, function(x) {
                    Beta_TPR = result$performance["Beta_TPR"],
                    KL_divergence = result$performance["KL_divergence"],
                    hellinger_distance = result$performance["hellinger_distance"],
-                   error = result$performance["error"],
-                   best_case_Beta_SSE = result$best_case_performance["Beta_SSE"],
-                   best_case_KL_divergence = result$best_case_performance["KL_divergence"],
-                   best_case_hellinger_distance = result$best_case_performance["hellinger_distance"],
-                   best_case_error = result$best_case_performance["error"])
+                   error = result$performance["error"])
+                   # best_case_Beta_SSE = result$best_case_performance["Beta_SSE"],
+                   # best_case_KL_divergence = result$best_case_performance["KL_divergence"],
+                   # best_case_hellinger_distance = result$best_case_performance["hellinger_distance"],
+                   # best_case_error = result$best_case_performance["error"])
       ))
     }
     do.call(rbind, data)
@@ -47,7 +47,7 @@ oracles = c("observed", "ORC_fine", "ORC_clean", "ORC_fine_clean")
 oracles = oracles[oracles %in% result$oracle]
 
 summary = result %>%
-  pivot_longer(Beta_SSE:best_case_error, names_repair = "minimal", values_to = "result") %>%
+  pivot_longer(Beta_SSE:error, names_repair = "minimal", values_to = "result") %>%
   # filter(method != "ORACLE" | name == "error" | name == "best_case_error") %>%
   filter(method %in% methods) %>%
   mutate(value = factor(value)) %>%
@@ -142,9 +142,9 @@ for (glmnet in c(TRUE, FALSE)) {
         ymax = mean + two_se
       )
     ) +
-      geom_point(size = 2, position=position_dodge(0.2)) +
-      geom_line(position=position_dodge(0.2)) +
-      geom_errorbar(width = 0.2, position=position_dodge(0.2), linetype = "solid", show.legend = FALSE) +
+      geom_point(size = 2) +
+      geom_line() +
+      geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
       facet_grid(name ~ oracle, scales = "free_y") +
       theme_classic() +
       theme(strip.background = element_blank(), strip.placement = "outside") +
