@@ -64,7 +64,7 @@ generate_data_random_X_and_structured_Beta = function(category_mappings,
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
   alpha = simulate_alpha(category_mappings$categories)
-  Beta = simulate_structured_Beta(category_mappings$number_of_levels, category_mappings$number_per_split, p, nonsparsity, pct_de, -b, b, sigma)
+  Beta = simulate_structured_Beta(category_mappings$number_of_levels, category_mappings$splits_per_level, p, nonsparsity, pct_de, -b, b, sigma)
 
   K = length(category_mappings$category_mappings)
   category_mappings_fine = create_fine_category_mappings(category_mappings$categories, K)

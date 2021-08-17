@@ -1,19 +1,19 @@
 #' @export
-simulate_category_mappings = function(number_of_levels, number_per_split, label_levels_per_dataset) {
+simulate_category_mappings = function(number_of_levels, splits_per_level, label_levels_per_dataset) {
 
-  # if(!all(sapply(1:number_per_split, function(i) number_of_levels %in% sapply(label_levels_per_dataset, `[`, i)))) {
+  # if(!all(sapply(1:splits_per_level, function(i) number_of_levels %in% sapply(label_levels_per_dataset, `[`, i)))) {
   #   stop("The finest level categories (highest level) must be present in at least one dataset as specified in label_levels_per_dataset.")
   # }
 
-  if (length(number_per_split) == 1) number_per_split = rep(number_per_split, number_of_levels)
+  if (length(splits_per_level) == 1) splits_per_level = rep(splits_per_level, number_of_levels)
 
-  if (number_of_levels != length(number_per_split)) stop("length of number_per_split must be the same as number_of_levels")
+  if (number_of_levels != length(splits_per_level)) stop("length of splits_per_level must be the same as number_of_levels")
 
-  if (!all(sapply(label_levels_per_dataset, length) == number_per_split[1])) {
-    stop("For each dataset, one level for each of the first branches of the tree must be specified (for a total of number_per_split categories).")
+  if (!all(sapply(label_levels_per_dataset, length) == splits_per_level[1])) {
+    stop("For each dataset, one level for each of the first branches of the tree must be specified (for a total of splits_per_level categories).")
   }
 
-  label_tree = create_label_tree(number_of_levels, number_per_split)
+  label_tree = create_label_tree(number_of_levels, splits_per_level)
 
   category_mappings = lapply(label_levels_per_dataset, function(x) get_category_mapping(label_tree, x))
 
@@ -21,7 +21,7 @@ simulate_category_mappings = function(number_of_levels, number_per_split, label_
               inverse_category_mappings = lapply(category_mappings, `[[`, "inverse_category_mapping"),
               categories = label_tree[nrow(label_tree), ],
               number_of_levels = number_of_levels,
-              number_per_split = number_per_split))
+              splits_per_level = splits_per_level))
 
 }
 
@@ -50,16 +50,16 @@ get_category_mapping = function(label_tree, label_levels) {
 
 }
 
-create_label_tree = function(number_of_levels, number_per_split) {
+create_label_tree = function(number_of_levels, splits_per_level) {
 
-  number_of_categories = prod(number_per_split)
+  number_of_categories = prod(splits_per_level)
 
   tree = matrix(nrow = number_of_levels, ncol = number_of_categories)
 
-  tree[1, ] = rep(1:number_per_split[1], each = number_of_categories / number_per_split[1])
+  tree[1, ] = rep(1:splits_per_level[1], each = number_of_categories / splits_per_level[1])
 
   for (i in 2:number_of_levels) {
-    tree[i, ] = rep(rep(1:number_per_split[i], prod(number_per_split[1:(i - 1)])), each = number_of_categories / prod(number_per_split[1:i]))
+    tree[i, ] = rep(rep(1:splits_per_level[i], prod(splits_per_level[1:(i - 1)])), each = number_of_categories / prod(splits_per_level[1:i]))
   }
 
   label_tree = t(sapply(2:number_of_levels, function(i) apply(tree[1:i, ], 2, function(x) paste(x, collapse = ""))))
@@ -167,23 +167,23 @@ simulate_Beta = function(categories, p, nonzero, lower = -2, upper = 2) {
 }
 
 #' @export
-simulate_structured_Beta = function(number_of_levels, number_per_split, p, nonsparsity, pct_de, lower = -2, upper = 2, sigma = 1) {
+simulate_structured_Beta = function(number_of_levels, splits_per_level, p, nonsparsity, pct_de, lower = -2, upper = 2, sigma = 1) {
 
-  if (length(number_per_split) == 1) number_per_split = rep(number_per_split, number_of_levels)
+  if (length(splits_per_level) == 1) splits_per_level = rep(splits_per_level, number_of_levels)
 
-  if (number_of_levels != length(number_per_split)) stop("length of number_per_split must be the same as number_of_levels")
+  if (number_of_levels != length(splits_per_level)) stop("length of splits_per_level must be the same as number_of_levels")
 
-  Beta = simulate_Beta(1:number_per_split[1], p, nonsparsity * p, lower, upper)
+  Beta = simulate_Beta(1:splits_per_level[1], p, nonsparsity * p, lower, upper)
 
   for (l in 2:number_of_levels) {
 
-    temp_Beta = matrix(nrow = p, ncol = ncol(Beta) * number_per_split[l])
+    temp_Beta = matrix(nrow = p, ncol = ncol(Beta) * splits_per_level[l])
 
     for (c in 1:ncol(Beta)) {
 
-      for (s in 1:number_per_split[l]) {
+      for (s in 1:splits_per_level[l]) {
 
-        index = (c - 1) * number_per_split[l] + s
+        index = (c - 1) * splits_per_level[l] + s
 
         perturbed = Beta[, c, drop = TRUE]
         perturbed_indices = sample(which(perturbed != 0), max(pct_de * nonsparsity * p, 1))
@@ -199,7 +199,7 @@ simulate_structured_Beta = function(number_of_levels, number_per_split, p, nonsp
 
   }
 
-  label_tree = create_label_tree(number_of_levels, number_per_split)
+  label_tree = create_label_tree(number_of_levels, splits_per_level)
   categories = label_tree[nrow(label_tree), , drop = TRUE]
   colnames(Beta) = categories
 

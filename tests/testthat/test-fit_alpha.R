@@ -10,9 +10,9 @@ library(glmnet)
 library(CVXR)
 
 number_of_levels = 2
-number_per_split = 2
+splits_per_level = 2
 label_levels_per_dataset = list(c(2, 2), c(2, 2))
-category_mappings = simulate_category_mappings(number_of_levels, number_per_split, label_levels_per_dataset)
+category_mappings = simulate_category_mappings(number_of_levels, splits_per_level, label_levels_per_dataset)
 
 p = 20
 nonzero = 10
