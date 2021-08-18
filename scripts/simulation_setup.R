@@ -80,6 +80,89 @@ generate_data_splatter_X_and_Beta = function(category_mappings,
 
 }
 
+generate_data_unstructured_splatter_X_and_Beta = function(category_mappings,
+                                                          N,
+                                                          p,
+                                                          nonsparsity,
+                                                          batch_effect,
+                                                          replicate) {
+
+  set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+
+  K = length(category_mappings$category_mappings)
+  categories = category_mappings$categories
+  category_mappings_fine = create_fine_category_mappings(categories, K)
+
+  params = splatter::newSplatParams(nGenes = p,
+                                    batchCells = c(rep(N / K, K), rep(N / K, K), 10000),
+                                    batch.facLoc = batch_effect,
+                                    batch.facScale = batch_effect,
+                                    batch.rmEffect = TRUE,
+                                    group.prob = rep(1 / length(categories), length(categories)),
+                                    de.prob = 0.15,
+                                    de.facLoc = 0.1,
+                                    de.facScale = 0.4,
+                                    seed = replicate)
+
+  data = splatter::splatSimulate(params, method = "group", verbose = FALSE)
+  data = scater::logNormCounts(data)
+
+  fit_indices = sample(1:ncol(data), 2000)
+  fit = glmnet::glmnet(x = t(as.matrix(SingleCellExperiment::logcounts(data)))[fit_indices, ], y = data$Group[fit_indices],
+                       family = "multinomial", type.multinomial = "grouped",
+                       trace.it = TRUE)
+
+  coef = extract_alpha_Beta_from_glmnet(fit, nonsparsity)
+  alpha = coef$alpha[categories]
+  Beta = coef$Beta[, categories]
+  names(alpha) = categories
+  colnames(Beta) = categories
+
+  X_star = t(as.matrix(SingleCellExperiment::logcounts(data)))
+  X_star_list_all = lapply(paste0("Batch", 1:(2 * K + 1)), function(batch) X_star[data$Batch == batch, , drop = FALSE])
+
+  X_star_list = X_star_list_all[1:K]
+  Y_list = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+
+  X_star_list_val = X_star_list_all[(K + 1):(2 * K)]
+  Y_list_val = simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
+
+  X_star_list_test = X_star_list_all[2 * K + 1]
+  Y_list_test = simulate_Y_list(categories, category_mappings_fine$inverse_category_mappings[1], X_star_list_test, alpha, Beta)
+
+  params = splatter::setParam(params, "batch.rmEffect", FALSE)
+
+  data = splatter::splatSimulate(params, method = "group", verbose = FALSE)
+  data = scater::logNormCounts(data)
+
+  X = t(as.matrix(SingleCellExperiment::logcounts(data)))
+  X_list_all = lapply(paste0("Batch", 1:(2 * K + 1)), function(batch) X[data$Batch == batch, , drop = FALSE])
+  X_list = X_list_all[1:K]
+  X_list_val = X_list_all[(K + 1):(2 * K)]
+  X_list_test = X_list_all[2 * K + 1]
+
+  print(table(names(Y_list[[1]]), names(simulate_Y_list(categories, category_mappings$inverse_category_mappings, X_list, alpha, Beta)[[1]])))
+
+  output = prepare_data(Y_list = Y_list,
+                        category_mappings = category_mappings,
+                        category_mappings_fine = category_mappings_fine,
+                        X_list = X_list,
+                        X_star_list = X_star_list,
+                        Y_list_validation = Y_list_val,
+                        category_mappings_validation = category_mappings,
+                        category_mappings_fine_validation = category_mappings_fine,
+                        X_list_validation = X_list_val,
+                        X_star_list_validation = X_star_list_val,
+                        Y_list_test = Y_list_test,
+                        category_mappings_test = list(categories = categories, category_mappings = category_mappings_fine$category_mappings[1], inverse_category_mappings = category_mappings_fine$inverse_category_mappings[1]),
+                        X_list_test = X_star_list_test,
+                        alpha = alpha,
+                        Beta = Beta)
+
+  return(output)
+
+}
+
 generate_data_random_X_and_Beta = function(category_mappings,
                                            N,
                                            p,
@@ -403,7 +486,9 @@ compute_performance = function(Y_list_test, category_mappings_test, X_list_test,
 
   error = mean(unlist(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE)))
 
-  return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error))
+  confusion_matrix = table(unlist(Y_list_test), unlist(predicted_categories))
+
+  return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error, confusion_matrix = confusion_matrix))
 
 }
 
