@@ -113,8 +113,8 @@ generate_data_unstructured_splatter_X_and_Beta = function(category_mappings,
                        trace.it = TRUE)
 
   coef = extract_alpha_Beta_from_glmnet(fit, nonsparsity)
-  alpha = coef$alpha[categories]
-  Beta = coef$Beta[, categories]
+  alpha = coef$alpha
+  Beta = coef$Beta
   names(alpha) = categories
   colnames(Beta) = categories
 
