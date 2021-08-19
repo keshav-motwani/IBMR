@@ -23,7 +23,7 @@ considered_values = list(
   batch_effect = c(0.025, 0.05, 0.1, 0.2, 0.4)
 )
 
-parameters = expand_parameters("unstructured_splatter_X_and_Beta", considered_values, defaults, 50, methods)
+parameters = expand_parameters("unstructured_splatter_X_and_Beta", considered_values, defaults, 20, methods)
 
 chunk_size = 6
 

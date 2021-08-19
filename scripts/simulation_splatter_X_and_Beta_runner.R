@@ -6,7 +6,7 @@ ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 RESULT_PATH = "results/simulations_splatter_X_and_Beta"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
+methods = c("IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel", "IBMR", "IBMR_int", "IBMR_common_Gamma")
 methods = c(methods, paste0(methods, "_ORC_fine"), paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
@@ -23,7 +23,7 @@ considered_values = list(
   batch_effect = c(0.025, 0.05, 0.1, 0.2, 0.4)
 )
 
-parameters = expand_parameters("splatter_X_and_Beta", considered_values, defaults, 50, methods)
+parameters = expand_parameters("splatter_X_and_Beta", considered_values, defaults, 20, methods)
 
 chunk_size = 6
 
