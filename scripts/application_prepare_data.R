@@ -1,9 +1,6 @@
 library(AnnotatedPBMC)
 library(scater)
 
-RESULT_PATH = "results/applications"
-dir.create(RESULT_PATH, recursive = TRUE)
-
 CACHE_PATH = "../AnnotatedPBMC/data"
 
 hao = get_hao_2020(CACHE_PATH)
@@ -52,4 +49,4 @@ select_genes = function(sce_list, n_genes) {
 
 genes = select_genes(data_split, 1000)
 
-write.csv(genes, file.path(RESULT_PATH, "genes.csv"))
+write.csv(genes, file.path(CACHE_PATH, "genes.csv"))

@@ -466,35 +466,46 @@ evaluate_parameters = function(parameters, simulation_function) {
 
 compute_performance = function(Y_list_test, category_mappings_test, X_list_test, alpha, Beta, alpha_hat, Beta_hat, test_estimated_probabilities) {
 
-  if (!is.null(alpha_hat)) {
+  if (!is.null(Beta)) {
 
-    Beta_SSE = Beta_SSE(Beta_hat, Beta)
-    Beta_FPR = Beta_FPR(Beta_hat, Beta)
-    Beta_TPR = Beta_TPR(Beta_hat, Beta)
+    if (!is.null(Beta_hat)) {
+
+      Beta_SSE = Beta_SSE(Beta_hat, Beta)
+      Beta_FPR = Beta_FPR(Beta_hat, Beta)
+      Beta_TPR = Beta_TPR(Beta_hat, Beta)
+
+    } else {
+
+      Beta_SSE = Beta_FPR = Beta_TPR = NA
+
+    }
+
+    KL_divergence = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(kl_divergence(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
+
+    hellinger_distance = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
 
   } else {
 
-    Beta_SSE = Beta_FPR = Beta_TPR = NA
+    Beta_SSE = Beta_FPR = Beta_TPR = KL_divergence = hellinger_distance = NA
 
   }
 
-  KL_divergence = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(kl_divergence(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
-
-  hellinger_distance = mean(unlist(mapply(test_estimated_probabilities, X_list_test, FUN = function(P_hat, X) mean(hellinger_distance(P_hat, IBMR:::compute_probabilities_no_Gamma(X, alpha, Beta))), SIMPLIFY = FALSE)))
-
   predicted_categories = predict_categories(test_estimated_probabilities, category_mappings_test$category_mappings)
 
-  error = mean(unlist(mapply(predicted_categories, Y_list_test, FUN = function(predictions, Y) error(predictions, Y), SIMPLIFY = FALSE)))
+  error = error(unlist(predicted_categories), unlist(Y_list_test))
+
+  Y_matrix_list_test = mapply(Y = Y_list_test, category_mapping = category_mappings_test$category_mappings, FUN = function(Y, category_mapping) create_Y_matrix(Y, category_mappings_test$categories, category_mapping), SIMPLIFY = FALSE)
+  nll = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_test, X_list_test, alpha_hat, Beta_hat, length(unlist(Y_list_test)))
 
   confusion_matrix = table(unlist(Y_list_test), unlist(predicted_categories))
 
-  return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error, confusion_matrix = confusion_matrix))
+  return(list(Beta_SSE = Beta_SSE, Beta_FPR = Beta_FPR, Beta_TPR = Beta_TPR, KL_divergence = KL_divergence, hellinger_distance = hellinger_distance, error = error, nll = nll, confusion_matrix = confusion_matrix))
 
 }
 
 compute_best_case_performance = function(Y_list_test, category_mappings_test, X_list_test, alpha, Beta, all_alpha_hats, all_Beta_hats, all_test_estimated_probabilities) {
 
-  keep = c("Beta_SSE", "KL_divergence", "hellinger_distance", "error")
+  keep = c("Beta_SSE", "KL_divergence", "hellinger_distance", "error", "nll")
 
   if (is.null(all_alpha_hats) & is.null(all_Beta_hats)) all_alpha_hats = all_Beta_hats = vector("list", length(all_test_estimated_probabilities))
 
