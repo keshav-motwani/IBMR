@@ -305,8 +305,6 @@ prepare_ding_2019 = function(cache_path, n_sample = 5000) {
 
 prepare_dataset_output = function(data, binning_function) {
 
-  print(binning_function)
-
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
   stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || setdiff(binning_function, data$cell_type) == "unobserved")
 

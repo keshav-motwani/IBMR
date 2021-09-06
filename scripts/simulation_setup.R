@@ -285,7 +285,7 @@ prepare_data = function(Y_list,
                         alpha = NULL,
                         Beta = NULL) {
 
-  print(table(unlist((Y_list)))[nchar(names(table(unlist((Y_list))))) == 3])
+  print(table(unlist((Y_list))))
   print(table(unlist(get_fine_categories(Y_list))))
 
   output = list(
@@ -416,12 +416,18 @@ evaluate_parameters = function(parameters, simulation_function) {
 
   method_function = get(paste0("fit_", method))
 
+  print("Preparing data")
+
   data = do.call(simulation_function, parameters[intersect(names(parameters), formalArgs(simulation_function))])[[ORC_type]]
   data$parameters = parameters
+
+  print("Fitting model")
 
   fits = method_function(data)
 
   results = vector("list", length(fits))
+
+  print("Evaluating performance")
 
   for (i in 1:length(fits)) {
 
