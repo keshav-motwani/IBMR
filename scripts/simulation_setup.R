@@ -19,7 +19,7 @@ generate_data_splatter_X_and_Beta = function(category_mappings,
                                     splits.per.level = category_mappings$splits_per_level,
                                     de.prob.per.level = 0.1 / sum(1:length(category_mappings$splits_per_level)) * length(category_mappings$splits_per_level):1,
                                     de.facLoc.per.level = 0.1,
-                                    de.facScale.per.level = 0.4,
+                                    de.facScale.per.level = c(0.4, 0.2, 0.1),
                                     seed = replicate)
 
   data = splatter::splatSimulate(params, method = "hierarchical", verbose = FALSE)
