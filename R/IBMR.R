@@ -171,15 +171,21 @@ IBMR_no_Gamma = function(Y_list,
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Z_list = lapply(Y_list, function(Y) matrix(1, nrow = length(Y), ncol = 1))
 
+  print("Standardizing predictors")
+
   X_list = standardize_X(X_list)
   X_mean = attr(X_list, "mean")
   X_sd = attr(X_list, "sd")
 
   features = colnames(X_list[[1]])
 
+  print("Computing tuning parameter sequences")
+
   lambda_sequence = compute_lambda_sequence_no_Gamma(Y_matrix_list, X_list, Z_list, n_lambda, lambda_min_ratio, n_iter, tolerance)
   fitted_alpha_no_Beta = lambda_sequence$fitted_alpha
   lambda_sequence = lambda_sequence$sequence
+
+  print("Fitting models")
 
   model_fits_lambda_sequence = vector("list", n_lambda)
 
