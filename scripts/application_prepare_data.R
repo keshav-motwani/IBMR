@@ -52,4 +52,4 @@ select_genes = function(sce_list, n_genes) {
 
 genes = select_genes(data_split, 1000)
 
-saveRDS(genes, file.path(RESULT_PATH, "genes.rds"))
+write.csv(genes, file.path(RESULT_PATH, "genes.csv"))
