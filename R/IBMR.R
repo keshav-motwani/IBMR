@@ -7,6 +7,7 @@ IBMR = function(Y_list,
                 Y_list_validation = NULL,
                 category_mappings_validation = NULL,
                 X_list_validation = NULL,
+                penalty_groups = list(categories),
                 n_rho = 20,
                 rho_min_ratio = 1e-6,
                 n_lambda = 25,
@@ -28,6 +29,8 @@ IBMR = function(Y_list,
     Z_list = list(do.call(rbind, Z_list))
   }
 
+  print("Standardizing predictors")
+
   X_list = standardize_X(X_list)
   X_mean = attr(X_list, "mean")
   X_sd = attr(X_list, "sd")
@@ -35,6 +38,8 @@ IBMR = function(Y_list,
   Z_list = standardize_Z(Z_list)
   Z_mean = attr(Z_list, "mean")
   Z_sd = attr(Z_list, "sd")
+
+  print("Computing tuning parameter sequences")
 
   rho_sequence = compute_rho_sequence(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, phi, n_iter, tolerance)
   fitted_alpha_no_Beta_no_Gamma = rho_sequence$fitted_alpha
@@ -44,6 +49,8 @@ IBMR = function(Y_list,
   fitted_alpha_no_Beta = lambda_grid$fitted_alpha
   fitted_Gamma_no_Beta = lambda_grid$fitted_Gamma_list
   lambda_grid = lambda_grid$grid
+
+  print("Fitting models")
 
   if (Gamma_update == "Newton") {
     fit_function = fit_alpha_Beta_Gamma_Newton

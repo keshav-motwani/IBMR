@@ -285,6 +285,7 @@ prepare_data = function(Y_list,
                         alpha = NULL,
                         Beta = NULL) {
 
+  sapply(Y_list, function(x) print(table(x)))
   print(table(unlist((Y_list))))
   print(table(unlist(get_fine_categories(Y_list))))
 
