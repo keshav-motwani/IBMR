@@ -113,7 +113,7 @@ prepare_kotliarov_2020 = function(cache_path, n_sample = 5000) {
     ILC = "unobserved",
     MAIT = "unobserved",
     NK = "CD16++ NK",
-    `NK CD56bright` = "CD56hi CD16lo NK",
+    NK_CD56bright = "CD56hi CD16lo NK",
     pDC = "pDC",
     Plasmablast = "B cells",
     Platelet = "unobserved",
@@ -156,7 +156,7 @@ prepare_10x_sorted = function(cache_path, n_sample = 5000) {
     ILC = "unobserved",
     MAIT = "unobserved",
     NK = "CD56+ Natural Killer Cells",
-    `NK CD56bright` = "CD56+ Natural Killer Cells",
+    NK_CD56bright = "CD56+ Natural Killer Cells",
     pDC = "unobserved",
     Plasmablast = "CD19+ B cells",
     Platelet = "unobserved",
@@ -201,7 +201,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_sample = 5000) {
     ILC = "unobserved",
     MAIT = "unobserved",
     NK = "CD16+ NK",
-    `NK CD56bright` = "CD16- NK",
+    NK_CD56bright = "CD16- NK",
     pDC = "unobserved",
     Plasmablast = "B",
     Platelet = "unobserved",
@@ -246,7 +246,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_sample = 5000) {
     ILC = "unobserved",
     MAIT = "unobserved",
     NK = "CD16+ NK",
-    `NK CD56bright` = "CD16- NK",
+    NK_CD56bright = "CD16- NK",
     pDC = "DCs",
     Plasmablast = "B",
     Platelet = "unobserved",
@@ -291,7 +291,7 @@ prepare_ding_2019 = function(cache_path, n_sample = 5000) {
     ILC = "unobserved",
     MAIT = "unobserved",
     NK = "Natural killer cell",
-    `NK CD56bright` = "Natural killer cell",
+    NK_CD56bright = "Natural killer cell",
     pDC = "Plasmacytoid dendritic cell",
     Plasmablast = "B cell",
     Platelet = "unobserved",
@@ -305,6 +305,11 @@ prepare_ding_2019 = function(cache_path, n_sample = 5000) {
 
 prepare_dataset_output = function(data, binning_function) {
 
+  stopifnot(all(sort(names(binning_function)) == c("ASDC", "B intermediate", "B memory", "B naive", "CD14 Mono",
+                                                   "CD16 Mono", "CD4 CTL", "CD4 Naive", "CD4 TCM", "CD4 TEM", "CD8 Naive",
+                                                   "CD8 TCM", "CD8 TEM", "cDC1", "cDC2", "dnT", "Eryth", "gdT",
+                                                   "HSPC", "ILC", "MAIT", "NK", "NK_CD56bright", "pDC", "Plasmablast",
+                                                   "Platelet", "Treg Memory", "Treg Naive")))
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
   stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || setdiff(binning_function, data$cell_type) == "unobserved")
 
