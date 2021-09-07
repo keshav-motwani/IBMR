@@ -169,7 +169,11 @@ IBMR_no_Gamma = function(Y_list,
                          tolerance = 1e-8) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
-  Z_list = lapply(Y_list, function(Y) matrix(1, nrow = length(Y), ncol = 1))
+  Y_matrix_list = list(do.call(rbind, Y_matrix_list))
+
+  X_list = list(do.call(rbind, X_list))
+
+  Z_list = list(matrix(1, nrow = nrow(X_list[[1]]), ncol = 1))
 
   print("Standardizing predictors")
 
