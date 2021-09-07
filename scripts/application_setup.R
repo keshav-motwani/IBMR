@@ -318,6 +318,8 @@ prepare_dataset_output = function(data, binning_function) {
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
   stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || setdiff(binning_function, data$cell_type) == "unobserved")
 
+  binning_function[binning_function == "unobserved"] = names(binning_function)[binning_function == "unobserved"]
+
   data = split_data(data, data$dataset)
 
   X_list = lapply(data, function(x) t(as.matrix(SingleCellExperiment::logcounts(x))))
