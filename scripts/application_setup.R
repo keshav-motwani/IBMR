@@ -228,7 +228,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_sample = 5000) {
   data = data[, weighted_sample(data$cell_type, n_sample)]
 
   binning_function = c(
-    ASDC = "unobserved",
+    ASDC = "DCs",
     `B intermediate` = "unobserved",
     `B memory` = "memory B",
     `B naive` = "naive B",
