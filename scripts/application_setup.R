@@ -252,7 +252,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_sample = 5000) {
     NK = "CD16+ NK",
     NK_CD56bright = "CD16- NK",
     pDC = "DCs",
-    Plasmablast = "B",
+    Plasmablast = "unobserved",
     Platelet = "unobserved",
     `Treg Memory` = "Treg",
     `Treg Naive` = "Treg"
@@ -316,7 +316,7 @@ prepare_dataset_output = function(data, binning_function) {
                                                    "HSPC", "ILC", "MAIT", "NK", "NK_CD56bright", "pDC", "Plasmablast",
                                                    "Platelet", "Treg Memory", "Treg Naive")))
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
-  stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || setdiff(binning_function, data$cell_type) == "unobserved")
+  stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || all(setdiff(binning_function, data$cell_type) == "unobserved"))
 
   binning_function[binning_function == "unobserved"] = names(binning_function)[binning_function == "unobserved"]
 
