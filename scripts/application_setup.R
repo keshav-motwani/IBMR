@@ -184,7 +184,7 @@ prepare_tsang_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
   genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
   data = data[genes, ]
 
-  data = data[, !grepl("TCRVbeta13.1pos|TissueResMemT|double-positive T cell (DPT)|granulocyte|intermediate monocyte|NK_CD56loCD16lo", data$cell_type)]
+  data = data[, !grepl("TCRVbeta13.1pos|TissueResMemT|double-positive T cell \\(DPT)|granulocyte|intermediate monocyte|NK_CD56loCD16lo", data$cell_type)]
 
   data = data[, weighted_sample(data$cell_type, n_sample)]
 
@@ -520,7 +520,7 @@ prepare_dataset_output = function(data, binning_function) {
   data = list(data) # split_data(data, data$dataset)
 
   X_list = lapply(data, function(x) t(as.matrix(SingleCellExperiment::logcounts(x))))
-  Y_list = lapply(data, function(x) x$cell_type)
+  Y_list = lapply(data, function(x) as.character(x$cell_type))
 
   category_mapping = binning_function_to_category_mapping(binning_function)
 
