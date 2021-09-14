@@ -334,7 +334,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `B memory` = "B",
     `B naive` = "B",
     `CD14 Mono` = "classical monocyte",
-    `CD16 Mono` = "non-classical CD16+ monocyte",
+    `CD16 Mono` = "unobserved",
     `CD4 CTL` = "unobserved",
     `CD4 Naive` = "naive CD4",
     `CD4 TCM` = "memory CD4",
