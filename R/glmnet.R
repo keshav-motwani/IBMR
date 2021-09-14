@@ -12,7 +12,7 @@ glmnet_subset = function(Y_list,
                              tolerance = 1e-9) {
 
   names(categories) = categories
-  Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, as.list(categories)))
+  Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
 
   features = colnames(X_list[[1]])
 
