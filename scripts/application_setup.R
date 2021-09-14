@@ -8,7 +8,7 @@ prepare_real_data_application = function(split_index,
 
   dataset_names = c("hao_2020", "haniffa_2021", "tsang_2021", "blish_2020", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
 
-  lapply(dataset_names, function(dataset) debugonce(get(paste0("prepare_", dataset))))
+  # lapply(dataset_names, function(dataset) debugonce(get(paste0("prepare_", dataset))))
   datasets = lapply(dataset_names, function(dataset) get(paste0("prepare_", dataset))(cache_path, n_genes, n_sample))
   names(datasets) = dataset_names
 
