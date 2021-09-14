@@ -24,14 +24,14 @@ parameters = list()
 
 for (n_genes in c(1000, 250, 500, 2000)) {
   defaults$n_genes = n_genes
-  parameters = c(parameters, expand_parameters("n_genes", considered_values, defaults, 5, methods))
+  parameters = c(parameters, expand_parameters("n_genes; n_sample = 5000", considered_values, defaults, 5, methods))
 }
 
 defaults$n_genes = 1000
 
 for (n_sample in c(5000, 1250, 2500, 10000)) {
   defaults$n_sample = n_sample
-  parameters = c(parameters, expand_parameters("n_sample", considered_values, defaults, 5, methods))
+  parameters = c(parameters, expand_parameters("n_sample; n_genes = 1000 ", considered_values, defaults, 5, methods))
 }
 
 chunk_size = 3
