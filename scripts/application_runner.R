@@ -40,7 +40,6 @@ for (i in 1:chunk_size) {
 
   PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
   current_parameters = parameters[[PARAMETER_ID]]
-  debugonce(IBMR:::compute_lambda_sequence_no_Gamma)
   system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
   saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
 
