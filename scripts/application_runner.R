@@ -38,7 +38,7 @@ chunk_size = 3
 
 for (i in 1:chunk_size) {
 
-  PARAMETER_ID = 1 # (ARRAY_ID - 1) * chunk_size + i
+  PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
   current_parameters = parameters[[PARAMETER_ID]]
   debugonce(IBMR:::compute_lambda_sequence_no_Gamma)
   system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
