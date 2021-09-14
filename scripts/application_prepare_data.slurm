@@ -5,7 +5,7 @@
 #SBATCH --account=amolstad
 #SBATCH --qos=amolstad-b
 #SBATCH --job-name=IBMR
-#SBATCH --mem-per-cpu=64gb
+#SBATCH --mem-per-cpu=128gb
 #SBATCH -t 4320
 #SBATCH --output=logs/application_prepare_data.log
 #SBATCH --nodes=1

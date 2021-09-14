@@ -12,21 +12,35 @@ methods = c("IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",
   split_index = 1,
+  n_genes = 1000,
   n_sample = 5000
 )
 
 considered_values = list(
-  split_index = 1:20
+  split_index = 1:72
 )
 
-parameters = expand_parameters("application", considered_values, defaults, 5, methods)
+parameters = list()
 
-chunk_size = 1
+for (n_genes in c(1000, 250, 500, 2000)) {
+  defaults$n_genes = n_genes
+  parameters = c(parameters, expand_parameters("n_genes", considered_values, defaults, 5, methods))
+}
+
+defaults$n_genes = 1000
+
+for (n_sample in c(5000, 1250, 2500, 10000)) {
+  defaults$n_sample = n_sample
+  parameters = c(parameters, expand_parameters("n_sample", considered_values, defaults, 5, methods))
+}
+
+chunk_size = 3
 
 for (i in 1:chunk_size) {
 
-  PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
+  PARAMETER_ID = 1 # (ARRAY_ID - 1) * chunk_size + i
   current_parameters = parameters[[PARAMETER_ID]]
+  debugonce(IBMR:::compute_lambda_sequence_no_Gamma)
   system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
   saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
 

@@ -57,7 +57,7 @@ test_that("Estimated Beta from glmnet_relabel matches glmnet for fine resolution
 plot(coef(fit, fit$lambda[10])[[1]][-1], test$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
-fit = cv.glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
+fit = cv.glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4, maxit = 1e6, thresh = 1e-9)
 
 test = glmnet_split(list(unlist(Y_list)), category_mappings$categories, category_mappings$category_mappings, list(do.call(rbind, X_list)), n_lambda = 25, lambda_min_ratio = 1e-4)
 
@@ -69,9 +69,11 @@ test_that("Estimated probabilities from glmnet_split matches cv.glmnet for fine 
   expect(all(abs(probs_cv_glmnet - probs_glmnet_split) < COEF_THRESHOLD), "probabilities not equal")
 })
 
-fit = cv.glmnet(X_list[[1]], Y_list[[1]], family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
-fit2 = cv.glmnet(X_list[[2]], Y_list[[2]], family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4)
+set.seed(1)
+fit = cv.glmnet(X_list[[1]], Y_list[[1]], family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4, maxit = 1e6, thresh = 1e-9)
+fit2 = cv.glmnet(X_list[[2]], Y_list[[2]], family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4, maxit = 1e6, thresh = 1e-9)
 
+set.seed(1)
 test = glmnet_split(Y_list[1:2], category_mappings$categories, category_mappings$category_mappings[1:2], X_list[1:2], n_lambda = 25, lambda_min_ratio = 1e-4)
 
 probs_cv_glmnet = predict(fit, X_list[[1]], type = "response", s = fit$lambda.min)[, , 1]
