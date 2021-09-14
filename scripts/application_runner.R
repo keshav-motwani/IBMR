@@ -20,22 +20,22 @@ considered_values = list(
   split_index = 1:72
 )
 
-n_sample_sequence = c(5000, 1250, 2500, 10000)
+n_sample_sequence = c(5000, 1250, 2500, 10000)[1]
 n_genes_sequence = c(1000, 250, 500, 2000)
 
 parameters = list()
 
-for (n_sample in n_sample_sequence[1]) {
+for (n_sample in n_sample_sequence) {
   defaults$n_sample = n_sample
   parameters = c(parameters, expand_parameters("n_sample; n_genes = 1000 ", considered_values, defaults, 5, methods))
 }
 
-defaults$n_sample = 5000
-
-for (n_genes in n_genes_sequence[1]) {
-  defaults$n_genes = n_genes
-  parameters = c(parameters, expand_parameters("n_genes; n_sample = 5000", considered_values, defaults, 5, methods))
-}
+# defaults$n_sample = 5000
+#
+# for (n_genes in n_genes_sequence) {
+#   defaults$n_genes = n_genes
+#   parameters = c(parameters, expand_parameters("n_genes; n_sample = 5000", considered_values, defaults, 5, methods))
+# }
 
 chunk_size = 1
 
