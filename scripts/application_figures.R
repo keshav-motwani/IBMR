@@ -29,10 +29,10 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_relabel", "glmnet_subset")
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
 methods = methods[methods %in% result$method]
 
-dataset_names = c("hao_2020", "kotliarov_2020", "10x_sorted", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
+dataset_names = c("hao_2020", "haniffa_2021", "tsang_2021", "blish_2020", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
 splits = expand.grid(dataset_names[-1], dataset_names[-1], stringsAsFactors = FALSE)
 colnames(splits) = c("validation", "test")
 splits = splits[splits[, 1] != splits[, 2], ]

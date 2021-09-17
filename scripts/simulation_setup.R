@@ -693,6 +693,34 @@ fit_IBMR_no_Gamma = function(data) {
 
 }
 
+fit_IBMR_no_Gamma_subset = function(data) {
+
+  Y_list = data$train$Y_list
+  X_list = data$train$X_list
+  category_mappings = data$train$category_mappings$category_mappings
+  categories = data$train$category_mappings$categories
+  names(categories) = categories
+
+  Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
+  indices_list = lapply(Y_matrix_list, function(Y) which(rowSums(Y) == 1))
+
+  Y_list = mapply(Y = Y_list, indices = indices_list, map = category_mappings, FUN = function(Y, indices, map) unlist(map[Y[indices]]), SIMPLIFY = FALSE)
+  X_list = mapply(X = X_list, indices = indices_list, FUN = function(X, indices) X[indices, ], SIMPLIFY = FALSE)
+
+  fit = IBMR_no_Gamma(
+    Y_list,
+    categories,
+    lapply(1:length(Y_list), function(x) as.list(categories)),
+    X_list,
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list
+  )
+
+  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
+
+}
+
 fit_glmnet_subset = function(data) {
 
   fit = glmnet_subset(

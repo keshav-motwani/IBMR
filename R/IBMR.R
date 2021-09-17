@@ -13,7 +13,7 @@ IBMR = function(Y_list,
                 n_lambda = 25,
                 lambda_min_ratio = 1e-4,
                 phi = 1e-3,
-                n_iter = 1e5,
+                n_iter = 1e3,
                 tolerance = 1e-8,
                 Gamma_update = "gradient",
                 common_Gamma = FALSE,
@@ -135,6 +135,7 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
     fit$rho_index = rho_index
 
     fit$objective = fit$objective[fit$objective != 0]
+    print(length(fit$objective))
     if (length(fit$objective) == n_iter) {
       warning(paste0("Did not converge for ", rho_index, " value of rho and ", l, " value of lambda"))
       break
@@ -165,7 +166,7 @@ IBMR_no_Gamma = function(Y_list,
                          X_list_validation = NULL,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
-                         n_iter = 1e5,
+                         n_iter = 1e3,
                          tolerance = 1e-8) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
@@ -204,6 +205,7 @@ IBMR_no_Gamma = function(Y_list,
     fit$lambda_index = l
 
     fit$objective = fit$objective[fit$objective != 0]
+    print(length(fit$objective))
     if (length(fit$objective) == n_iter) {
       warning(paste0("Did not converge for ", l, " value of lambda"))
       break

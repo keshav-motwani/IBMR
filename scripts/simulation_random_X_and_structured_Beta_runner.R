@@ -3,7 +3,7 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/simulations_random_X_and_structured_Beta"
+RESULT_PATH = "results/simulations_random_X_and_structured_Beta_lowtol"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")

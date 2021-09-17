@@ -6,7 +6,7 @@
 #SBATCH --account=amolstad
 #SBATCH --qos=amolstad-b
 #SBATCH --job-name=IBMR
-#SBATCH --mem-per-cpu=6gb
+#SBATCH --mem-per-cpu=4gb
 #SBATCH -t 600
 #SBATCH --output=logs/simulation_random_X_and_structured_Beta_%a.log
 
