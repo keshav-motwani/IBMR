@@ -187,7 +187,7 @@ simulate_structured_Beta = function(number_of_levels, splits_per_level, p, nonsp
 
         perturbed = Beta[, c, drop = TRUE]
         perturbed_indices = sample(which(perturbed != 0), max(pct_de * nonsparsity * p, 1))
-        perturbed[perturbed_indices] = perturbed[perturbed_indices] + rnorm(length(perturbed_indices), sd = 1)
+        perturbed[perturbed_indices] = perturbed[perturbed_indices] + rnorm(length(perturbed_indices), sd = sigma)
 
         temp_Beta[, index] = perturbed
 
