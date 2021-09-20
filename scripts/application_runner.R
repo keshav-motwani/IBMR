@@ -7,7 +7,7 @@ ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
 RESULT_PATH = "results/applications"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
+methods = c("IBMR_no_Gamma", "subset", "relabel")
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",

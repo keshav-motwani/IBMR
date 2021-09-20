@@ -13,8 +13,8 @@ IBMR = function(Y_list,
                 n_lambda = 25,
                 lambda_min_ratio = 1e-4,
                 phi = 1e-3,
-                n_iter = 1e3,
-                tolerance = 1e-8,
+                n_iter = 1e4,
+                tolerance = 1e-6,
                 Gamma_update = "gradient",
                 common_Gamma = FALSE,
                 n_cores = 1) {
@@ -166,8 +166,8 @@ IBMR_no_Gamma = function(Y_list,
                          X_list_validation = NULL,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
-                         n_iter = 1e3,
-                         tolerance = 1e-8) {
+                         n_iter = 1e4,
+                         tolerance = 1e-6) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Y_matrix_list = list(do.call(rbind, Y_matrix_list))
@@ -241,6 +241,81 @@ IBMR_no_Gamma = function(Y_list,
     fit$best_model = fit$model_fits[[best_tuning_parameters]]
 
   }
+
+  return(fit)
+
+}
+
+#' @export
+IBMR_no_Gamma_subset = function(Y_list,
+                                categories,
+                                category_mappings,
+                                X_list,
+                                Y_list_validation = NULL,
+                                category_mappings_validation = NULL,
+                                X_list_validation = NULL,
+                                n_lambda = 25,
+                                lambda_min_ratio = 1e-4,
+                                n_iter = 1e4,
+                                tolerance = 1e-6) {
+
+  Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
+
+  indices_list = lapply(Y_matrix_list, function(Y) which(rowSums(Y) == 1))
+
+  print(paste0("Keeping ", sum(sapply(indices_list, length)), " observations out of a total of ", sum(sapply(Y_list, length))))
+
+  Y_list = mapply(Y = Y_list, indices = indices_list, map = category_mappings, FUN = function(Y, indices, map) unlist(map[Y[indices]]), SIMPLIFY = FALSE)
+  X_list = mapply(X = X_list, indices = indices_list, FUN = function(X, indices) X[indices, ], SIMPLIFY = FALSE)
+
+  IBMR_no_Gamma(Y_list,
+                categories,
+                replicate(length(Y_list), as.list(setNames(nm = categories)), simplify = FALSE),
+                X_list,
+                Y_list_validation,
+                category_mappings_validation,
+                X_list_validation,
+                n_lambda,
+                lambda_min_ratio,
+                n_iter,
+                tolerance)
+
+}
+
+#' @export
+IBMR_no_Gamma_relabel = function(Y_list,
+                          categories,
+                          category_mappings,
+                          X_list,
+                          Y_list_validation,
+                          category_mappings_validation,
+                          X_list_validation,
+                          n_rho = 25,
+                          rho_min_ratio = 1e-4,
+                          n_lambda = 25,
+                          lambda_min_ratio = 1e-4,
+                          n_iter = 1e4,
+                          tolerance = 1e-6) {
+
+  fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance)
+
+  probabilities = predict_probabilities(fit_subset$best_model, X_list)
+  conditional_probabilities = predict_conditional_probabilities(probabilities, Y_list, category_mappings)
+  Y_list = predict_categories(conditional_probabilities)
+
+  fit = IBMR_no_Gamma(Y_list,
+                categories,
+                replicate(length(Y_list), as.list(setNames(nm = categories)), simplify = FALSE),
+                X_list,
+                Y_list_validation,
+                category_mappings_validation,
+                X_list_validation,
+                n_lambda,
+                lambda_min_ratio,
+                n_iter,
+                tolerance)
+
+  attr(fit, "subset") = fit_subset
 
   return(fit)
 
