@@ -48,7 +48,7 @@ glmnet_subset = function(Y_list,
   lambda_seq = fit$lambda
 
   fit = list(model_fits = model_fits,
-             n_lambda = length(fit$lambda),
+             n_lambda = n_lambda,
              categories = categories,
              lambda_sequence = lambda_seq)
 

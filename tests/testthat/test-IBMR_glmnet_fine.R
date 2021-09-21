@@ -28,7 +28,7 @@ Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inv
 
 fit = glmnet(do.call(rbind, X_list), unlist(Y_list), family = "multinomial", alpha = 1, standardize = TRUE, intercept = TRUE, type.multinomial = "grouped", nlambda = 25, lambda.min.ratio = 1e-4, maxit = 1e6, thresh = TOLERANCE)
 
-system.time({test = IBMR_no_Gamma(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, tolerance = TOLERANCE)})
+system.time({test = IBMR_no_Gamma(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_validation = Y_list_val, category_mappings_validation = category_mappings$category_mappings, X_list_validation = X_list_val, tolerance = TOLERANCE, stop_solution_path = NA)})
 
 test_that("Estimated Beta from IBMR_no_Gamma matches glmnet for fine resolution data", {
   expect(all(abs(coef(fit, fit$lambda[10])[[1]][-1] - test$model_fits[[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
@@ -38,7 +38,7 @@ plot(coef(fit, fit$lambda[10])[[1]][-1], test$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
 
 # should be equal to IBMR_no_Gamma when all are at finest resolution
-test2 = glmnet_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_lambda = 25, lambda_min_ratio = 1e-4, n_iter = 1e6, tolerance = TOLERANCE)
+test2 = glmnet_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_validation = Y_list_val, category_mappings_validation = category_mappings$category_mappings, X_list_validation = X_list_val, n_lambda = 25, lambda_min_ratio = 1e-4, n_iter = 1e6, tolerance = TOLERANCE)
 
 test_that("Estimated Beta from glmnet_subset matches glmnet for fine resolution data", {
   expect(all(abs(coef(fit, fit$lambda[10])[[1]][-1] - test2$model_fits[[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
@@ -46,6 +46,10 @@ test_that("Estimated Beta from glmnet_subset matches glmnet for fine resolution 
 
 plot(coef(fit, fit$lambda[10])[[1]][-1], test2$model_fits[[10]]$Beta[, 1])
 abline(0, 1)
+
+test_that("Validation NLL from glmnet_subset matches IBMR_no_Gamma", {
+  expect(all(abs(test$validation_negative_log_likelihood - test2$validation_negative_log_likelihood) < 1e-5, na.rm = TRUE), "NLL not equal")
+})
 
 # should be equal to IBMR_no_Gamma when all are at finest resolution
 test = glmnet_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_val, category_mappings$category_mappings, X_list_val, n_rho = 20, rho_min_ratio = 1e-3, n_lambda = 25, lambda_min_ratio = 1e-4, n_iter = 1e6, tolerance = TOLERANCE)

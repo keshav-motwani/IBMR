@@ -167,14 +167,20 @@ IBMR_no_Gamma = function(Y_list,
                          n_lambda = 25,
                          lambda_min_ratio = 1e-4,
                          n_iter = 1e4,
-                         tolerance = 1e-6) {
+                         tolerance = 1e-6,
+                         stop_solution_path = 1.1) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Y_matrix_list = list(do.call(rbind, Y_matrix_list))
 
   X_list = list(do.call(rbind, X_list))
-
   Z_list = list(matrix(1, nrow = nrow(X_list[[1]]), ncol = 1))
+
+  if (!is.null(Y_list_validation)) {
+    Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings_validation[[i]]))
+    N_val = sum(sapply(X_list_validation, nrow))
+    validation_negative_log_likelihood = rep(NA, n_lambda)
+  }
 
   print("Standardizing predictors")
 
@@ -217,7 +223,23 @@ IBMR_no_Gamma = function(Y_list,
     fit$KKT_check = check_KKT_IBMR_no_Gamma(Y_matrix_list, X_list, lambda_sequence[l], fit$alpha, fit$Beta)
     print(fit$KKT_check)
 
+    fit$alpha = adjust_alpha(fit$alpha, fit$Beta, X_mean, X_sd)
+    fit$Beta = adjust_Beta(fit$Beta, X_sd)
+    names(fit$alpha) = categories
+    colnames(fit$Beta) = categories
+    rownames(fit$Beta) = features
+
     model_fits_lambda_sequence[[l]] = fit
+
+    if (!is.null(Y_list_validation)) {
+
+      validation_negative_log_likelihood[l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, fit$alpha, fit$Beta, N_val)
+
+      if (!is.na(stop_solution_path) && validation_negative_log_likelihood[l] > stop_solution_path * min(validation_negative_log_likelihood, na.rm = TRUE)) {
+        break
+      }
+
+    }
 
   }
 
@@ -228,11 +250,10 @@ IBMR_no_Gamma = function(Y_list,
              common_Gamma = FALSE,
              no_Gamma = TRUE)
 
-  fit = adjust_fit_no_Gamma(fit, categories, features, X_mean, X_sd)
+  # fit = adjust_fit_no_Gamma(fit, categories, features, X_mean, X_sd)
 
   if (!is.null(Y_list_validation)) {
 
-    validation_negative_log_likelihood = compute_tuning_performance_no_Gamma(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
     best_tuning_parameters = which_min(validation_negative_log_likelihood)[1]
@@ -257,7 +278,8 @@ IBMR_no_Gamma_subset = function(Y_list,
                                 n_lambda = 25,
                                 lambda_min_ratio = 1e-4,
                                 n_iter = 1e4,
-                                tolerance = 1e-6) {
+                                tolerance = 1e-6,
+                                stop_solution_path = 1.1) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
 
@@ -278,7 +300,8 @@ IBMR_no_Gamma_subset = function(Y_list,
                 n_lambda,
                 lambda_min_ratio,
                 n_iter,
-                tolerance)
+                tolerance,
+                stop_solution_path)
 
 }
 
@@ -295,9 +318,10 @@ IBMR_no_Gamma_relabel = function(Y_list,
                           n_lambda = 25,
                           lambda_min_ratio = 1e-4,
                           n_iter = 1e4,
-                          tolerance = 1e-6) {
+                          tolerance = 1e-6,
+                          stop_solution_path = 1.1) {
 
-  fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance)
+  fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance, stop_solution_path)
 
   probabilities = predict_probabilities(fit_subset$best_model, X_list)
   conditional_probabilities = predict_conditional_probabilities(probabilities, Y_list, category_mappings)
@@ -313,7 +337,8 @@ IBMR_no_Gamma_relabel = function(Y_list,
                 n_lambda,
                 lambda_min_ratio,
                 n_iter,
-                tolerance)
+                tolerance,
+                stop_solution_path)
 
   attr(fit, "subset") = fit_subset
 

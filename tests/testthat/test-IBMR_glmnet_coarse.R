@@ -25,22 +25,22 @@ Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse
 X_list_val = simulate_X_star_list(rep(100, length(label_levels_per_dataset)), p)
 Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_list_val, alpha, Beta)
 
-system.time({test = IBMR_no_Gamma_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, tolerance = TOLERANCE)})
-system.time({test2 = glmnet_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_iter = 1e6, tolerance = TOLERANCE)})
+system.time({test = IBMR_no_Gamma_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_validation = Y_list_val, category_mappings_validation = category_mappings$category_mappings, X_list_validation = X_list_val, tolerance = TOLERANCE)})
+system.time({test2 = glmnet_subset(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, n_iter = 1e6, Y_list_validation = Y_list_val, category_mappings_validation = category_mappings$category_mappings, X_list_validation = X_list_val, tolerance = TOLERANCE)})
 
 test_that("Estimated Beta from IBMR_no_Gamma_subset matches glmnet_subset", {
-  expect(all(abs(test$model_fits[[10]]$Beta[, 1] - test2$model_fits[[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
+  expect(all(abs(test$model_fits[[5]]$Beta[, 1] - test2$model_fits[[5]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
-plot(test$model_fits[[10]]$Beta[, 1], test2$model_fits[[10]]$Beta[, 1])
+plot(test$model_fits[[5]]$Beta[, 1], test2$model_fits[[5]]$Beta[, 1])
 abline(0, 1)
 
 system.time({test = IBMR_no_Gamma_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_validation = Y_list_val, category_mappings_validation = category_mappings$category_mappings, X_list_validation = X_list_val, tolerance = TOLERANCE)})
 system.time({test2 = glmnet_relabel(Y_list, category_mappings$categories, category_mappings$category_mappings, X_list, Y_list_validation = Y_list_val, category_mappings_validation = category_mappings$category_mappings, X_list_validation = X_list_val, n_iter = 1e6, tolerance = TOLERANCE)})
 
 test_that("Estimated Beta from IBMR_no_Gamma_relabel matches glmnet_relabel", {
-  expect(all(abs(test$model_fits[[10]]$Beta[, 1] - test2$model_fits[[10]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
+  expect(all(abs(test$model_fits[[5]]$Beta[, 1] - test2$model_fits[[5]]$Beta[, 1]) < COEF_THRESHOLD), "coefficients not equal")
 })
 
-plot(test$model_fits[[10]]$Beta[, 1], test2$model_fits[[10]]$Beta[, 1])
+plot(test$model_fits[[5]]$Beta[, 1], test2$model_fits[[5]]$Beta[, 1])
 abline(0, 1)
