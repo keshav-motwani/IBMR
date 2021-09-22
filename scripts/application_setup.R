@@ -78,7 +78,7 @@ prepare_hao_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, !grepl("Proliferating", data$cell_type)]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = setNames(nm = sort(unique(data$cell_type)))
 
@@ -96,7 +96,7 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
   data$cell_type = data$cell_type_1
   data = data[, data$cell_type != "Unconv T"]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "unobserved",
@@ -144,7 +144,7 @@ prepare_haniffa_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, !grepl("prolif", data$cell_type)]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "DCs",
@@ -190,7 +190,7 @@ prepare_tsang_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, !grepl("TCRVbeta13.1pos|TissueResMemT|double-positive T cell \\(DPT)|granulocyte|intermediate monocyte|NK_CD56loCD16lo", data$cell_type)]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "conventional dendritic cell",
@@ -238,7 +238,7 @@ prepare_blish_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, !grepl("Granulocyte", data$cell_type)]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "DC",
@@ -282,7 +282,7 @@ prepare_10x_sorted = function(cache_path, n_genes = 1000, n_sample = 5000) {
   genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
   data = data[genes, ]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "unobserved",
@@ -330,7 +330,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, data$cell_type != "intermediate monocyte"]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "unobserved",
@@ -378,7 +378,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, data$cell_type != "intermediate monocyte"]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "DCs",
@@ -426,7 +426,7 @@ prepare_su_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, data$cell_type != "intermediate monocyte"]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "myeloid DC",
@@ -472,7 +472,7 @@ prepare_ding_2019 = function(cache_path, n_genes = 1000, n_sample = 5000) {
 
   data = data[, grepl("10x", data$method) & data$cell_type != "Megakaryocyte"]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample)]
+  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "Dendritic cell",
