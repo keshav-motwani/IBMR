@@ -16,7 +16,7 @@ prepare_real_data_application = function(split_index,
 
   n_sample = rep(n_sample, length(dataset_names))
   names(n_sample) = dataset_names
-  n_sample[split] = NA
+  n_sample[unlist(split)] = NA
 
   # lapply(dataset_names, function(dataset) debugonce(get(paste0("prepare_", dataset))))
   datasets = mapply(dataset_names, n_sample, function(dataset, n) get(paste0("prepare_", dataset))(cache_path, n_genes, n), SIMPLIFY = FALSE)
