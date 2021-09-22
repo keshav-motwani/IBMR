@@ -40,7 +40,7 @@ result = do.call(rbind, results)
 result$oracle = gsub("ORCNA", "observed", paste0("ORC", sapply(strsplit(result$method, "ORC"), `[`, 2)))
 result$method = sapply(strsplit(result$method, "_ORC"), `[`, 1)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "subset", "relabel")
 methods = methods[methods %in% result$method]
 
 oracles = c("observed", "ORC_fine", "ORC_clean", "ORC_fine_clean")

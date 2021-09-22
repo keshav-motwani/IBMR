@@ -29,7 +29,7 @@ results = lapply(files, function(x) {
 
 result = do.call(rbind, results)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "glmnet_subset", "glmnet_relabel")
+methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "subset", "relabel")
 methods = methods[methods %in% result$method]
 
 dataset_names = c("hao_2020", "haniffa_2021", "tsang_2021", "blish_2020", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
@@ -50,8 +50,10 @@ names(plasma_pal) = methods
 
 pdf(file = file.path(RESULT_PATH, "figures", "application_figures_nll.pdf"), height = 3 * length(unique(result$validation)), width =  3 * length(unique(result$test)))
 
-ggplot(
-  result,
+for (run in gtools::mixedsort(unique(result$run))) {
+
+p = ggplot(
+  result[result$run == run, ],
   aes(
     x = method,
     y = nll,
@@ -61,20 +63,26 @@ ggplot(
   geom_point(size = 2) +
   geom_line() +
   facet_grid(test ~ validation, scales = "free_y") +
-  theme_classic() +
+  theme_bw() +
   theme(strip.background = element_blank(), strip.placement = "outside") +
   scale_fill_manual(values = plasma_pal) +
   theme(legend.position = "bottom") +
   xlab("Method") +
   ylab("- log likelihood") +
+  labs(title = run) + 
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+print(p)
+
+}
 
 dev.off()
 
 pdf(file = file.path(RESULT_PATH, "figures", "application_figures_error.pdf"), height = 3 * length(unique(result$validation)), width =  3 * length(unique(result$test)))
 
-ggplot(
-  result,
+for (run in gtools::mixedsort(unique(result$run))) {
+
+p = ggplot(
+  result[result$run == run, ],
   aes(
     x = method,
     y = error,
@@ -84,12 +92,137 @@ ggplot(
   geom_point(size = 2) +
   geom_line() +
   facet_grid(test ~ validation, scales = "free_y") +
-  theme_classic() +
+  theme_bw() +
   theme(strip.background = element_blank(), strip.placement = "outside") +
   scale_fill_manual(values = plasma_pal) +
   theme(legend.position = "bottom") +
   xlab("Method") +
   ylab("Error rate") +
+  labs(title = run) +
   theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+print(p)
+
+}
 
 dev.off()
+
+numbers = lapply(strsplit(result$run, "; "), function(x) as.numeric(sapply(strsplit(x, "= "), `[`, 2)))
+result$n_sample = sapply(numbers, `[`, 1)
+result$n_genes = sapply(numbers, `[`, 2)
+
+result = result %>% group_by(run, value, method, n_sample, n_genes, validation, test) %>% summarize(mean_error = mean(error), mean_nll = mean(nll), two_se_error = 2 * sd(error)/sqrt(n()), two_se_nll = 2 * sd(nll)/sqrt(n()))
+
+pdf(file = file.path(RESULT_PATH, "figures", "application_figures_error_2.pdf"), height = 3 * length(unique(result$validation)), width =  3 * length(unique(result$test)))
+
+p = ggplot(
+  result[result$n_sample == 5000, ],
+  aes(
+    x = n_genes,
+    y = mean_error,
+    color = method,
+    group = method,
+    linetype = method,
+    ymin = mean_error - two_se_error,
+    ymax = mean_error + two_se_error
+  )
+) +
+  geom_point(size = 2) +
+  geom_line() + 
+  geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
+  facet_grid(test ~ validation, scales = "free_y") +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside") +
+  scale_fill_manual(values = plasma_pal) +
+  theme(legend.position = "bottom") +
+  xlab("# of genes") +
+  ylab("Error rate") +
+  labs(title = "# of genes, with 5000 cells per dataset") +
+  scale_color_manual(values = plasma_pal)
+print(p)
+
+p = ggplot(
+  result[result$n_genes == 1000, ],
+  aes(
+    x = n_sample,
+    y = mean_error,
+    color = method,
+    group = method,
+    linetype = method,
+    ymin = mean_error - two_se_error,
+    ymax = mean_error + two_se_error
+  )
+) +
+  geom_point(size = 2) +
+  geom_line() + 
+  geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
+  facet_grid(test ~ validation, scales = "free_y") +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside") +
+  scale_fill_manual(values = plasma_pal) +
+  theme(legend.position = "bottom") +
+  xlab("# of cells per dataset") +
+  ylab("Error rate") +
+  labs(title = "# of cells per dataset, with 1000 genes") +
+  scale_color_manual(values = plasma_pal)
+
+print(p)
+
+dev.off()
+
+pdf(file = file.path(RESULT_PATH, "figures", "application_figures_nll_2.pdf"), height = 3 * length(unique(result$validation)), width =  3 * length(unique(result$test)))
+
+p = ggplot(
+  result[result$n_sample == 5000, ],
+  aes(
+    x = n_genes,
+    y = mean_nll,
+    color = method,
+    group = method,
+    linetype = method,
+    ymin = mean_nll - two_se_nll,
+    ymax = mean_nll + two_se_nll
+  )
+) +
+  geom_point(size = 2) +
+  geom_line() + 
+  geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
+  facet_grid(test ~ validation, scales = "free_y") +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside") +
+  scale_fill_manual(values = plasma_pal) +
+  theme(legend.position = "bottom") +
+  xlab("# of genes") +
+  ylab("nll rate") +
+  labs(title = "# of genes, with 5000 cells per dataset") +
+  scale_color_manual(values = plasma_pal)
+print(p)
+
+p = ggplot(
+  result[result$n_genes == 1000, ],
+  aes(
+    x = n_sample,
+    y = mean_nll,
+    color = method,
+    group = method,
+    linetype = method,
+    ymin = mean_nll - two_se_nll,
+    ymax = mean_nll + two_se_nll
+  )
+) +
+  geom_point(size = 2) +
+  geom_line() + 
+  geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
+  facet_grid(test ~ validation, scales = "free_y") +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside") +
+  scale_fill_manual(values = plasma_pal) +
+  theme(legend.position = "bottom") +
+  xlab("# of cells per dataset") +
+  ylab("nll rate") +
+  labs(title = "# of cells per dataset, with 1000 genes") +
+  scale_color_manual(values = plasma_pal)
+
+print(p)
+
+dev.off()
+
