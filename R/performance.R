@@ -6,6 +6,26 @@ error = function(predicted, true) {
 }
 
 #' @export
+balanced_error = function(predicted, true) {
+
+  categories = sort(unique(true))
+  error = numeric(length(categories))
+
+  for (i in 1:length(categories)) {
+
+    indices = which(true == categories[i])
+    true_subsetted = true[indices]
+    predicted_subsetted = predicted[indices]
+
+    error[i] = mean(true_subsetted != predicted_subsetted)
+
+  }
+
+  mean(error)
+
+}
+
+#' @export
 kl_divergence = function(estimated, true) {
 
   rowSums(estimated * log(estimated/true))
