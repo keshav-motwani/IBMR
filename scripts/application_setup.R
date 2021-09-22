@@ -19,7 +19,7 @@ prepare_real_data_application = function(split_index,
   n_sample[unlist(split)] = NA
 
   # lapply(dataset_names, function(dataset) debugonce(get(paste0("prepare_", dataset))))
-  datasets = mapply(dataset_names, n_sample, function(dataset, n) get(paste0("prepare_", dataset))(cache_path, n_genes, n), SIMPLIFY = FALSE)
+  datasets = mapply(dataset_names, n_sample, FUN = function(dataset, n) get(paste0("prepare_", dataset))(cache_path, n_genes, n), SIMPLIFY = FALSE)
   names(datasets) = dataset_names
 
   train_datasets = datasets[setdiff(dataset_names, unlist(split))]
