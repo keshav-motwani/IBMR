@@ -15,11 +15,19 @@ IBMR = function(Y_list,
                 phi = 1e-3,
                 n_iter = 1e4,
                 tolerance = 1e-6,
+                stop_solution_path = 1.1,
                 Gamma_update = "gradient",
                 common_Gamma = FALSE,
                 n_cores = 1) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
+  if (!is.null(Y_list_validation)) {
+    Y_matrix_list_validation = lapply(1:length(Y_list_validation), function(i) create_Y_matrix(Y_list_validation[[i]], categories, category_mappings_validation[[i]]))
+    N_val = sum(sapply(X_list_validation, nrow))
+  } else {
+    Y_matrix_list_validation = NULL
+    N_val = NULL
+  }
 
   features = colnames(X_list[[1]])
 
@@ -63,16 +71,27 @@ IBMR = function(Y_list,
       Y_matrix_list,
       X_list,
       Z_list,
+      categories,
+      features,
+      Y_matrix_list_validation,
+      X_list_validation,
+      N_val,
       lambda_grid[r,],
       rho_sequence[r],
       n_iter,
       tolerance,
+      stop_solution_path,
       fitted_alpha_no_Beta[[r]],
       matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories)),
       fitted_Gamma_no_Beta[[r]],
       r,
+      X_mean,
+      X_sd,
       fit_function
     ), mc.cores = n_cores)
+
+  validation_negative_log_likelihood = t(sapply(model_fits, `[[`, 2))
+  model_fits = lapply(model_fits, `[[`, 1)
 
   fit = list(model_fits = model_fits,
              n_lambda = n_lambda,
@@ -85,11 +104,8 @@ IBMR = function(Y_list,
              common_Gamma = common_Gamma,
              no_Gamma = FALSE)
 
-  fit = adjust_fit(fit, categories, features, X_mean, X_sd)
-
   if (!is.null(Y_list_validation)) {
 
-    validation_negative_log_likelihood = compute_tuning_performance(fit, Y_list_validation, category_mappings_validation, X_list_validation)
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
 
     best_tuning_parameters = which_min(validation_negative_log_likelihood)[1, ]
@@ -112,17 +128,27 @@ IBMR = function(Y_list,
 fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
                                          X_list,
                                          Z_list,
+                                         categories,
+                                         features,
+                                         Y_matrix_list_validation,
+                                         X_list_validation,
+                                         N_val,
                                          lambda_sequence,
                                          rho,
                                          n_iter,
                                          tolerance,
+                                         stop_solution_path,
                                          alpha_old,
                                          Beta_old,
                                          Gamma_list_old,
                                          rho_index,
+                                         X_mean,
+                                         X_sd,
                                          fit_function) {
 
   n_lambda = length(lambda_sequence)
+
+  validation_negative_log_likelihood = rep(NA, n_lambda)
 
   model_fits_lambda_sequence = vector("list", n_lambda)
 
@@ -147,12 +173,27 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
 
     fit$KKT_check = check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda_sequence[l], rho, fit$alpha, fit$Beta, fit$Gamma_list)
     print(fit$KKT_check)
+    fit$alpha = adjust_alpha(fit$alpha, fit$Beta, X_mean, X_sd)
+    fit$Beta = adjust_Beta(fit$Beta, X_sd)
+    names(fit$alpha) = categories
+    colnames(fit$Beta) = categories
+    rownames(fit$Beta) = features
 
     model_fits_lambda_sequence[[l]] = fit
 
+    if (!is.null(Y_matrix_list_validation)) {
+
+      validation_negative_log_likelihood[l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, fit$alpha, fit$Beta, N_val)
+
+      if (!is.na(stop_solution_path) && validation_negative_log_likelihood[l] > stop_solution_path * min(validation_negative_log_likelihood, na.rm = TRUE)) {
+        break
+      }
+
+    }
+
   }
 
-  return(model_fits_lambda_sequence)
+  return(list(model_fits = model_fits_lambda_sequence, validation_negative_log_likelihood = validation_negative_log_likelihood))
 
 }
 
