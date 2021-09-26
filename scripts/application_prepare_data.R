@@ -35,10 +35,10 @@ table_1 = data.frame(dataset = names(data),
                      number_of_labels = sapply(data, function(x) length(unique(x$cell_type))),
                      labels = sapply(data, function(x) paste0(sort(unique(x$cell_type)), collapse = ", ")),
                      removed_labels = sapply(data, function(x) paste0(sort(attr(x, "removed_labels")), collapse = ", ")))
-table_1 = table_1[order(table_1$number_of_labels), ]
+table_1 = table_1[order(table_1$number_of_labels, decreasing = T), ]
 write.csv(table_1, file.path(CACHE_PATH, "table_1.csv"))
 
-set.seed(5)
+set.seed(11111)
 
 categories = c("B intermediate", "B memory", "B naive", "Plasmablast", "CD14 Mono",
                "CD16 Mono", "CD4 CTL", "CD4 Naive", "CD4 TCM", "CD4 TEM", "Treg Memory",
@@ -75,7 +75,7 @@ for (k in 1:length(binning_functions)) {
 
 data = do.call(rbind, results)
 data$category = factor(data$category, levels = categories)
-data$dataset = factor(data$dataset, levels = rev(names(binning_functions)))
+data$dataset = factor(data$dataset, levels = rev(dataset_names))
 
 ggplot(data, aes(x = category, y = dataset, fill = color)) +
   geom_tile() +
