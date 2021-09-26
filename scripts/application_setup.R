@@ -593,7 +593,7 @@ prepare_dataset_output = function(data, binning_function, sce) {
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
   stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || all(setdiff(binning_function, data$cell_type) == "unobserved"))
 
-  if (sce) return(sce = data, binning_function = binning_function)
+  if (sce) return(list(sce = data, binning_function = binning_function))
 
   binning_function[binning_function == "unobserved"] = names(binning_function)[binning_function == "unobserved"]
 
