@@ -36,7 +36,7 @@ for (n_genes in n_genes_sequence[-1]) {
   parameters = c(parameters, expand_parameters(paste0("n_sample = ", defaults$n_sample, "; n_genes = ", defaults$n_genes), considered_values, defaults, 5, methods))
 }
 
-chunk_size = 2
+chunk_size = 3
 
 for (i in 1:chunk_size) {
 
