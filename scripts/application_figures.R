@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/applications"
+RESULT_PATH = "results/applications_fullvaltest"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -30,6 +30,7 @@ results = lapply(files, function(x) {
 result = do.call(rbind, results)
 
 methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "subset", "relabel")
+# methods = c("IBMR_no_Gamma", "subset", "relabel")
 methods = methods[methods %in% result$method]
 
 dataset_names = c("hao_2020", "haniffa_2021", "tsang_2021", "blish_2020", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
@@ -42,7 +43,7 @@ splits$index = as.character(1:nrow(splits))
 result$value = as.character(result$value)
 
 result = left_join(result, splits, by = c(value = "index"))
-
+result = result[result$method %in% methods, ]
 result$method = factor(result$method, levels = methods)
 
 plasma_pal = viridis::plasma(n = length(methods) + 2)[1:length(methods)]
@@ -111,6 +112,13 @@ result$n_sample = sapply(numbers, `[`, 1)
 result$n_genes = sapply(numbers, `[`, 2)
 
 result = result %>% group_by(run, value, method, n_sample, n_genes, validation, test) %>% summarize(mean_error = mean(error), mean_nll = mean(nll), two_se_error = 2 * sd(error)/sqrt(n()), two_se_nll = 2 * sd(nll)/sqrt(n()))
+result2 = result %>% 
+  ungroup() %>%
+  group_by(run, method, n_sample, n_genes, test) %>% 
+  summarize(mean_error = mean(mean_error), mean_nll = mean(mean_nll), two_se_error = 0, two_se_nll = 0) %>%
+  mutate(validation = test)
+
+result = rbind(result, result2)
 
 pdf(file = file.path(RESULT_PATH, "figures", "application_figures_error_2.pdf"), height = 3 * length(unique(result$validation)), width =  3 * length(unique(result$test)))
 
@@ -221,6 +229,65 @@ p = ggplot(
   ylab("nll rate") +
   labs(title = "# of cells per dataset, with 1000 genes") +
   scale_color_manual(values = plasma_pal)
+
+print(p)
+
+dev.off()
+
+pdf(file = file.path(RESULT_PATH, "figures", "application_figures_error_3.pdf"), height = 1.3 * length(unique(result$validation)), width =  1.3 * length(unique(result$test)))
+
+p = ggplot(
+  result[result$n_sample == 5000, ],
+  aes(
+    x = as.factor(n_genes),
+    y = mean_error,
+    color = method,
+    group = method,
+    linetype = method,
+    ymin = mean_error - two_se_error,
+    ymax = mean_error + two_se_error
+  )
+) +
+  geom_point(size = 1) +
+  geom_line() + 
+  geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
+  facet_grid(test ~ validation, scales = "free_y") +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside") +
+  scale_fill_manual(values = plasma_pal) +
+  theme(legend.position = "bottom") +
+  xlab("# of genes") +
+  ylab("Error rate") +
+  labs(title = "# of genes, with 5000 cells per dataset") +
+  scale_color_manual(values = plasma_pal) + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+print(p)
+
+p = ggplot(
+  result[result$n_genes == 1000, ],
+  aes(
+    x = as.factor(n_sample),
+    y = mean_error,
+    color = method,
+    group = method,
+    linetype = method,
+    ymin = mean_error - two_se_error,
+    ymax = mean_error + two_se_error
+  )
+) +
+  geom_point(size = 1) +
+  geom_line() + 
+  geom_errorbar(width = 0.2, linetype = "solid", show.legend = FALSE) +
+  facet_grid(test ~ validation, scales = "free_y") +
+  theme_bw() +
+  theme(strip.background = element_blank(), strip.placement = "outside") +
+  scale_fill_manual(values = plasma_pal) +
+  theme(legend.position = "bottom") +
+  xlab("# of cells per dataset") +
+  ylab("Error rate") +
+  labs(title = "# of cells per dataset, with 1000 genes") +
+  scale_color_manual(values = plasma_pal) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 print(p)
 

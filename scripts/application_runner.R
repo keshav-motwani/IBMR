@@ -4,10 +4,10 @@ source("scripts/simulation_setup.R")
 source("scripts/application_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/applications"
+RESULT_PATH = "results/applications_fullvaltest"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR_no_Gamma", "subset", "relabel")
+methods = c("IBMR", "IBMR_int")
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",
@@ -20,7 +20,7 @@ considered_values = list(
   split_index = 1:72
 )
 
-n_sample_sequence = c(5000, 1250, 2500, 10000)
+n_sample_sequence = c(1250, 5000, 2500, 10000)
 n_genes_sequence = c(1000, 250, 500, 2000)
 
 parameters = list()
@@ -36,7 +36,7 @@ for (n_genes in n_genes_sequence[-1]) {
   parameters = c(parameters, expand_parameters(paste0("n_sample = ", defaults$n_sample, "; n_genes = ", defaults$n_genes), considered_values, defaults, 5, methods))
 }
 
-chunk_size = 3
+chunk_size = 2
 
 for (i in 1:chunk_size) {
 
