@@ -68,7 +68,7 @@ prepare_hao_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE
   data = AnnotatedPBMC::get_hao_2020(cache_path)
 
   SingleCellExperiment::altExp(data) = NULL
-  SingleCellExperiment::counts(data) = NULL
+  if (!sce) SingleCellExperiment::counts(data) = NULL
 
   if (!is.na(n_genes)) {
     genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
