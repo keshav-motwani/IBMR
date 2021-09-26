@@ -64,37 +64,75 @@ prepare_real_data_application = function(split_index,
 
 }
 
-prepare_hao_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_hao_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_hao_2020(cache_path)
 
   SingleCellExperiment::altExp(data) = NULL
   SingleCellExperiment::counts(data) = NULL
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = ifelse(data$cell_type_2 == "Treg", data$cell_type_3, data$cell_type_2)
 
-  data = data[, !grepl("Proliferating", data$cell_type)]
+  removed_labels = "*Proliferating*"
+  data = data[, !grepl(removed_labels, data$cell_type)]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
-  binning_function = setNames(nm = sort(unique(data$cell_type)))
+  binning_function = c(
+    ASDC = "ASDC",
+    `B intermediate` = "B intermediate",
+    `B memory` = "B memory",
+    `B naive` = "B naive",
+    `CD14 Mono` = "CD14 Mono",
+    `CD16 Mono` = "CD16 Mono",
+    `CD4 CTL` = "CD4 CTL",
+    `CD4 Naive` = "CD4 Naive",
+    `CD4 TCM` = "CD4 TCM",
+    `CD4 TEM` = "CD4 TEM",
+    `CD8 Naive` = "CD8 Naive",
+    `CD8 TCM` = "CD8 TCM",
+    `CD8 TEM` = "CD8 TEM",
+    cDC1 = "cDC1",
+    cDC2 = "cDC2",
+    dnT = "dnT",
+    Eryth = "Eryth",
+    gdT = "gdT",
+    HSPC = "HSPC",
+    ILC = "ILC",
+    MAIT = "MAIT",
+    NK = "NK",
+    NK_CD56bright = "NK_CD56bright",
+    pDC = "pDC",
+    Plasmablast = "Plasmablast",
+    Platelet = "Platelet",
+    `Treg Memory` = "Treg Memory",
+    `Treg Naive` = "Treg Naive"
+  )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_kotliarov_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_kotliarov_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_kotliarov_2020(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = data$cell_type_1
-  data = data[, data$cell_type != "Unconv T"]
+
+  removed_labels = "Unconv T"
+  data = data[, data$cell_type != removed_labels]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -129,20 +167,26 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "CD4+ memory T"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_haniffa_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_haniffa_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_haniffa_2021(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = data$cell_type_1
 
-  data = data[, !grepl("prolif", data$cell_type)]
+  removed_labels = "*prolif*"
+  data = data[, !grepl(removed_labels, data$cell_type)]
+  attr(data, "removed_labels") = removed_labels
+
+  data = data[, ]
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -177,18 +221,24 @@ prepare_haniffa_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "Treg"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_tsang_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_tsang_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_tsang_2021(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data = data[, !grepl("TCRVbeta13.1pos|TissueResMemT|double-positive T cell \\(DPT)|granulocyte|intermediate monocyte|NK_CD56loCD16lo", data$cell_type)]
+
+  removed_labels = c("TCRVbeta13.1pos", "TissueResMemT", "double-positive T cell (DPT)", "granulocyte", "intermediate monocyte", "NK_CD56loCD16lo")
+  data = data[, !(data$cell_type %in% removed_labels)]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -223,20 +273,24 @@ prepare_tsang_2021 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "regulatory T cell"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_blish_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_blish_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_blish_2020(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = data$cell_type_1
 
-  data = data[, !grepl("Granulocyte", data$cell_type)]
+  removed_labels = "Granulocyte"
+  data = data[, data$cell_type != removed_labels]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -271,16 +325,21 @@ prepare_blish_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "CD4 T"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_10x_sorted = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_10x_sorted = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_10x_sorted(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
+
+  removed_labels = c()
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -315,20 +374,24 @@ prepare_10x_sorted = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "CD4+/CD25+ Regulatory T Cells"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_10x_pbmc_10k = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_10x_pbmc_10k = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_10x_pbmc_10k(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = data$cell_type_2
 
-  data = data[, data$cell_type != "intermediate monocyte"]
+  removed_labels = "intermediate monocyte"
+  data = data[, data$cell_type != removed_labels]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -363,20 +426,24 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "Treg"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_10x_pbmc_5k_v3(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = data$cell_type_2
 
-  data = data[, data$cell_type != "intermediate monocyte"]
+  removed_labels = "intermediate monocyte"
+  data = data[, data$cell_type != removed_labels]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -411,20 +478,24 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "Treg"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_su_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_su_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_su_2020(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
   data$cell_type = data$cell_type_2
 
-  data = data[, data$cell_type != "intermediate monocyte"]
+  removed_labels = "intermediate monocyte"
+  data = data[, data$cell_type != removed_labels]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -459,18 +530,22 @@ prepare_su_2020 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "Treg"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_ding_2019 = function(cache_path, n_genes = 1000, n_sample = 5000) {
+prepare_ding_2019 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
   data = AnnotatedPBMC::get_ding_2019(cache_path)
 
-  genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
-  data = data[genes, ]
+  if (!is.na(n_genes)) {
+    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    data = data[genes, ]
+  }
 
-  data = data[, grepl("10x", data$method) & data$cell_type != "Megakaryocyte"]
+  removed_labels = "Megakaryocyte"
+  data = data[, grepl("10x", data$method) & data$cell_type != removed_labels]
+  attr(data, "removed_labels") = removed_labels
 
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
@@ -505,11 +580,11 @@ prepare_ding_2019 = function(cache_path, n_genes = 1000, n_sample = 5000) {
     `Treg Naive` = "CD4+ T cell"
   )
 
-  return(prepare_dataset_output(data, binning_function))
+  return(prepare_dataset_output(data, binning_function, sce))
 
 }
 
-prepare_dataset_output = function(data, binning_function) {
+prepare_dataset_output = function(data, binning_function, sce) {
 
   stopifnot(all(sort(names(binning_function)) == c("ASDC", "B intermediate", "B memory", "B naive", "CD14 Mono",
                                                    "CD16 Mono", "CD4 CTL", "CD4 Naive", "CD4 TCM", "CD4 TEM", "CD8 Naive",
@@ -518,6 +593,8 @@ prepare_dataset_output = function(data, binning_function) {
                                                    "Platelet", "Treg Memory", "Treg Naive")))
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
   stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || all(setdiff(binning_function, data$cell_type) == "unobserved"))
+
+  if (sce) return(sce = data, binning_function = binning_function)
 
   binning_function[binning_function == "unobserved"] = names(binning_function)[binning_function == "unobserved"]
 
