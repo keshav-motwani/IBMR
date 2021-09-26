@@ -595,7 +595,7 @@ prepare_dataset_output = function(data, binning_function, sce) {
 
   if (sce) return(list(sce = data, binning_function = binning_function))
 
-  binning_function[binning_function == "unobserved"] = names(binning_function)[binning_function == "unobserved"]
+  # binning_function[binning_function == "unobserved"] = names(binning_function)[binning_function == "unobserved"]
 
   data = list(data) # split_data(data, data$dataset)
 
