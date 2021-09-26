@@ -6,9 +6,9 @@ prepare_real_data_application = function(split_index,
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
-  dataset_names = c("hao_2020", "haniffa_2021", "tsang_2021", "blish_2020", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
+  dataset_names = read.csv(file.path(cache_path, "table_1.csv"))$dataset
 
-  splits = expand.grid(dataset_names[-1], dataset_names[-1], stringsAsFactors = FALSE)
+  splits = expand.grid(setdiff(dataset_names, "hao_2020"), setdiff(dataset_names, "hao_2020"), stringsAsFactors = FALSE)
   colnames(splits) = c("validation", "test")
   splits = splits[splits[, 1] != splits[, 2], ]
   rownames(splits) = 1:nrow(splits)
@@ -18,7 +18,6 @@ prepare_real_data_application = function(split_index,
   names(n_sample) = dataset_names
   n_sample[unlist(split)] = NA
 
-  # lapply(dataset_names, function(dataset) debugonce(get(paste0("prepare_", dataset))))
   datasets = mapply(dataset_names, n_sample, FUN = function(dataset, n) get(paste0("prepare_", dataset))(cache_path, n_genes, n), SIMPLIFY = FALSE)
   names(datasets) = dataset_names
 
@@ -164,7 +163,7 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce =
     Plasmablast = "B",
     Platelet = "unobserved",
     `Treg Memory` = "CD4+ memory T",
-    `Treg Naive` = "CD4+ memory T"
+    `Treg Naive` = "CD4+ naive T/DNT"
   )
 
   return(prepare_dataset_output(data, binning_function, sce))
@@ -301,7 +300,7 @@ prepare_blish_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
     `B naive` = "B",
     `CD14 Mono` = "CD14 Monocyte",
     `CD16 Mono` = "CD16 Monocyte",
-    `CD4 CTL` = "unobserved",
+    `CD4 CTL` = "CD4 T",
     `CD4 Naive` = "CD4 T",
     `CD4 TCM` = "CD4 T",
     `CD4 TEM` = "CD4 T",

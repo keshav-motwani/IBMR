@@ -92,7 +92,7 @@ predict_categories = function(predicted_probabilities, category_mappings = NULL)
         categories = names(category_mappings[[k]])
       }
 
-      predictions[[k]] = categories[apply(predicted_probabilities[[k]], 1, which.max)]
+      predictions[[k]] = categories[apply(predicted_probabilities[[k]][, setdiff(colnames(predicted_probabilities[[k]]), "unobserved")], 1, which.max)]
 
     }
 
