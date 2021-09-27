@@ -17,10 +17,10 @@ defaults = list(
 )
 
 considered_values = list(
-  split_index = 1:72
+  split_index = 1:42
 )
 
-n_sample_sequence = c(1250, 5000, 2500, 10000)
+n_sample_sequence = c(5000, 1250, 2500, 10000)
 n_genes_sequence = c(1000, 250, 500, 2000)
 
 parameters = list()

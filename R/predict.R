@@ -88,11 +88,12 @@ predict_categories = function(predicted_probabilities, category_mappings = NULL)
     for (k in 1:length(predictions)) {
 
       if (!is.null(category_mappings)) {
+        category_mappings[[k]] = category_mappings[[k]][setdiff(names(category_mappings[[k]]), "unobserved")]
         predicted_probabilities[[k]] = sapply(category_mappings[[k]], function(map) rowSums(predicted_probabilities[[k]][, map, drop = FALSE]))
         categories = names(category_mappings[[k]])
       }
 
-      predictions[[k]] = categories[apply(predicted_probabilities[[k]][, setdiff(colnames(predicted_probabilities[[k]]), "unobserved")], 1, which.max)]
+      predictions[[k]] = categories[apply(predicted_probabilities[[k]], 1, which.max)]
 
     }
 

@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/applications_fullvaltest"
+RESULT_PATH = "results/applications_updated"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -33,8 +33,9 @@ methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "subset", 
 # methods = c("IBMR_no_Gamma", "subset", "relabel")
 methods = methods[methods %in% result$method]
 
-dataset_names = c("hao_2020", "haniffa_2021", "tsang_2021", "blish_2020", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
-splits = expand.grid(dataset_names[-1], dataset_names[-1], stringsAsFactors = FALSE)
+dataset_names = read.csv(file.path("../AnnotatedPBMC/data", "table_1.csv"))$dataset
+
+splits = expand.grid(setdiff(dataset_names, "hao_2020"), setdiff(dataset_names, "hao_2020"), stringsAsFactors = FALSE)
 colnames(splits) = c("validation", "test")
 splits = splits[splits[, 1] != splits[, 2], ]
 rownames(splits) = 1:nrow(splits)
@@ -45,6 +46,8 @@ result$value = as.character(result$value)
 result = left_join(result, splits, by = c(value = "index"))
 result = result[result$method %in% methods, ]
 result$method = factor(result$method, levels = methods)
+result$validation = factor(result$validation, levels = intersect(dataset_names, unique(result$validation)))
+result$test = factor(result$test, levels = intersect(dataset_names, unique(result$test)))
 
 plasma_pal = viridis::plasma(n = length(methods) + 2)[1:length(methods)]
 names(plasma_pal) = methods
