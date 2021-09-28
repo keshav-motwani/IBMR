@@ -28,7 +28,10 @@ select_genes = function(sce_list) {
 
 }
 
-genes = select_genes(data)
+data_split = unlist(lapply(data, function(sce) lapply(sort(unique(sce$dataset)), function(x) sce[, sce$dataset == x])), recursive = FALSE)
+genes = select_genes(data_split)
+rm(data_split)
+gc()
 write.csv(genes, file.path(CACHE_PATH, "genes.csv"))
 
 table_1 = data.frame(dataset = names(data),
