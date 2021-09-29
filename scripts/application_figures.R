@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/applications_updated_split"
+RESULT_PATH = "results/applications_updated_ten_not_split"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -259,7 +259,7 @@ p = ggplot(
   theme(strip.background = element_blank(), strip.placement = "outside") +
   scale_fill_manual(values = plasma_pal) +
   theme(legend.position = "bottom") +
-  xlab("# of genes") +
+  xlab(expression(paste("# of genes (", p, ")"))) +
   ylab("Error rate") +
   labs(title = "# of genes, with 5000 cells per dataset") +
   scale_color_manual(values = plasma_pal) + 
@@ -286,7 +286,7 @@ p = ggplot(
   theme(strip.background = element_blank(), strip.placement = "outside") +
   scale_fill_manual(values = plasma_pal) +
   theme(legend.position = "bottom") +
-  xlab("# of cells per dataset") +
+  xlab(expression(paste("# of cells per dataset (", n[k], ")"))) +
   ylab("Error rate") +
   labs(title = "# of cells per dataset, with 1000 genes") +
   scale_color_manual(values = plasma_pal) +

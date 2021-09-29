@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --array=1-1470
+#SBATCH --array=1-2520
 #SBATCH --mail-user=keshav.motwani@ufl.edu
 #SBATCH --mail-type=END
 #SBATCH --account=amolstad

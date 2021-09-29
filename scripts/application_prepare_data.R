@@ -6,7 +6,7 @@ source("scripts/application_setup.R")
 
 CACHE_PATH = "../AnnotatedPBMC/data"
 
-dataset_names = c("hao_2020", "tsang_2021", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019")
+dataset_names = c("hao_2020", "tsang_2021", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019", "blish_2020", "haniffa_2021")
 
 data = lapply(dataset_names, function(dataset) get(paste0("prepare_", dataset))(CACHE_PATH, n_genes = NA, n_sample = NA, sce = TRUE))
 names(data) = dataset_names
@@ -28,10 +28,7 @@ select_genes = function(sce_list) {
 
 }
 
-data_split = unlist(lapply(data, function(sce) lapply(sort(unique(sce$dataset)), function(x) sce[, sce$dataset == x])), recursive = FALSE)
-genes = select_genes(data_split)
-rm(data_split)
-gc()
+genes = select_genes(data)
 write.csv(genes, file.path(CACHE_PATH, "genes.csv"))
 
 table_1 = data.frame(dataset = names(data),

@@ -3,7 +3,7 @@
 #SBATCH --mail-user=keshav.motwani@ufl.edu
 #SBATCH --mail-type=END
 #SBATCH --account=amolstad
-#SBATCH --qos=amolstad-b
+#SBATCH --qos=amolstad
 #SBATCH --job-name=IBMR
 #SBATCH --mem-per-cpu=128gb
 #SBATCH -t 4320
