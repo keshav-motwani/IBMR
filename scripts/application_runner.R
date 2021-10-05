@@ -4,10 +4,11 @@ source("scripts/simulation_setup.R")
 source("scripts/application_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/applications_updated_ten_not_split"
+RESULT_PATH = "results/applications_final"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR_int")
+#methods = c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int")
+methods = "IBMR"
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",

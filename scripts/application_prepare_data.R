@@ -20,7 +20,7 @@ select_genes = function(sce_list) {
 
   sce_list = lapply(sce_list, function(x) x[genes, ])
 
-  ranks = sapply(sce_list, function(x) rank(-1 * Seurat::FindVariableFeatures(assay(x, "counts"))$vst.variance.standardized))
+  ranks = sapply(sce_list, function(x) rank(-1 * Seurat::FindVariableFeatures(assay(x, "logcounts"))$vst.variance.standardized))
 
   genes = genes[order(rowMeans(ranks))]
 
@@ -28,7 +28,10 @@ select_genes = function(sce_list) {
 
 }
 
-genes = select_genes(data)
+data_split = unlist(lapply(data, function(sce) lapply(sort(unique(sce$dataset)), function(x) sce[, sce$dataset == x])), recursive = FALSE)
+genes = select_genes(data_split)
+rm(data_split)
+gc()
 write.csv(genes, file.path(CACHE_PATH, "genes.csv"))
 
 table_1 = data.frame(dataset = names(data),

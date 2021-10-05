@@ -590,6 +590,7 @@ prepare_output_IBMR = function(fit, X_list_test) {
     test_estimated_probabilities = predict_probabilities(fit$best_model, X_list_test),
     tuning_parameters = fit$best_tuning_parameters,
     validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
+    X_mean = fit$X_mean, X_sd = fit$X_sd,
     best_model = fit$best_model
   )
   IBMR = c(IBMR, get_all_estimates_two_tuning_parameters(fit, X_list_test))
@@ -606,6 +607,7 @@ prepare_output_IBMR_no_Gamma = function(fit, X_list_test) {
     test_estimated_probabilities = predict_probabilities(fit$best_model, X_list_test),
     tuning_parameters = fit$best_tuning_parameters,
     validation_negative_log_likelihood = fit$validation_negative_log_likelihood,
+    X_mean = fit$X_mean, X_sd = fit$X_sd,
     best_model = fit$best_model
   )
   IBMR = c(IBMR, get_all_estimates_one_tuning_parameter(fit, X_list_test))
@@ -660,6 +662,23 @@ fit_IBMR_int = function(data) {
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
     data$validation$X_list
+  )
+
+  return(prepare_output_IBMR(fit, data$test$X_list))
+
+}
+
+fit_IBMR_int_10 = function(data) {
+
+  fit = IBMR(
+    data$train$Y_list,
+    data$train$category_mappings$categories,
+    data$train$category_mappings$category_mappings,
+    data$train$X_list,
+    lapply(data$train$X_list, function(X) matrix(1, nrow = nrow(X), ncol = 1)),
+    data$validation$Y_list,
+    data$validation$category_mappings$category_mappings,
+    data$validation$X_list, n_rho = 10
   )
 
   return(prepare_output_IBMR(fit, data$test$X_list))

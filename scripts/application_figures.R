@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/applications_updated_ten_not_split"
+RESULT_PATH = "results/applications_updated_ten_split_logcounts"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -49,7 +49,7 @@ result$method = factor(result$method, levels = methods)
 result$validation = factor(result$validation, levels = intersect(dataset_names, unique(result$validation)))
 result$test = factor(result$test, levels = intersect(dataset_names, unique(result$test)))
 
-plasma_pal = viridis::plasma(n = length(methods) + 2)[1:length(methods)]
+plasma_pal = rev(viridis::plasma(n = length(methods) + 2)[1:length(methods)])
 names(plasma_pal) = methods
 
 pdf(file = file.path(RESULT_PATH, "figures", "application_figures_nll.pdf"), height = 3 * length(unique(result$validation)), width =  3 * length(unique(result$test)))
@@ -74,7 +74,7 @@ p = ggplot(
   xlab("Method") +
   ylab("- log likelihood") +
   labs(title = run) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  guides(x = guide_axis(angle = 45))
 print(p)
 
 }
@@ -103,7 +103,7 @@ p = ggplot(
   xlab("Method") +
   ylab("Error rate") +
   labs(title = run) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  guides(x = guide_axis(angle = 45))
 print(p)
 
 }
@@ -263,7 +263,7 @@ p = ggplot(
   ylab("Error rate") +
   labs(title = "# of genes, with 5000 cells per dataset") +
   scale_color_manual(values = plasma_pal) + 
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  guides(x = guide_axis(angle = 45))
 print(p)
 
 p = ggplot(
@@ -290,7 +290,7 @@ p = ggplot(
   ylab("Error rate") +
   labs(title = "# of cells per dataset, with 1000 genes") +
   scale_color_manual(values = plasma_pal) +
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+  guides(x = guide_axis(angle = 45))
 
 print(p)
 
