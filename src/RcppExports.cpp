@@ -387,6 +387,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// ridge_prox
+arma::mat ridge_prox(const arma::mat& matrix, double rho);
+RcppExport SEXP _IBMR_ridge_prox(SEXP matrixSEXP, SEXP rhoSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type matrix(matrixSEXP);
+    Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
+    rcpp_result_gen = Rcpp::wrap(ridge_prox(matrix, rho));
+    return rcpp_result_gen;
+END_RCPP
+}
 // compute_min_step_size_Beta
 double compute_min_step_size_Beta(const List& Y_matrix_list, const List& X_list, int N);
 RcppExport SEXP _IBMR_compute_min_step_size_Beta(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP NSEXP) {
@@ -451,6 +463,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_IBMR_compute_probabilities_no_Gamma", (DL_FUNC) &_IBMR_compute_probabilities_no_Gamma, 3},
     {"_IBMR_compute_conditional_probabilities", (DL_FUNC) &_IBMR_compute_conditional_probabilities, 2},
     {"_IBMR_group_lasso_prox", (DL_FUNC) &_IBMR_group_lasso_prox, 2},
+    {"_IBMR_ridge_prox", (DL_FUNC) &_IBMR_ridge_prox, 2},
     {"_IBMR_compute_min_step_size_Beta", (DL_FUNC) &_IBMR_compute_min_step_size_Beta, 3},
     {"_IBMR_compute_min_step_size_alpha", (DL_FUNC) &_IBMR_compute_min_step_size_alpha, 1},
     {"_IBMR_compute_min_step_size_Gamma", (DL_FUNC) &_IBMR_compute_min_step_size_Gamma, 4},

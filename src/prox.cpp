@@ -15,3 +15,10 @@ arma::mat group_lasso_prox(const arma::mat & matrix, double lambda) {
   return thresholded;
 
 }
+
+// [[Rcpp::export]]
+arma::mat ridge_prox(const arma::mat & matrix, double rho) {
+
+  return matrix / (1 + rho);
+
+}

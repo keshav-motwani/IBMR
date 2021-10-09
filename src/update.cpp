@@ -138,16 +138,17 @@ std::tuple<arma::field<arma::mat>, arma::colvec> update_Gamma_list(const List & 
     double shrinkage = 0.5;
 
     arma::mat Gamma_new;
-    arma::mat gradient = compute_gradient_Gamma(Y_, X_, Z_, alpha, Beta, Gamma_old, rho, N);
-    double gradient_norm = arma::accu(arma::pow(gradient, 2));
-    double g_old = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_old, N) + rho * arma::accu(arma::square(Gamma_old)) / 2;
+    arma::mat gradient = compute_gradient_Gamma(Y_, X_, Z_, alpha, Beta, Gamma_old, 0, N);
+
+    double g_old = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_old, N);
 
     while(line_search) {
 
-      Gamma_new = Gamma_old - step_size * gradient;
-      double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N) + rho * arma::accu(arma::square(Gamma_new)) / 2;
+      Gamma_new = ridge_prox(Gamma_old - step_size * gradient, step_size * rho);
+      double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N);
+      arma::mat difference = (Gamma_old - Gamma_new) / step_size;
 
-      if (std::isnan(g_new) | (g_new - (g_old - 0.5 * step_size * gradient_norm) > 1e-12)) {
+      if (std::isnan(g_new) | (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 1e-12)) {
         step_size = shrinkage * step_size;
         // Rcout << "Shrunk Gamma " << step_size << "\n";
         // if (step_size < shrinkage * min_step_size(i)) {

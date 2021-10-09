@@ -107,6 +107,10 @@ group_lasso_prox <- function(matrix, lambda) {
     .Call(`_IBMR_group_lasso_prox`, matrix, lambda)
 }
 
+ridge_prox <- function(matrix, rho) {
+    .Call(`_IBMR_ridge_prox`, matrix, rho)
+}
+
 compute_min_step_size_Beta <- function(Y_matrix_list, X_list, N) {
     .Call(`_IBMR_compute_min_step_size_Beta`, Y_matrix_list, X_list, N)
 }
