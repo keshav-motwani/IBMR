@@ -23,7 +23,7 @@ std::tuple<arma::mat, double> update_Beta(const List & Y_matrix_list, const List
     g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha, Beta_new, Gamma_list, N);
     arma::mat difference = (Beta_old - Beta_new) / step_size;
 
-    if (std::isnan(g_new) | (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 1e-12)) {
+    if (std::isnan(g_new) | (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 0)) {
       step_size = shrinkage * step_size;
       // Rcout << "Shrunk Beta " << step_size << "\n";
       // if (step_size < shrinkage * min_step_size) {
@@ -56,7 +56,7 @@ std::tuple<arma::vec, double> update_alpha(const List & Y_matrix_list, const Lis
     alpha_new = alpha_old - step_size * gradient;
     double g_new = compute_negative_log_likelihood(Y_matrix_list, X_list, Z_list, alpha_new, Beta, Gamma_list, N);
 
-    if (std::isnan(g_new) | (g_new - (g_old - 0.5 * step_size * gradient_norm) > 1e-12)) {
+    if (std::isnan(g_new) | (g_new - (g_old - 0.5 * step_size * gradient_norm) > 0)) {
       step_size = shrinkage * step_size;
       // Rcout << "Shrunk alpha " << step_size << "\n";
       // if (step_size < shrinkage * min_step_size) {
@@ -148,7 +148,7 @@ std::tuple<arma::field<arma::mat>, arma::colvec> update_Gamma_list(const List & 
       double g_new = compute_negative_log_likelihood_1(Y_, X_, Z_, alpha, Beta, Gamma_new, N);
       arma::mat difference = (Gamma_old - Gamma_new) / step_size;
 
-      if (std::isnan(g_new) | (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 1e-12)) {
+      if (std::isnan(g_new) | (g_new - (g_old - step_size * arma::accu(gradient % difference) + 0.5 * step_size * arma::accu(arma::pow(difference, 2))) > 0)) {
         step_size = shrinkage * step_size;
         // Rcout << "Shrunk Gamma " << step_size << "\n";
         // if (step_size < shrinkage * min_step_size(i)) {

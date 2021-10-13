@@ -58,7 +58,7 @@ arma::colvec compute_min_step_size_Gamma(const List & Y_matrix_list, const List 
   NumericMatrix Y0 = Y_matrix_list[0];
   int q = Y0.ncol();
 
-  lipschitz = (std::sqrt(q) * lipschitz / N) + rho;
+  lipschitz = (std::sqrt(q) * lipschitz / N);
 
   return 1 / lipschitz;
 
