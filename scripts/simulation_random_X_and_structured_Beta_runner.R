@@ -3,17 +3,17 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_updated_again_more_fine"
+RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_updated_again_more_fine_more_nonzero_more_fine"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
 methods = c(methods, paste0(methods, "_ORC_fine")) # , paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
-  category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), rep(2, 6))),
+  category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), rep(2, 6), rep(2, 6))),
   N = 1200,
   p = 500,
-  nonzero = 15,
+  nonzero = 100,
   s = 6,
   sigma = 1,
   rank = "int",
@@ -22,12 +22,12 @@ defaults = list(
 
 considered_values = list(
   p = c(100, 200, 500, 1000, 2000),
-  s = c(0, 3, 6, 9, 12),
+  s = c(0, 20, 40, 60, 80),
   N = c(300, 600, 1200, 2400, 4800),
   batch_effect = c(0.025, 0.05, 0.1, 0.2, 0.4)
 )
 
-parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 10, methods)
+parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 50, methods)
 
 chunk_size = 4
 
