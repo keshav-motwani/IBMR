@@ -668,7 +668,7 @@ fit_IBMR_int = function(data) {
 
 }
 
-fit_IBMR_int_10 = function(data) {
+fit_IBMR_int_1en6 = function(data) {
 
   fit = IBMR(
     data$train$Y_list,
@@ -678,7 +678,8 @@ fit_IBMR_int_10 = function(data) {
     lapply(data$train$X_list, function(X) matrix(1, nrow = nrow(X), ncol = 1)),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
-    data$validation$X_list, n_rho = 10
+    data$validation$X_list,
+    rho_min_ratio = 1e-6
   )
 
   return(prepare_output_IBMR(fit, data$test$X_list))

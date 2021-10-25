@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/simulations_random_X_and_structured_Beta"
+RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_proxGamma_fixed"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
@@ -40,7 +40,7 @@ result = do.call(rbind, results)
 result$oracle = gsub("ORCNA", "observed", paste0("ORC", sapply(strsplit(result$method, "ORC"), `[`, 2)))
 result$method = sapply(strsplit(result$method, "_ORC"), `[`, 1)
 
-methods = c("IBMR", "IBMR_int", "IBMR_common_Gamma", "IBMR_no_Gamma", "subset", "relabel")
+methods = c("IBMR", "IBMR_int", "IBMR_int_1en6", "IBMR_common_Gamma", "IBMR_no_Gamma", "subset", "relabel")
 methods = methods[methods %in% result$method]
 
 oracles = c("observed", "ORC_fine", "ORC_clean", "ORC_fine_clean")
@@ -70,7 +70,7 @@ for (glmnet in c(TRUE, FALSE)) {
 
     data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-    if (!glmnet) data = data %>% filter(!grepl("glmnet", method))
+    if (!glmnet) data = data %>% filter(grepl("IBMR", method))
 
     levels = gtools::mixedsort(as.character(unique(data$value)))
     if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
@@ -122,7 +122,7 @@ for (glmnet in c(TRUE, FALSE)) {
 
     data = summary %>% filter(experiment == experiments[i, 2], run == experiments[i, 1])
 
-    if (!glmnet) data = data %>% filter(!grepl("glmnet", method))
+    if (!glmnet) data = data %>% filter(grepl("IBMR", method))
 
     levels = gtools::mixedsort(as.character(unique(data$value)))
     if ("int" %in% levels) levels = c("int", levels[which(levels != "int")])
