@@ -10,24 +10,24 @@ methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
 methods = c(methods, paste0(methods, "_ORC_fine")) # , paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
-  category_mappings = simulate_category_mappings(3, c(6, 2, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), c(rep(3, 3), rep(2, 3)), c(rep(2, 3), rep(3, 3)))),
-  N = 4800,
+  category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(1, 6), c(rep(1, 3), rep(2, 3)), c(rep(2, 3), rep(1, 3)))),
+  N = 1200,
   p = 500,
-  nonzero = 100,
-  d = 10,
-  b = 2,
+  nonzero = 15,
+  s = 6,
   sigma = 1,
   rank = "int",
   batch_effect = 0.1
 )
 
 considered_values = list(
-  p = c(250, 500, 1000, 2000),
-  N = c(2400, 4800, 9600, 19200),
+  p = c(100, 200, 500, 1000, 2000),
+  s = c(0, 3, 6, 9, 12),
+  N = c(300, 600, 1200, 2400, 4800),
   batch_effect = c(0.025, 0.05, 0.1, 0.2, 0.4)
 )
 
-parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 50, methods)
+parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 10, methods)
 
 chunk_size = 4
 

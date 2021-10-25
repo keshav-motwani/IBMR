@@ -167,41 +167,29 @@ simulate_Beta = function(categories, p, nonzero, lower = -2, upper = 2) {
 }
 
 #' @export
-simulate_structured_Beta = function(number_of_levels, splits_per_level, p, nonzero, d, lower = -2, upper = 2, sigma = 1) {
+simulate_structured_Beta = function(splits_per_level, p, nonzero, features_per_level, sigma = 2) {
 
-  if (length(splits_per_level) == 1) splits_per_level = rep(splits_per_level, number_of_levels)
+  stopifnot(sum(features_per_level) == nonzero)
 
-  if (number_of_levels != length(splits_per_level)) stop("length of splits_per_level must be the same as number_of_levels")
+  indices = sample(1:p, nonzero)
 
-  Beta = simulate_Beta(1:splits_per_level[1], p, nonzero, lower, upper)
+  K = prod(splits_per_level)
+  Beta = matrix(0, nrow = p, ncol = K)
 
-  for (l in 2:number_of_levels) {
+  for (l in 1:length(splits_per_level)) {
 
-    temp_Beta = matrix(nrow = p, ncol = ncol(Beta) * splits_per_level[l])
+    level_indices = sample(indices, features_per_level[l])
+    print(level_indices)
 
-    for (c in 1:ncol(Beta)) {
+    for (c in 1:prod(splits_per_level[1:l])) {
 
-      for (s in 1:splits_per_level[l]) {
-
-        index = (c - 1) * splits_per_level[l] + s
-
-        perturbed = Beta[, c, drop = TRUE]
-        perturbed_indices = sample(which(perturbed != 0), d)
-        perturbed[perturbed_indices] = perturbed[perturbed_indices] + rnorm(length(perturbed_indices), sd = sigma)
-
-        temp_Beta[, index] = perturbed
-
-      }
+      Beta[level_indices, (((c - 1) * K / prod(splits_per_level[1:l])) + 1):(c * K / prod(splits_per_level[1:l]))] = rnorm(length(level_indices), sd = sigma) %*% t(rep(1, K / prod(splits_per_level[1:l])))
 
     }
 
-    Beta = temp_Beta
+    indices = setdiff(indices, level_indices)
 
   }
-
-  label_tree = create_label_tree(number_of_levels, splits_per_level)
-  categories = label_tree[nrow(label_tree), , drop = TRUE]
-  colnames(Beta) = categories
 
   return(Beta)
 
