@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // fit_Gamma_Newton
 List fit_Gamma_Newton(const List& Y_matrix_list, const List& X_list, const List& Z_list, double rho, int n_iter, double tolerance, arma::field<arma::mat> Gamma_list_old);
 RcppExport SEXP _IBMR_fit_Gamma_Newton(SEXP Y_matrix_listSEXP, SEXP X_listSEXP, SEXP Z_listSEXP, SEXP rhoSEXP, SEXP n_iterSEXP, SEXP toleranceSEXP, SEXP Gamma_list_oldSEXP) {

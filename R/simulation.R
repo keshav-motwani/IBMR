@@ -167,13 +167,13 @@ simulate_Beta = function(categories, p, nonzero, lower = -2, upper = 2) {
 }
 
 #' @export
-simulate_structured_Beta = function(number_of_levels, splits_per_level, p, nonsparsity, pct_de, lower = -2, upper = 2, sigma = 1) {
+simulate_structured_Beta = function(number_of_levels, splits_per_level, p, nonzero, d, lower = -2, upper = 2, sigma = 1) {
 
   if (length(splits_per_level) == 1) splits_per_level = rep(splits_per_level, number_of_levels)
 
   if (number_of_levels != length(splits_per_level)) stop("length of splits_per_level must be the same as number_of_levels")
 
-  Beta = simulate_Beta(1:splits_per_level[1], p, nonsparsity * p, lower, upper)
+  Beta = simulate_Beta(1:splits_per_level[1], p, nonzero, lower, upper)
 
   for (l in 2:number_of_levels) {
 
@@ -186,7 +186,7 @@ simulate_structured_Beta = function(number_of_levels, splits_per_level, p, nonsp
         index = (c - 1) * splits_per_level[l] + s
 
         perturbed = Beta[, c, drop = TRUE]
-        perturbed_indices = sample(which(perturbed != 0), max(pct_de * nonsparsity * p, 1))
+        perturbed_indices = sample(which(perturbed != 0), d)
         perturbed[perturbed_indices] = perturbed[perturbed_indices] + rnorm(length(perturbed_indices), sd = sigma)
 
         temp_Beta[, index] = perturbed
