@@ -3,21 +3,22 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_updated_again_more_fine_more_nonzero_more_fine"
+RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_updated_again_more_fine_more_nonzero_more_fine_sigma2"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
 methods = c(methods, paste0(methods, "_ORC_fine")) # , paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
+  # 6 coarse categories, each split into 2 subcategories. 6 datasets, 3 observed at coarse resolution, 3 at fine resolution for all categories.
   category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), rep(2, 6), rep(2, 6))),
   N = 1200,
   p = 500,
   nonzero = 100,
-  s = 40,
-  sigma = 1,
+  s = 40, # number of genes which have shared coefficients within coarse categories
+  sigma = 2, # sd of normal distribution for sampling coefficients
   rank = "int",
-  batch_effect = 0.1
+  batch_effect = 0.1 # norm of batch effect over norm of true predictors
 )
 
 considered_values = list(
