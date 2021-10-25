@@ -3,14 +3,14 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_updated_again"
+RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_updated_again_more_fine"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
 methods = c(methods, paste0(methods, "_ORC_fine")) # , paste0(methods, "_ORC_clean"), paste0(methods, "_ORC_fine_clean"))
 
 defaults = list(
-  category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(1, 6), c(rep(1, 3), rep(2, 3)), c(rep(2, 3), rep(1, 3)))),
+  category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), rep(2, 6))),
   N = 1200,
   p = 500,
   nonzero = 15,
