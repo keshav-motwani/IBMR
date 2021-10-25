@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/applications_updated_ten_split_logcounts"
+RESULT_PATH = "final_results/applications_fixed"
 dir.create(file.path(RESULT_PATH, "figures"))
 
 files = list.files(RESULT_PATH, full.names = TRUE)
