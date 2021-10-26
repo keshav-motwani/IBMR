@@ -11,7 +11,7 @@ methods = c(methods, paste0(methods, "_ORC_fine")) # , paste0(methods, "_ORC_cle
 
 defaults = list(
   # 6 coarse categories, each split into 2 subcategories. 6 datasets, 3 observed at coarse resolution, 3 at fine resolution for all categories.
-  category_mappings = simulate_category_mappings(2, c(6, 2), list(rep(1, 6), rep(1, 6), rep(1, 6), rep(2, 6), rep(2, 6), rep(2, 6))),
+  category_mappings = simulate_category_mappings(2, c(4, 3), c(replicate(4, c(rep(1, 3), 2), simplify = FALSE), replicate(2, rep(2, 4), simplify = FALSE))),
   N = 1200,
   p = 500,
   nonzero = 100,
