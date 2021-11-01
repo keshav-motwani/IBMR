@@ -12,7 +12,7 @@ methods = c(methods, paste0(methods, "_ORC_fine")) # , paste0(methods, "_ORC_cle
 defaults = list(
   # 6 coarse categories, each split into 2 subcategories. 6 datasets, 4 observed at coarse resolution in categories 1-10 and fine resolution in categories 11-12, 2 at fine resolution for all categories.
   category_mappings = simulate_category_mappings(2, c(6, 2), c(replicate(4, c(rep(1, 5), 2), simplify = FALSE), replicate(2, rep(2, 6), simplify = FALSE))),
-  N = 4800,
+  N = 4800, # N/6 per dataset
   p = 500,
   nonzero = 100,
   s = 40, # number of genes which have shared coefficients within coarse categories
