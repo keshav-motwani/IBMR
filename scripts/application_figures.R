@@ -98,7 +98,7 @@ for (path in FIGURES_PATH) {
                          paste0(
                            "application_figures_", value, "_1.pdf"
                          )),
-        height = 14.2,
+        height = 9.2,
         width =  13.2)
 
     y_mean = paste0("mean_", value)

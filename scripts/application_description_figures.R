@@ -1,6 +1,7 @@
 library(AnnotatedPBMC)
 library(scater)
 library(ggplot2)
+library(IBMR)
 
 source("scripts/application_setup.R")
 
