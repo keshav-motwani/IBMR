@@ -311,18 +311,18 @@ IBMR_no_Gamma = function(Y_list,
 }
 
 #' @export
-IBMR_no_Gamma_subset = function(Y_list,
-                                categories,
-                                category_mappings,
-                                X_list,
-                                Y_list_validation = NULL,
-                                category_mappings_validation = NULL,
-                                X_list_validation = NULL,
-                                n_lambda = 25,
-                                lambda_min_ratio = 1e-4,
-                                n_iter = 1e4,
-                                tolerance = 1e-6,
-                                stop_solution_path = 1.1) {
+subset = function(Y_list,
+                  categories,
+                  category_mappings,
+                  X_list,
+                  Y_list_validation = NULL,
+                  category_mappings_validation = NULL,
+                  X_list_validation = NULL,
+                  n_lambda = 25,
+                  lambda_min_ratio = 1e-4,
+                  n_iter = 1e4,
+                  tolerance = 1e-6,
+                  stop_solution_path = 1.1) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
 
@@ -349,20 +349,23 @@ IBMR_no_Gamma_subset = function(Y_list,
 }
 
 #' @export
-IBMR_no_Gamma_relabel = function(Y_list,
-                          categories,
-                          category_mappings,
-                          X_list,
-                          Y_list_validation,
-                          category_mappings_validation,
-                          X_list_validation,
-                          n_rho = 25,
-                          rho_min_ratio = 1e-4,
-                          n_lambda = 25,
-                          lambda_min_ratio = 1e-4,
-                          n_iter = 1e4,
-                          tolerance = 1e-6,
-                          stop_solution_path = 1.1) {
+IBMR_no_Gamma_subset = subset
+
+#' @export
+relabel = function(Y_list,
+                   categories,
+                   category_mappings,
+                   X_list,
+                   Y_list_validation,
+                   category_mappings_validation,
+                   X_list_validation,
+                   n_rho = 25,
+                   rho_min_ratio = 1e-4,
+                   n_lambda = 25,
+                   lambda_min_ratio = 1e-4,
+                   n_iter = 1e4,
+                   tolerance = 1e-6,
+                   stop_solution_path = 1.1) {
 
   fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance, stop_solution_path)
 
@@ -388,3 +391,6 @@ IBMR_no_Gamma_relabel = function(Y_list,
   return(fit)
 
 }
+
+#' @export
+IBMR_no_Gamma_relabel = relabel
