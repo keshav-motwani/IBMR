@@ -86,7 +86,7 @@ ggsave(file.path(FIGURES_PATH, "application_heatmap_2.pdf"), height = 4.6, width
 Beta = model$Beta * X_sd
 Beta = Beta[rowSums(Beta) != 0, ]
 genes = t(apply(Beta, 2, function(x) rev(tail(names(sort((x))), 10))))
-satija_genes = read.csv("marker_genes.csv")
+satija_genes = read.csv("data/marker_genes.csv")
 satija_genes = satija_genes[!grepl("Prolif", satija_genes$Label), ]
 rownames(satija_genes) = satija_genes$Label
 satija_genes = apply(satija_genes, 1, function(x) unlist(strsplit(x["Markers"], ", ")))
