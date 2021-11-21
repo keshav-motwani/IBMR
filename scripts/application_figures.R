@@ -73,16 +73,16 @@ names(plasma_pal) = methods
 result = result %>% group_by(run, value, method, n_sample, n_genes, validation, test) %>% summarize(
   mean_error = mean(error),
   mean_nll = mean(nll),
-  two_se_error = 2 * sd(error) / sqrt(n()),
-  two_se_nll = 2 * sd(nll) / sqrt(n())
+  se_error = sd(error) / sqrt(n()),
+  se_nll = sd(nll) / sqrt(n())
 )
 
 averaged_result = result %>%
   ungroup() %>%
   group_by(run, method, n_sample, n_genes, test) %>%
   summarize(
-    two_se_error = 2 * sd(mean_error) / sqrt(n()),
-    two_se_nll = 2 * sd(mean_nll) / sqrt(n()),
+    se_error = sd(mean_error) / sqrt(n()),
+    se_nll = sd(mean_nll) / sqrt(n()),
     mean_error = mean(mean_error),
     mean_nll = mean(mean_nll)
   ) %>%
@@ -99,10 +99,10 @@ for (path in FIGURES_PATH) {
                            "application_figures_", value, "_1.pdf"
                          )),
         height = 9.2,
-        width =  13.2)
+        width =  13.2 * 0.75)
 
     y_mean = paste0("mean_", value)
-    y_two_se = paste0("two_se_", value)
+    y_se = paste0("se_", value)
 
     p = ggplot(
       averaged_result[averaged_result$n_sample == 5000,],
@@ -112,13 +112,13 @@ for (path in FIGURES_PATH) {
         color = method,
         group = method,
         linetype = method,
-        ymin = .data[[y_mean]] - .data[[y_two_se]],
-        ymax = .data[[y_mean]] + .data[[y_two_se]]
+        ymin = .data[[y_mean]] - .data[[y_se]],
+        ymax = .data[[y_mean]] + .data[[y_se]]
       )
     ) +
       geom_point(size = 1) +
       geom_line() +
-      geom_errorbar(width = 0.05,
+      geom_errorbar(width = 0,
                     linetype = "solid",
                     show.legend = FALSE) +
       facet_wrap(test ~ ., scales = "free", nrow = 3) +
@@ -142,13 +142,13 @@ for (path in FIGURES_PATH) {
         color = method,
         group = method,
         linetype = method,
-        ymin = .data[[y_mean]] - .data[[y_two_se]],
-        ymax = .data[[y_mean]] + .data[[y_two_se]]
+        ymin = .data[[y_mean]] - .data[[y_se]],
+        ymax = .data[[y_mean]] + .data[[y_se]]
       )
     ) +
       geom_point(size = 1) +
       geom_line() +
-      geom_errorbar(width = 0.05,
+      geom_errorbar(width = 0,
                     linetype = "solid",
                     show.legend = FALSE) +
       facet_wrap(test ~ ., scales = "free", nrow = 3) +
@@ -179,7 +179,7 @@ for (path in FIGURES_PATH) {
     )
 
     y_mean = paste0("mean_", value)
-    y_two_se = paste0("two_se_", value)
+    y_se = paste0("se_", value)
 
     p = ggplot(
       result[result$n_sample == 5000,],
@@ -189,13 +189,13 @@ for (path in FIGURES_PATH) {
         color = method,
         group = method,
         linetype = method,
-        ymin = .data[[y_mean]] - .data[[y_two_se]],
-        ymax = .data[[y_mean]] + .data[[y_two_se]]
+        ymin = .data[[y_mean]] - .data[[y_se]],
+        ymax = .data[[y_mean]] + .data[[y_se]]
       )
     ) +
       geom_point(size = 1) +
       geom_line() +
-      geom_errorbar(width = 0.05,
+      geom_errorbar(width = 0,
                     linetype = "solid",
                     show.legend = FALSE) +
       facet_grid(test ~ validation, scales = "free_y") +
@@ -219,13 +219,13 @@ for (path in FIGURES_PATH) {
         color = method,
         group = method,
         linetype = method,
-        ymin = .data[[y_mean]] - .data[[y_two_se]],
-        ymax = .data[[y_mean]] + .data[[y_two_se]]
+        ymin = .data[[y_mean]] - .data[[y_se]],
+        ymax = .data[[y_mean]] + .data[[y_se]]
       )
     ) +
       geom_point(size = 1) +
       geom_line() +
-      geom_errorbar(width = 0.05,
+      geom_errorbar(width = 0,
                     linetype = "solid",
                     show.legend = FALSE) +
       facet_grid(test ~ validation, scales = "free_y") +
