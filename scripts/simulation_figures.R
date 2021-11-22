@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "final_results/simulations_random_X_and_structured_Beta_final"
+RESULT_PATH = "results/simulation_random_X_and_structured_Beta"
 FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
