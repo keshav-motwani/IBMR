@@ -88,8 +88,6 @@ averaged_result = result %>%
   ) %>%
   mutate(validation = test)
 
-result = rbind(result, averaged_result)
-
 ylabs = c("error" = "Error rate", "nll" = "Negative log likelihood")
 
 for (path in FIGURES_PATH) {
@@ -99,7 +97,7 @@ for (path in FIGURES_PATH) {
                            "application_figures_", value, "_1.pdf"
                          )),
         height = 9.2,
-        width =  13.2 * 0.75)
+        width =  13.2 * 0.9)
 
     y_mean = paste0("mean_", value)
     y_se = paste0("se_", value)

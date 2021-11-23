@@ -100,7 +100,7 @@ for (glmnet in c(TRUE)) {
 
   for (path in FIGURES_PATH) {
 
-    pdf(file = file.path(path, paste0("simulation_figures_line_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_1.pdf")), height = 8.5, width = length(unique(summary$experiment)) * 3 * 1.1)
+    pdf(file = file.path(path, paste0("simulation_figures_line_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_1.pdf")), height = 8, width = length(unique(summary$experiment)) * 3 * 1.1)
 
     plots = list()
 
@@ -131,7 +131,7 @@ for (glmnet in c(TRUE)) {
           guides(color = guide_legend(nrow = 1)) +
           theme(strip.background = element_blank(), strip.placement = "outside") +
           scale_color_manual(values = plasma_pal[levels(droplevels(data$method))]) +
-          theme(legend.position = "bottom", legend.key.width = grid::unit(4, "lines")) +
+          theme(legend.position = "bottom", legend.key.width = grid::unit(4, "lines"), plot.margin = unit(c(5.5, 20, 5.5, 5.5), "points")) +
           xlab(level) +
           ylab(names[experiments[i, 2]]) +
           labs(subtitle = NULL, color = "Method", linetype = "Method"))) # experiments[i, 1])))

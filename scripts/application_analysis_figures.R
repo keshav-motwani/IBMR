@@ -46,13 +46,13 @@ data$type = factor(data$type, levels = names(predictions))
 library(ggplot2)
 
 plot_data = data %>% filter(type %in% c("Coarse prediction", "Fine prediction"))
-ggplot(plot_data, aes(x = prediction, y = true, fill = percentage)) +
+ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
   geom_tile() +
   scale_fill_gradient(
     low = "white",
     high = "firebrick",
-    breaks = c(0, 0.25, 0.5, 0.75, 1),
-    limits = c(0, 1)
+    breaks = c(0, 0.25, 0.5, 0.75, 1) * 100,
+    limits = c(0, 1) * 100
   ) +
   facet_grid(~type, scales = "free", space = "free") +
   theme_bw(base_size = 16) +
@@ -65,13 +65,13 @@ ggplot(plot_data, aes(x = prediction, y = true, fill = percentage)) +
 ggsave(file.path(FIGURES_PATH, "application_heatmap_1.pdf"), height = 4.6, width = 13.2)
 
 plot_data = data %>% filter(type %in% c("Coarse prediction", "Conditional prediction"))
-ggplot(plot_data, aes(x = prediction, y = true, fill = percentage)) +
+ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
   geom_tile() +
   scale_fill_gradient(
     low = "white",
     high = "firebrick",
-    breaks = c(0, 0.25, 0.5, 0.75, 1),
-    limits = c(0, 1)
+    breaks = c(0, 0.25, 0.5, 0.75, 1) * 100,
+    limits = c(0, 1) * 100
   ) +
   facet_grid(~type, scales = "free", space = "free") +
   theme_bw(base_size = 16) +
