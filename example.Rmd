@@ -1,0 +1,159 @@
+---
+title: 'User guide: IBMR package'
+author: "Keshav Motwani"
+date: "11/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+\newcommand{\argmax}{\operatorname*{arg \ max}}
+\newcommand{\argmin}{\operatorname*{arg \ min}}
+\newcommand{\minim}{\operatorname*{minimize}}
+\newcommand{\mbalpha}{\boldsymbol{\alpha}}
+\newcommand{\mbbeta}{\boldsymbol{\beta}}
+\newcommand{\mbgamma}{\boldsymbol{\gamma}}
+\newcommand{\mbphi}{\boldsymbol{\phi}}
+\newcommand{\mbu}{\boldsymbol{u}}
+\newcommand{\mbU}{\boldsymbol{U}}
+\newcommand{\mbx}{\boldsymbol{x}}
+\newcommand{\mbz}{\boldsymbol{z}}
+\newcommand{\mbX}{\boldsymbol{X}}
+\newcommand{\mbZ}{\boldsymbol{Z}}
+\newcommand{\mby}{\boldsymbol{y}}
+\newcommand{\mbd}{\boldsymbol{d}}
+\newcommand{\mbnu}{\boldsymbol{\nu}}
+\newcommand{\mbP}{\boldsymbol{P}}
+\newcommand{\mbC}{\boldsymbol{C}}
+
+## Introduction
+
+As described in the paper, the log-likelihood contribution for the $i$th observation in the $k$th dataset can be expressed as
+$$
+l_{(k)i}(\mbalpha, \mbbeta, \mbgamma_{(k)}) =  \sum_{j \in \mathcal{C}_k} \mathbb{1}(y_{(k)i} = j) \log \left( \sum_{l \in g_k(j)}\frac{{\rm exp}(\mbalpha_l + \mbx_{(k)i}^\top \mbbeta_{l}  + \mbz_{(k)i}^\top \mbgamma_{(k)l})}{\sum_{v \in \mathcal{C}} {\rm exp}(\mbalpha_{v} + \mbx_{(k)i}^\top \mbbeta_{v} + \mbz_{(k)i}^\top \mbgamma_{(k)v})} \right),
+$$
+where $y_{(k)i}$ is the observed category, $\mbx_{(k)i}$ are the predictors thought to correspond to the outcome, and $\mbz_{(k)i}$ are the predictors related to dataset-specific noise, like batch effects for example. Also, as a reminder, $\mathcal{C}_k$ denotes the set of labels for the $k$th dataset, $\mathcal{C}$ denotes the set of finest resolution categories across datasets, and $g_k$ is the "unbinning" function relating labels in $\mathcal{C}_k$ to subsets of categories in $\mathcal{C}$.
+
+The IBMR estimator is then defined as
+$$\argmin_{(\mbalpha, \mbbeta, \mbgamma) \in\mathcal{T} } \left\{\mathcal{L}(\mbalpha, \mbbeta, \mbgamma) + \lambda \sum_{j=1}^p \|\mbbeta_{j,:}\|_2 \hspace{3pt} + \hspace{3pt}\frac{\rho}{2}\sum_{k=1}^K \|\mbgamma_{(k)}\|_F^2\right\},$$
+where 
+$$\mathcal{L}(\mbalpha, \mbbeta, \mbgamma) = - \frac{1}{N} \sum_{k = 1}^{K} \sum_{i = 1}^{n_k} l_{(k)i}(\mbalpha, \mbbeta, \mbgamma_{(k)})$$
+is the negative log-likelihood.
+
+The package can be installed from GitHub as follows:
+```{r cars, message = FALSE}
+# install.packages("remotes")
+# remotes::install_github("keshav-motwani/IBMR")
+library(IBMR)
+```
+
+## Simulating data
+
+The package has some built-in functions for simulating data. We use these functions in order to focus on package usage rather than a specific data generating model, but the interested reader can look at the source code of these functions for the details.
+
+First, we set the seed for reproducibility and set the number of predictors to be $500$, with $100$ important predictors, and a total of $1000$ observations from 2 datasets with different labels.
+```{r vars}
+p = 500
+nonzero = 100
+n = rep(500, 2)
+```
+
+We then specify the binning functions for simulation, as well as model fitting purposes. We will simulate data from 4 finest resolution categories, but in dataset 1, the first two categories will be binned together, and in dataset 2, the last two categories will be binned together. Therefore, neither if we were to choose only one of these datasets, we would not have the most amount of detail possible in some categories. The following code will generate binning functions like this.
+```{r binning}
+category_mappings = simulate_category_mappings(2, 2, list(c(1, 2), c(2, 1)))
+```
+Let's examine what's in this object. First, we have the names of the categories:
+```{r binning4}
+category_mappings$categories
+```
+Next, we have the binning functions (named inverse category mappings here):
+```{r binning2}
+category_mappings$inverse_category_mappings
+```
+This tells us that in dataset 1, categories "11" and "12" will be binned into a label called "1", and in dataset 2, categories "21" and "22" will be binned into a label called "2", as described above. Finally we have the unbinning functions (named category mappings here, and throughout the software -- this naming will be updated to be consistent with the paper soon):
+```{r binning3}
+category_mappings$category_mappings
+```
+
+We now construct the true $\mbalpha^*$ and $\mbbeta^*$ by sampling elementwise from a Uniform$(-2, 2)$ distribution.
+```{r simalphabeta}
+alpha = simulate_alpha(category_mappings$categories)
+Beta = simulate_Beta(category_mappings$categories, p, nonzero)
+```
+We now simulate the predictors and outcomes. We will first simulate the "clean" predictors, and add batch-specific noise that is the same for each observation within a batch. The norm of the noise will be 10% the norm of the "clean" data. We then sum these to obtain the observed predictors. The outcomes are simulated from the multinomial logistic regression model based on the clean predictors, and binned as specified by the binning functions. For the batch-specific predictors, we use a column of ones.
+```{r sim}
+X_star_list = simulate_X_star_list(n, p)
+U_list = simulate_U_list(X_star_list, "int", 0.1)
+X_list = compute_X_list(X_star_list, U_list)
+Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+Z_list = list(matrix(1, nrow = n[1]), matrix(1, nrow = n[2]))
+```
+
+We repeat this to create validation datasets.
+```{r validation}
+X_star_list_val = simulate_X_star_list(n, p)
+U_list_val = simulate_U_list(X_star_list_val, "int", 0.1)
+X_list_val = compute_X_list(X_star_list_val, U_list_val)
+Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
+```
+
+We also create test datasets, but with no noise in the predictors, and outcomes all at the finest resolution.
+```{r test}
+X_list_test = simulate_X_star_list(10000, p)
+Y_list_test = simulate_Y_list(category_mappings$categories, list(setNames(nm = category_mappings$categories)), X_list_test, alpha, Beta)
+```
+
+## Model fitting
+
+We now fit the four methods described in the paper: IBMR-int and IBMR-NG ($\mbgamma = \boldsymbol{0}$), as well as subset and relabel.
+
+```{r fit}
+system.time({IBMR_fit = IBMR(Y_list = Y_list,
+                             categories = category_mappings$categories,
+                             category_mappings = category_mappings$category_mappings,
+                             X_list = X_list,
+                             Z_list = Z_list,
+                             Y_list_validation = Y_list_val,
+                             category_mappings_validation = category_mappings$category_mappings,
+                             X_list_validation = X_list_val,
+                             verbose = FALSE)})
+
+system.time({IBMR_NG_fit = IBMR_no_Gamma(Y_list = Y_list,
+                                         categories = category_mappings$categories,
+                                         category_mappings = category_mappings$category_mappings,
+                                         X_list = X_list,
+                                         Y_list_validation = Y_list_val,
+                                         category_mappings_validation = category_mappings$category_mappings,
+                                         X_list_validation = X_list_val,
+                                         verbose = FALSE)})
+
+system.time({subset_fit = subset(Y_list = Y_list,
+                                 categories = category_mappings$categories,
+                                 category_mappings = category_mappings$category_mappings,
+                                 X_list = X_list,
+                                 Y_list_validation = Y_list_val,
+                                 category_mappings_validation = category_mappings$category_mappings,
+                                 X_list_validation = X_list_val,
+                                 verbose = FALSE)})
+
+system.time({relabel_fit = relabel(Y_list = Y_list,
+                                   categories = category_mappings$categories,
+                                   category_mappings = category_mappings$category_mappings,
+                                   X_list = X_list,
+                                   Y_list_validation = Y_list_val,
+                                   category_mappings_validation = category_mappings$category_mappings,
+                                   X_list_validation = X_list_val,
+                                   verbose = FALSE)})
+```
+
+These functions take in the validation data in order to select tuning parameters based on validation set negative log-likelihood. We use the selected models and evaluate error rate on the test dataset now.
+
+```{r test2}
+mean(Y_list_test[[1]] != predict_categories(predict_probabilities(IBMR_fit$best_model, X_list_test))[[1]])
+mean(Y_list_test[[1]] != predict_categories(predict_probabilities(IBMR_NG_fit$best_model, X_list_test))[[1]])
+mean(Y_list_test[[1]] != predict_categories(predict_probabilities(subset_fit$best_model, X_list_test))[[1]])
+mean(Y_list_test[[1]] != predict_categories(predict_probabilities(relabel_fit$best_model, X_list_test))[[1]])
+```
+
+We can see how IBMR-int does slightly better than IBMR-NG, as it accounts for the batch effect. However, subset does much, much worse, with an error rate nearly 13% worse than IBMR-NG. relabel does much better than subset, but around 2% worse than IBMR-NG also.
