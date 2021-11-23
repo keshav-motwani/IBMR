@@ -369,7 +369,9 @@ library(IBMR)</code></pre>
 <h2>Simulating data</h2>
 <p>The package has some built-in functions for simulating data. We use these functions in order to focus on package usage rather than a specific data generating model, but the interested reader can look at the source code of these functions for the details.</p>
 <p>First, we set the seed for reproducibility and set the number of predictors to be <span class="math inline">\(500\)</span>, with <span class="math inline">\(100\)</span> important predictors, and a total of <span class="math inline">\(1000\)</span> observations from 2 datasets with different labels.</p>
-<pre class="r"><code>p = 500
+<pre class="r"><code>set.seed(1)
+
+p = 500
 nonzero = 100
 n = rep(500, 2)</code></pre>
 <p>We then specify the binning functions for simulation, as well as model fitting purposes. We will simulate data from 4 finest resolution categories, but in dataset 1, the first two categories will be binned together, and in dataset 2, the last two categories will be binned together. Therefore, neither if we were to choose only one of these datasets, we would not have the most amount of detail possible in some categories. The following code will generate binning functions like this.</p>
@@ -439,7 +441,7 @@ Y_list_test = simulate_Y_list(category_mappings$categories, list(setNames(nm = c
                              X_list_validation = X_list_val,
                              verbose = FALSE)})</code></pre>
 <pre><code>##    user  system elapsed 
-##  24.448   0.112   6.156</code></pre>
+##  23.407   0.074   5.891</code></pre>
 <pre class="r"><code>system.time({IBMR_NG_fit = IBMR_no_Gamma(Y_list = Y_list,
                                          categories = category_mappings$categories,
                                          category_mappings = category_mappings$category_mappings,
@@ -449,7 +451,7 @@ Y_list_test = simulate_Y_list(category_mappings$categories, list(setNames(nm = c
                                          X_list_validation = X_list_val,
                                          verbose = FALSE)})</code></pre>
 <pre><code>##    user  system elapsed 
-##   2.280   0.008   0.584</code></pre>
+##   1.708   0.000   0.437</code></pre>
 <pre class="r"><code>system.time({subset_fit = subset(Y_list = Y_list,
                                  categories = category_mappings$categories,
                                  category_mappings = category_mappings$category_mappings,
@@ -458,9 +460,9 @@ Y_list_test = simulate_Y_list(category_mappings$categories, list(setNames(nm = c
                                  category_mappings_validation = category_mappings$category_mappings,
                                  X_list_validation = X_list_val,
                                  verbose = FALSE)})</code></pre>
-<pre><code>## [1] &quot;Keeping 498 observations out of a total of 1000&quot;</code></pre>
+<pre><code>## [1] &quot;Keeping 485 observations out of a total of 1000&quot;</code></pre>
 <pre><code>##    user  system elapsed 
-##   0.908   0.000   0.235</code></pre>
+##   0.859   0.000   0.224</code></pre>
 <pre class="r"><code>system.time({relabel_fit = relabel(Y_list = Y_list,
                                    categories = category_mappings$categories,
                                    category_mappings = category_mappings$category_mappings,
@@ -469,19 +471,23 @@ Y_list_test = simulate_Y_list(category_mappings$categories, list(setNames(nm = c
                                    category_mappings_validation = category_mappings$category_mappings,
                                    X_list_validation = X_list_val,
                                    verbose = FALSE)})</code></pre>
-<pre><code>## [1] &quot;Keeping 498 observations out of a total of 1000&quot;</code></pre>
+<pre><code>## [1] &quot;Keeping 485 observations out of a total of 1000&quot;</code></pre>
 <pre><code>##    user  system elapsed 
-##   3.112   0.007   0.792</code></pre>
+##   2.248   0.004   0.573</code></pre>
 <p>These functions take in the validation data in order to select tuning parameters based on validation set negative log-likelihood. We use the selected models and evaluate error rate on the test dataset now.</p>
 <pre class="r"><code>mean(Y_list_test[[1]] != predict_categories(predict_probabilities(IBMR_fit$best_model, X_list_test))[[1]])</code></pre>
-<pre><code>## [1] 0.2609</code></pre>
+<pre><code>## [1] 0.2738</code></pre>
 <pre class="r"><code>mean(Y_list_test[[1]] != predict_categories(predict_probabilities(IBMR_NG_fit$best_model, X_list_test))[[1]])</code></pre>
-<pre><code>## [1] 0.2603</code></pre>
+<pre><code>## [1] 0.2755</code></pre>
 <pre class="r"><code>mean(Y_list_test[[1]] != predict_categories(predict_probabilities(subset_fit$best_model, X_list_test))[[1]])</code></pre>
-<pre><code>## [1] 0.3802</code></pre>
+<pre><code>## [1] 0.3697</code></pre>
 <pre class="r"><code>mean(Y_list_test[[1]] != predict_categories(predict_probabilities(relabel_fit$best_model, X_list_test))[[1]])</code></pre>
-<pre><code>## [1] 0.2856</code></pre>
+<pre><code>## [1] 0.3019</code></pre>
 <p>We can see how IBMR-int does slightly better than IBMR-NG, as it accounts for the batch effect. However, subset does much, much worse, with an error rate nearly 13% worse than IBMR-NG. relabel does much better than subset, but around 2% worse than IBMR-NG also.</p>
+</div>
+<div id="notes" class="section level2">
+<h2>Notes</h2>
+<p>As mentioned earlier, the software refers to category mappings often. These are the same as the unbinning functions in the paper, and the software will be updated to reflect this change in naming eventually.</p>
 </div>
 
 

@@ -54,6 +54,8 @@ The package has some built-in functions for simulating data. We use these functi
 
 First, we set the seed for reproducibility and set the number of predictors to be $500$, with $100$ important predictors, and a total of $1000$ observations from 2 datasets with different labels.
 ```{r vars}
+set.seed(1)
+
 p = 500
 nonzero = 100
 n = rep(500, 2)
@@ -157,3 +159,8 @@ mean(Y_list_test[[1]] != predict_categories(predict_probabilities(relabel_fit$be
 ```
 
 We can see how IBMR-int does slightly better than IBMR-NG, as it accounts for the batch effect. However, subset does much, much worse, with an error rate nearly 13% worse than IBMR-NG. relabel does much better than subset, but around 2% worse than IBMR-NG also.
+
+
+## Notes
+
+As mentioned earlier, the software refers to category mappings often. These are the same as the unbinning functions in the paper, and the software will be updated to reflect this change in naming eventually.
