@@ -404,18 +404,6 @@ prepare_output_relabel = function(fit, X_list_test) {
 
 }
 
-prepare_output_glmnet_split = function(fit, X_list_test) {
-
-  glmnet_split = list(
-    test_estimated_probabilities = predict_probabilities_glmnet_split(fit, X_list_test),
-    all_test_estimated_probabilities = list(predict_probabilities_glmnet_split(fit, X_list_test)),
-    best_model = fit
-  )
-
-  return(list(glmnet_split = glmnet_split))
-
-}
-
 fit_IBMR = function(data) {
 
   fit = IBMR(

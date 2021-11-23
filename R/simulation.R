@@ -120,8 +120,6 @@ simulate_U = function(X_star, rank, batch_effect) {
 
   U = c * U
 
-  print(norm(U, "F") / norm(X_star, "F"))
-
   return(U)
 
 }

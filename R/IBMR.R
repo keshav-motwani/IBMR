@@ -17,7 +17,8 @@ IBMR = function(Y_list,
                 stop_solution_path = 1.1,
                 Gamma_update = "gradient",
                 common_Gamma = FALSE,
-                n_cores = 1) {
+                n_cores = 1,
+                verbose = TRUE) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   if (!is.null(Y_list_validation)) {
@@ -36,7 +37,7 @@ IBMR = function(Y_list,
     Z_list = list(do.call(rbind, Z_list))
   }
 
-  print("Standardizing predictors")
+  if (verbose) print("Standardizing predictors")
 
   X_list = standardize_X(X_list)
   X_mean = attr(X_list, "mean")
@@ -46,7 +47,7 @@ IBMR = function(Y_list,
   Z_mean = attr(Z_list, "mean")
   Z_sd = attr(Z_list, "sd")
 
-  print("Computing tuning parameter sequences")
+  if (verbose) print("Computing tuning parameter sequences")
 
   rho_sequence = compute_rho_sequence(Y_matrix_list, X_list, Z_list, n_rho, rho_min_ratio, phi, n_iter, tolerance)
   fitted_alpha_no_Beta_no_Gamma = rho_sequence$fitted_alpha
@@ -57,7 +58,7 @@ IBMR = function(Y_list,
   fitted_Gamma_no_Beta = lambda_grid$fitted_Gamma_list
   lambda_grid = lambda_grid$grid
 
-  print("Fitting models")
+  if (verbose) print("Fitting models")
 
   if (Gamma_update == "Newton") {
     fit_function = fit_alpha_Beta_Gamma_Newton
@@ -80,6 +81,7 @@ IBMR = function(Y_list,
       n_iter,
       tolerance,
       stop_solution_path,
+      verbose,
       fitted_alpha_no_Beta[[r]],
       matrix(0, nrow = ncol(X_list[[1]]), ncol = length(categories)),
       fitted_Gamma_no_Beta[[r]],
@@ -139,6 +141,7 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
                                          n_iter,
                                          tolerance,
                                          stop_solution_path,
+                                         verbose,
                                          alpha_old,
                                          Beta_old,
                                          Gamma_list_old,
@@ -155,14 +158,13 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
 
   for (l in 1:n_lambda) {
 
-    print(c(rho_index, l))
+    if (verbose) print(paste0("Fitting tuning parameters: ", rho_index, ", ", l))
 
-    print(system.time({fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_sequence[l], rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)}))
+    fit = fit_function(Y_matrix_list, X_list, Z_list, lambda_sequence[l], rho, n_iter, tolerance, alpha_old, Beta_old, Gamma_list_old)
     fit$lambda_index = l
     fit$rho_index = rho_index
 
     fit$objective = fit$objective[fit$objective != 0]
-    print(length(fit$objective))
     if (length(fit$objective) == n_iter) {
       warning(paste0("Did not converge for ", rho_index, " value of rho and ", l, " value of lambda"))
       break
@@ -173,7 +175,7 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
     Gamma_list_old = fit$Gamma_list
 
     fit$KKT_check = check_KKT_IBMR(Y_matrix_list, X_list, Z_list, lambda_sequence[l], rho, fit$alpha, fit$Beta, fit$Gamma_list)
-    print(fit$KKT_check)
+    if (verbose) print(fit$KKT_check)
     fit$alpha = adjust_alpha(fit$alpha, fit$Beta, X_mean, X_sd)
     fit$Beta = adjust_Beta(fit$Beta, X_sd)
     names(fit$alpha) = categories
@@ -210,7 +212,8 @@ IBMR_no_Gamma = function(Y_list,
                          lambda_min_ratio = 1e-4,
                          n_iter = 1e4,
                          tolerance = 1e-6,
-                         stop_solution_path = 1.1) {
+                         stop_solution_path = 1.1,
+                         verbose = TRUE) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Y_matrix_list = list(do.call(rbind, Y_matrix_list))
@@ -224,7 +227,7 @@ IBMR_no_Gamma = function(Y_list,
     validation_negative_log_likelihood = rep(NA, n_lambda)
   }
 
-  print("Standardizing predictors")
+  if (verbose) print("Standardizing predictors")
 
   X_list = standardize_X(X_list)
   X_mean = attr(X_list, "mean")
@@ -232,13 +235,13 @@ IBMR_no_Gamma = function(Y_list,
 
   features = colnames(X_list[[1]])
 
-  print("Computing tuning parameter sequences")
+  if (verbose) print("Computing tuning parameter sequences")
 
   lambda_sequence = compute_lambda_sequence_no_Gamma(Y_matrix_list, X_list, Z_list, n_lambda, lambda_min_ratio, n_iter, tolerance)
   fitted_alpha_no_Beta = lambda_sequence$fitted_alpha
   lambda_sequence = lambda_sequence$sequence
 
-  print("Fitting models")
+  if (verbose) print("Fitting models")
 
   model_fits_lambda_sequence = vector("list", n_lambda)
 
@@ -247,13 +250,12 @@ IBMR_no_Gamma = function(Y_list,
 
   for (l in 1:n_lambda) {
 
-    print(l)
+    if (verbose) print(paste0("Fitting tuning parameter: ", l))
 
-    print(system.time({fit = fit_alpha_Beta(Y_matrix_list, X_list, Z_list, lambda_sequence[l], n_iter, tolerance, alpha_old, Beta_old)}))
+    fit = fit_alpha_Beta(Y_matrix_list, X_list, Z_list, lambda_sequence[l], n_iter, tolerance, alpha_old, Beta_old)
     fit$lambda_index = l
 
     fit$objective = fit$objective[fit$objective != 0]
-    print(length(fit$objective))
     if (length(fit$objective) == n_iter) {
       warning(paste0("Did not converge for ", l, " value of lambda"))
       break
@@ -263,7 +265,7 @@ IBMR_no_Gamma = function(Y_list,
     Beta_old = fit$Beta
 
     fit$KKT_check = check_KKT_IBMR_no_Gamma(Y_matrix_list, X_list, lambda_sequence[l], fit$alpha, fit$Beta)
-    print(fit$KKT_check)
+    if (verbose) print(fit$KKT_check)
 
     fit$alpha = adjust_alpha(fit$alpha, fit$Beta, X_mean, X_sd)
     fit$Beta = adjust_Beta(fit$Beta, X_sd)
@@ -293,8 +295,6 @@ IBMR_no_Gamma = function(Y_list,
              common_Gamma = FALSE,
              no_Gamma = TRUE)
 
-  # fit = adjust_fit_no_Gamma(fit, categories, features, X_mean, X_sd)
-
   if (!is.null(Y_list_validation)) {
 
     fit$validation_negative_log_likelihood = validation_negative_log_likelihood
@@ -322,7 +322,8 @@ subset = function(Y_list,
                   lambda_min_ratio = 1e-4,
                   n_iter = 1e4,
                   tolerance = 1e-6,
-                  stop_solution_path = 1.1) {
+                  stop_solution_path = 1.1,
+                  verbose = TRUE) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
 
@@ -344,7 +345,8 @@ subset = function(Y_list,
                 lambda_min_ratio,
                 n_iter,
                 tolerance,
-                stop_solution_path)
+                stop_solution_path,
+                verbose)
 
 }
 
@@ -365,9 +367,10 @@ relabel = function(Y_list,
                    lambda_min_ratio = 1e-4,
                    n_iter = 1e4,
                    tolerance = 1e-6,
-                   stop_solution_path = 1.1) {
+                   stop_solution_path = 1.1,
+                   verbose = TRUE) {
 
-  fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance, stop_solution_path)
+  fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance, stop_solution_path, verbose)
 
   probabilities = predict_probabilities(fit_subset$best_model, X_list)
   conditional_probabilities = predict_conditional_probabilities(probabilities, Y_list, category_mappings)
@@ -384,7 +387,8 @@ relabel = function(Y_list,
                 lambda_min_ratio,
                 n_iter,
                 tolerance,
-                stop_solution_path)
+                stop_solution_path,
+                verbose)
 
   attr(fit, "subset") = fit_subset
 

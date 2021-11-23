@@ -71,55 +71,6 @@ glmnet_subset = function(Y_list,
 }
 
 #' @export
-glmnet_split = function(Y_list,
-                            categories,
-                            category_mappings,
-                            X_list,
-                            Y_list_validation = NULL,
-                            category_mappings_validation = NULL,
-                            X_list_validation = NULL,
-                            n_lambda = 25,
-                            lambda_min_ratio = 1e-4,
-                            n_iter = 1e6,
-                            tolerance = 1e-9) {
-
-  Y_list = c(Y_list, Y_list_validation)
-  category_mappings = c(category_mappings, category_mappings_validation)
-  X_list = c(X_list, X_list_validation)
-
-  features = colnames(X_list[[1]])
-
-  dataset_fits = vector("list", length(Y_list))
-
-  for (k in 1:length(Y_list)) {
-
-    fit = glmnet::cv.glmnet(x = X_list[[k]], y = Y_list[[k]], family = "multinomial", type.multinomial = "grouped", nlambda = n_lambda, lambda.min.ratio = lambda_min_ratio, trace.it = 1, thresh = tolerance, maxit = n_iter)
-
-    lambda_index = which(fit$lambda == fit$lambda.min)
-
-    result = list(alpha = fit$glmnet.fit$a0[names(category_mappings[[k]]), lambda_index],
-                  Beta = do.call(cbind, lapply(fit$glmnet.fit$beta[names(category_mappings[[k]])], function(x) x[, lambda_index])),
-                  lambda_index = lambda_index,
-                  category_mapping = category_mappings[[k]])
-
-    names(result$alpha) = names(category_mappings[[k]])
-    colnames(result$Beta) = names(category_mappings[[k]])
-    rownames(result$Beta) = features
-
-    dataset_fits[[k]] = result
-
-  }
-
-  fit = list(dataset_fits = dataset_fits,
-             categories = categories)
-
-  class(fit) = "glmnet_split"
-
-  return(fit)
-
-}
-
-#' @export
 glmnet_relabel = function(Y_list,
                           categories,
                           category_mappings,

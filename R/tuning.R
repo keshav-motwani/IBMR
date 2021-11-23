@@ -35,9 +35,7 @@ compute_lambda_grid = function(Y_matrix_list, X_list, Z_list, rho_sequence, n_la
 
   for (r in 1:length(rho_sequence)) {
 
-    print(r)
-
-    print(system.time({alpha_Gamma = fit_alpha_Gamma(Y_matrix_list, X_list, Z_list, rho_sequence[r], n_iter, tolerance, alpha_old, Gamma_list_old)}))
+    alpha_Gamma = fit_alpha_Gamma(Y_matrix_list, X_list, Z_list, rho_sequence[r], n_iter, tolerance, alpha_old, Gamma_list_old)
 
     gradient = compute_gradient_Beta(Y_matrix_list, X_list, Z_list, alpha_Gamma$alpha, Beta, alpha_Gamma$Gamma_list, N)
 
