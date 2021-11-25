@@ -98,20 +98,20 @@ plot_binning_functions(binning_functions, categories, dataset_names)
 ggsave(file.path(FIGURES_PATH, "binning_functions.pdf"), height = 6, width = 13.2)
 
 categories = c(
-  "naive CD4+",
   "effector memory CD4+",
   "central memory CD4+",
-  "naive CD8+",
+  "naive CD4+",
   "effector memory CD8+",
-  "central memory CD8+"
+  "central memory CD8+",
+  "naive CD8+"
 )
 binning_functions = list(
   "Dataset 1" = c(rep("CD4+", 3),
                   rep("CD8+", 3)),
   "Dataset 2" = c(categories[1:3],
                   rep("CD8+", 3)),
-  "Dataset 3" = c(categories[1],
-                  rep("memory CD4+", 2),
+  "Dataset 3" = c(rep("memory CD4+", 2),
+                  categories[3],
                   categories[4:6])
 )
 binning_functions = lapply(binning_functions, function(x) {
@@ -119,7 +119,7 @@ binning_functions = lapply(binning_functions, function(x) {
   return(x)
 })
 
-set.seed(34223)
+set.seed(19)
 plot_binning_functions(binning_functions, categories)
 ggsave(
   file.path(FIGURES_PATH, "binning_functions_toy.pdf"),
