@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "final_results/applications_final"
+RESULT_PATH = "results/application"
 FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
@@ -88,7 +88,7 @@ averaged_result = result %>%
   ) %>%
   mutate(validation = test)
 
-ylabs = c("error" = "Error rate", "nll" = "Negative log likelihood")
+ylabs = c("error" = "Error rate", "nll" = "Negative log-likelihood")
 
 for (path in FIGURES_PATH) {
   for (value in c("error", "nll")) {
