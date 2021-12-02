@@ -119,8 +119,8 @@ binning_functions = lapply(binning_functions, function(x) {
   return(x)
 })
 
-set.seed(19)
-plot_binning_functions(binning_functions, categories)
+set.seed(34098)
+plot_binning_functions(binning_functions, categories) + xlab(NULL)
 ggsave(
   file.path(FIGURES_PATH, "binning_functions_toy.pdf"),
   height = 4,
