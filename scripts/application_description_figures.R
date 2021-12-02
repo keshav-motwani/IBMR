@@ -120,7 +120,7 @@ binning_functions = lapply(binning_functions, function(x) {
 })
 
 set.seed(34098)
-plot_binning_functions(binning_functions, categories) + xlab(NULL)
+plot_binning_functions(binning_functions, categories) + xlab(NULL) + ylab(NULL)
 ggsave(
   file.path(FIGURES_PATH, "binning_functions_toy.pdf"),
   height = 4,
@@ -130,7 +130,7 @@ ggsave(
 binning_functions = simulate_category_mappings(2, c(6, 2), c(replicate(4, c(rep(1, 5), 2), simplify = FALSE), replicate(2, rep(2, 6), simplify = FALSE)))
 names(binning_functions$inv) = paste0("Dataset ", 1:6)
 set.seed(11)
-plot = plot_binning_functions(binning_functions$inv, binning_functions$categories) + guides(x = guide_axis(angle = 0))
+plot = plot_binning_functions(binning_functions$inv, binning_functions$categories) + guides(x = guide_axis(angle = 0)) + ylab(NULL)
 plot$data$category = paste0(LETTERS[as.numeric(substr(as.character(plot$data$category), 1, 1))], substr(as.character(plot$data$category), 2, 2))
 ggsave(
   file.path(FIGURES_PATH, "binning_functions_simulation.pdf"),
