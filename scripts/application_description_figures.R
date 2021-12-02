@@ -124,7 +124,7 @@ plot_binning_functions(binning_functions, categories) + xlab(NULL)
 ggsave(
   file.path(FIGURES_PATH, "binning_functions_toy.pdf"),
   height = 4,
-  width = 5
+  width = 4.5
 )
 
 binning_functions = simulate_category_mappings(2, c(6, 2), c(replicate(4, c(rep(1, 5), 2), simplify = FALSE), replicate(2, rep(2, 6), simplify = FALSE)))
