@@ -6,7 +6,7 @@ library(tidyverse)
 source("scripts/application_setup.R")
 
 CACHE_PATH = "../AnnotatedPBMC/data"
-RESULT_PATH = "final_results/applications_final"
+RESULT_PATH = "results/application"
 FIGURES_PATH = "figures/"
 dir.create(FIGURES_PATH, recursive = TRUE)
 
