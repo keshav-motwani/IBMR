@@ -46,8 +46,8 @@ IBMR = function(Y_list,
     Y_matrix_list_full = list(do.call(rbind, Y_matrix_list_full))
     full_alpha = fit_alpha(Y_matrix_list_full, lapply(Y_matrix_list_full, function(y) matrix(0, nrow = nrow(y), ncol = 1)), lapply(Y_matrix_list_full, function(y) matrix(0, nrow = nrow(y), ncol = 1)), n_iter, tolerance, rep(0, ncol(Y_matrix_list_full[[1]])))$alpha
     main_alpha = fit_alpha(Y_matrix_list, lapply(Y_matrix_list, function(y) matrix(0, nrow = nrow(y), ncol = 1)), lapply(Y_matrix_list, function(y) matrix(0, nrow = nrow(y), ncol = 1)), n_iter, tolerance, rep(0, ncol(Y_matrix_list[[1]])))$alpha
-    full_marginal_probabilities = exp(full_alpha) / sum(exp(full_alpha))
-    main_marginal_probabilities = exp(main_alpha) / sum(exp(main_alpha))
+    full_marginal_probabilities = c(exp(full_alpha) / sum(exp(full_alpha)))
+    main_marginal_probabilities = c(exp(main_alpha) / sum(exp(main_alpha)))
   }
 
   if (verbose) print("Standardizing predictors")
@@ -260,8 +260,8 @@ IBMR_no_Gamma = function(Y_list,
     Y_matrix_list_full = list(do.call(rbind, Y_matrix_list_full))
     full_alpha = fit_alpha(Y_matrix_list_full, lapply(Y_matrix_list_full, function(y) matrix(0, nrow = nrow(y), ncol = 1)), lapply(Y_matrix_list_full, function(y) matrix(0, nrow = nrow(y), ncol = 1)), n_iter, tolerance, rep(0, ncol(Y_matrix_list_full[[1]])))$alpha
     main_alpha = fit_alpha(Y_matrix_list, lapply(Y_matrix_list, function(y) matrix(0, nrow = nrow(y), ncol = 1)), lapply(Y_matrix_list, function(y) matrix(0, nrow = nrow(y), ncol = 1)), n_iter, tolerance, rep(0, ncol(Y_matrix_list[[1]])))$alpha
-    full_marginal_probabilities = exp(full_alpha) / sum(exp(full_alpha))
-    main_marginal_probabilities = exp(main_alpha) / sum(exp(main_alpha))
+    full_marginal_probabilities = c(exp(full_alpha) / sum(exp(full_alpha)))
+    main_marginal_probabilities = c(exp(main_alpha) / sum(exp(main_alpha)))
   }
 
   if (verbose) print("Standardizing predictors")
