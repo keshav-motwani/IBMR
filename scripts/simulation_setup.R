@@ -65,7 +65,8 @@ prepare_data = function(Y_list,
                         category_mappings_test,
                         X_list_test,
                         alpha = NULL,
-                        Beta = NULL) {
+                        Beta = NULL,
+                        Y_list_full = NULL) {
 
   sapply(Y_list, function(x) print(table(x)))
   print(table(unlist((Y_list))))
@@ -76,7 +77,8 @@ prepare_data = function(Y_list,
       train = list(
         X_list = X_list,
         Y_list = Y_list,
-        category_mappings = category_mappings
+        category_mappings = category_mappings,
+        Y_list_full = Y_list_full
       ),
       validation = list(
         X_list = X_list_validation,
@@ -414,7 +416,8 @@ fit_IBMR = function(data) {
     compute_pca_for_Z_list(data$train$X_list, ifelse(ncol(data$train$X_list[[1]]) > 100, 50, 10), TRUE),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
-    data$validation$X_list
+    data$validation$X_list,
+    Y_list_full = data$train$Y_list_full
   )
 
   return(prepare_output_IBMR(fit, data$test$X_list))
@@ -431,43 +434,8 @@ fit_IBMR_int = function(data) {
     lapply(data$train$X_list, function(X) matrix(1, nrow = nrow(X), ncol = 1)),
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
-    data$validation$X_list
-  )
-
-  return(prepare_output_IBMR(fit, data$test$X_list))
-
-}
-
-fit_IBMR_int_1en6 = function(data) {
-
-  fit = IBMR(
-    data$train$Y_list,
-    data$train$category_mappings$categories,
-    data$train$category_mappings$category_mappings,
-    data$train$X_list,
-    lapply(data$train$X_list, function(X) matrix(1, nrow = nrow(X), ncol = 1)),
-    data$validation$Y_list,
-    data$validation$category_mappings$category_mappings,
     data$validation$X_list,
-    rho_min_ratio = 1e-6
-  )
-
-  return(prepare_output_IBMR(fit, data$test$X_list))
-
-}
-
-fit_IBMR_common_Gamma = function(data) {
-
-  fit = IBMR(
-    data$train$Y_list,
-    data$train$category_mappings$categories,
-    data$train$category_mappings$category_mappings,
-    data$train$X_list,
-    compute_pca_for_Z_list(data$train$X_list, ifelse(ncol(data$train$X_list[[1]]) > 100, 50, 10), TRUE),
-    data$validation$Y_list,
-    data$validation$category_mappings$category_mappings,
-    data$validation$X_list,
-    common_Gamma = TRUE
+    Y_list_full = data$train$Y_list_full
   )
 
   return(prepare_output_IBMR(fit, data$test$X_list))
@@ -483,7 +451,8 @@ fit_IBMR_no_Gamma = function(data) {
     data$train$X_list,
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
-    data$validation$X_list
+    data$validation$X_list,
+    Y_list_full = data$train$Y_list_full
   )
 
   return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
@@ -499,7 +468,8 @@ fit_subset = function(data) {
     data$train$X_list,
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
-    data$validation$X_list
+    data$validation$X_list,
+    Y_list_full = data$train$Y_list_full
   )
 
   return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
@@ -515,39 +485,8 @@ fit_relabel = function(data) {
     data$train$X_list,
     data$validation$Y_list,
     data$validation$category_mappings$category_mappings,
-    data$validation$X_list
-  )
-
-  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
-
-}
-
-fit_glmnet_subset = function(data) {
-
-  fit = glmnet_subset(
-    data$train$Y_list,
-    data$train$category_mappings$categories,
-    data$train$category_mappings$category_mappings,
-    data$train$X_list,
-    data$validation$Y_list,
-    data$validation$category_mappings$category_mappings,
-    data$validation$X_list
-  )
-
-  return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))
-
-}
-
-fit_glmnet_relabel = function(data) {
-
-  fit = glmnet_relabel(
-    data$train$Y_list,
-    data$train$category_mappings$categories,
-    data$train$category_mappings$category_mappings,
-    data$train$X_list,
-    data$validation$Y_list,
-    data$validation$category_mappings$category_mappings,
-    data$validation$X_list
+    data$validation$X_list,
+    Y_list_full = data$train$Y_list_full
   )
 
   return(prepare_output_IBMR_no_Gamma(fit, data$test$X_list))

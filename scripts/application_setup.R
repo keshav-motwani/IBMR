@@ -45,6 +45,8 @@ prepare_real_data_application = function(split_index,
   inverse_category_mappings_test = unlist(lapply(test_datasets, `[[`, "inverse_category_mappings"), recursive = FALSE)
   category_mappings_test = list(categories = categories, category_mappings = category_mappings_test, inverse_category_mappings = inverse_category_mappings_test)
 
+  Y_list_full = unlist(lapply(train_datasets, `[[`, "Y_list_full"), recursive = FALSE)
+
   output = prepare_data(Y_list = Y_list,
                         category_mappings = category_mappings,
                         category_mappings_fine = NULL,
@@ -59,7 +61,8 @@ prepare_real_data_application = function(split_index,
                         category_mappings_test = category_mappings_test,
                         X_list_test = X_list_test,
                         alpha = NULL,
-                        Beta = NULL)
+                        Beta = NULL,
+                        Y_list_full = Y_list_full)
 
 }
 
@@ -81,6 +84,7 @@ prepare_hao_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE
   data = data[, !grepl(removed_labels, data$cell_type)]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -133,6 +137,7 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -185,8 +190,7 @@ prepare_haniffa_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = data[, !grepl(removed_labels, data$cell_type)]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, ]
-
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -239,6 +243,7 @@ prepare_tsang_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = data[, !(data$cell_type %in% removed_labels)]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -291,6 +296,7 @@ prepare_blish_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -340,6 +346,7 @@ prepare_10x_sorted = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   removed_labels = c()
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -392,6 +399,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -444,6 +452,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -496,6 +505,7 @@ prepare_su_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE)
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -546,6 +556,7 @@ prepare_ding_2019 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALS
   data = data[, grepl("10x", data$method) & data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
+  attr(data, "Y_full") = data$cell_type
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -601,10 +612,11 @@ prepare_dataset_output = function(data, binning_function, sce) {
 
   X_list = lapply(data, function(x) t(as.matrix(SingleCellExperiment::logcounts(x))))
   Y_list = lapply(data, function(x) as.character(x$cell_type))
+  Y_list_full = lapply(data, function(x) attr(x, "Y_full"))
 
   category_mapping = binning_function_to_category_mapping(binning_function)
 
-  return(list(Y_list = Y_list, X_list = X_list, categories = names(binning_function), category_mappings = replicate(length(Y_list), category_mapping, simplify = FALSE), inverse_category_mappings = replicate(length(Y_list), binning_function, simplify = FALSE)))
+  return(list(Y_list = Y_list, X_list = X_list, Y_list_full = Y_list_full, categories = names(binning_function), category_mappings = replicate(length(Y_list), category_mapping, simplify = FALSE), inverse_category_mappings = replicate(length(Y_list), binning_function, simplify = FALSE)))
 
 }
 
