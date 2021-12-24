@@ -7,18 +7,29 @@ prepare_real_data_application = function(split_index,
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
   dataset_names = read.csv(file.path(cache_path, "table_1.csv"))$dataset
+  stopifnot(length(dataset_names) == 10)
 
   splits = expand.grid(setdiff(dataset_names, "hao_2020"), setdiff(dataset_names, "hao_2020"), stringsAsFactors = FALSE)
   colnames(splits) = c("validation", "test")
   splits = splits[splits[, 1] != splits[, 2], ]
   rownames(splits) = 1:nrow(splits)
+  stopifnot(nrow(splits) == 72)
   split = splits[split_index, , drop = TRUE]
 
   n_sample = rep(n_sample, length(dataset_names))
   names(n_sample) = dataset_names
   n_sample[unlist(split)] = NA
 
-  datasets = mapply(dataset_names, n_sample, FUN = function(dataset, n) get(paste0("prepare_", dataset))(cache_path, n_genes, n), SIMPLIFY = FALSE)
+  datasets = mapply(
+    dataset_names,
+    n_sample,
+    FUN = function(dataset, n) {
+      result = get(paste0("prepare_", dataset))(cache_path, n_genes, n)
+      gc()
+      return(result)
+    },
+    SIMPLIFY = FALSE
+  )
   names(datasets) = dataset_names
 
   train_datasets = datasets[setdiff(dataset_names, unlist(split))]
@@ -81,7 +92,7 @@ prepare_hao_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE
   data = data[, !grepl(removed_labels, data$cell_type)]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "ASDC",
@@ -133,7 +144,7 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "unobserved",
@@ -187,7 +198,7 @@ prepare_haniffa_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = F
 
   data = data[, ]
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "DCs",
@@ -239,7 +250,7 @@ prepare_tsang_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = data[, !(data$cell_type %in% removed_labels)]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "conventional dendritic cell",
@@ -291,7 +302,7 @@ prepare_blish_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "DC",
@@ -340,7 +351,7 @@ prepare_10x_sorted = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   removed_labels = c()
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "unobserved",
@@ -392,7 +403,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "unobserved",
@@ -444,7 +455,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "DCs",
@@ -496,7 +507,7 @@ prepare_su_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE)
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "myeloid DC",
@@ -546,7 +557,7 @@ prepare_ding_2019 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALS
   data = data[, grepl("10x", data$method) & data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
+  data = data[, uniform_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
     ASDC = "Dendritic cell",
@@ -591,7 +602,7 @@ prepare_dataset_output = function(data, binning_function, sce) {
                                                    "HSPC", "ILC", "MAIT", "NK", "NK_CD56bright", "pDC", "Plasmablast",
                                                    "Platelet", "Treg Memory", "Treg Naive")))
   stopifnot(length(setdiff(data$cell_type, binning_function)) == 0)
-  stopifnot(length(setdiff(binning_function, data$cell_type)) == 0 || all(setdiff(binning_function, data$cell_type) == "unobserved"))
+  if(!(length(setdiff(binning_function, data$cell_type)) == 0 || all(setdiff(binning_function, data$cell_type) == "unobserved"))) warning("Some labels from binning function not observed")
 
   if (sce) return(list(sce = data, binning_function = binning_function))
 
@@ -608,10 +619,9 @@ prepare_dataset_output = function(data, binning_function, sce) {
 
 }
 
-weighted_sample = function(Y, n) {
+uniform_sample = function(Y, n) {
 
-  weights = 1 / table(Y)
-  indices = sample(1:length(Y), min(n, length(Y)), prob = weights[Y])
+  indices = sample(1:length(Y), min(n, length(Y)))
 
   return(indices)
 

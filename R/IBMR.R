@@ -29,6 +29,14 @@ IBMR = function(Y_list,
     N_val = NULL
   }
 
+  count = numeric(length(categories))
+  names(count) = categories
+  for (k in 1:length(Y_matrix_list)) {
+    count = count + colSums(Y_matrix_list[[k]][rowSums(Y_matrix_list[[k]]) == 1, ])
+  }
+  stopifnot(all(count >= 2))
+  if (verbose) print(count)
+
   features = colnames(X_list[[1]])
 
   if (common_Gamma) {
@@ -217,6 +225,14 @@ IBMR_no_Gamma = function(Y_list,
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
   Y_matrix_list = list(do.call(rbind, Y_matrix_list))
+
+  count = numeric(length(categories))
+  names(count) = categories
+  for (k in 1:length(Y_matrix_list)) {
+    count = count + colSums(Y_matrix_list[[k]][rowSums(Y_matrix_list[[k]]) == 1, ])
+  }
+  stopifnot(all(count >= 2))
+  if (verbose) print(count)
 
   X_list = list(do.call(rbind, X_list))
   Z_list = list(matrix(1, nrow = nrow(X_list[[1]]), ncol = 1))
