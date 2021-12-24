@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/application"
+RESULT_PATH = "results/application_uniform_sampling_rerun"
 FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
@@ -69,6 +69,8 @@ methods = levels(result$method)
 
 plasma_pal = rev(viridis::plasma(n = length(methods) + 2)[1:length(methods)])
 names(plasma_pal) = methods
+
+print(as_tibble(result[, setdiff(colnames(result), c("experiment", "run", "nll", "replicate"))]) %>% arrange(test), n = 10000, width = Inf)
 
 result = result %>% group_by(run, value, method, n_sample, n_genes, validation, test) %>% summarize(
   mean_error = mean(error),

@@ -77,8 +77,8 @@ prepare_data = function(Y_list,
       train = list(
         X_list = X_list,
         Y_list = Y_list,
-        category_mappings = category_mappings,
-        Y_list_full = Y_list_full
+        category_mappings = category_mappings #,
+        # Y_list_full = Y_list_full
       ),
       validation = list(
         X_list = X_list_validation,

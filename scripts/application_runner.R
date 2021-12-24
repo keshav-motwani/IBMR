@@ -4,10 +4,10 @@ source("scripts/simulation_setup.R")
 source("scripts/application_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/application"
+RESULT_PATH = "results/application_uniform_sampling_rerun"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
+methods = c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int")
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",
@@ -20,7 +20,7 @@ considered_values = list(
   split_index = 1:72
 )
 
-n_sample_sequence = c(5000, 1250, 2500, 10000)
+n_sample_sequence = c(10000, 5000, 15000, 20000)
 n_genes_sequence = c(1000, 250, 500, 2000)
 
 parameters = list()
@@ -30,7 +30,7 @@ for (n_sample in n_sample_sequence) {
   parameters = c(parameters, expand_parameters(paste0("n_sample = ", defaults$n_sample, "; n_genes = ", defaults$n_genes), considered_values, defaults, 5, methods))
 }
 
-defaults$n_sample = 5000
+defaults$n_sample = 10000
 for (n_genes in n_genes_sequence[-1]) {
   defaults$n_genes = n_genes
   parameters = c(parameters, expand_parameters(paste0("n_sample = ", defaults$n_sample, "; n_genes = ", defaults$n_genes), considered_values, defaults, 5, methods))

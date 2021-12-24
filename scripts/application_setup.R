@@ -84,7 +84,7 @@ prepare_hao_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE
   data = data[, !grepl(removed_labels, data$cell_type)]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -137,7 +137,7 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -190,7 +190,7 @@ prepare_haniffa_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = data[, !grepl(removed_labels, data$cell_type)]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -243,7 +243,7 @@ prepare_tsang_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = data[, !(data$cell_type %in% removed_labels)]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -296,7 +296,7 @@ prepare_blish_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -346,7 +346,7 @@ prepare_10x_sorted = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   removed_labels = c()
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -399,7 +399,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -452,7 +452,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -505,7 +505,7 @@ prepare_su_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE)
   data = data[, data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -556,7 +556,7 @@ prepare_ding_2019 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALS
   data = data[, grepl("10x", data$method) & data$cell_type != removed_labels]
   attr(data, "removed_labels") = removed_labels
 
-  attr(data, "Y_full") = data$cell_type
+  attr(data, "Y_full") = as.character(data$cell_type)
   data = data[, weighted_sample(data$cell_type, ifelse(is.na(n_sample), ncol(data), n_sample))]
 
   binning_function = c(
@@ -622,8 +622,8 @@ prepare_dataset_output = function(data, binning_function, sce) {
 
 weighted_sample = function(Y, n) {
 
-  weights = 1 / table(Y)
-  indices = sample(1:length(Y), min(n, length(Y)), prob = weights[Y])
+  # weights = 1 / table(Y)
+  indices = sample(1:length(Y), min(n, length(Y))) # , prob = weights[Y])
 
   return(indices)
 
