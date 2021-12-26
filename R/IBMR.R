@@ -34,8 +34,8 @@ IBMR = function(Y_list,
   for (k in 1:length(Y_matrix_list)) {
     count = count + colSums(Y_matrix_list[[k]][rowSums(Y_matrix_list[[k]]) == 1, ])
   }
-  stopifnot(all(count >= 2))
   if (verbose) print(count)
+  stopifnot(all(count >= 1))
 
   features = colnames(X_list[[1]])
 
@@ -231,8 +231,8 @@ IBMR_no_Gamma = function(Y_list,
   for (k in 1:length(Y_matrix_list)) {
     count = count + colSums(Y_matrix_list[[k]][rowSums(Y_matrix_list[[k]]) == 1, ])
   }
-  stopifnot(all(count >= 2))
   if (verbose) print(count)
+  stopifnot(all(count >= 1))
 
   X_list = list(do.call(rbind, X_list))
   Z_list = list(matrix(1, nrow = nrow(X_list[[1]]), ncol = 1))
