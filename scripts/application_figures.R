@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/application"
+RESULT_PATH = "old/old_results/results/application_uniform_sampling_final"
 FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
@@ -42,7 +42,7 @@ methods = c("IBMR",
             "subset")
 methods = methods[methods %in% result$method]
 
-dataset_names = read.csv(file.path("../AnnotatedPBMC/data", "table_1.csv"))$dataset
+dataset_names = read.csv(file.path("data/", "table_1.csv"))$dataset
 
 splits = expand.grid(
   setdiff(dataset_names, "hao_2020"),
@@ -103,7 +103,7 @@ for (path in FIGURES_PATH) {
     y_se = paste0("se_", value)
 
     p = ggplot(
-      averaged_result[averaged_result$n_sample == 5000,],
+      averaged_result[averaged_result$n_sample == 10000,],
       aes(
         x = n_genes,
         y = .data[[y_mean]],
@@ -180,7 +180,7 @@ for (path in FIGURES_PATH) {
     y_se = paste0("se_", value)
 
     p = ggplot(
-      result[result$n_sample == 5000,],
+      result[result$n_sample == 10000,],
       aes(
         x = n_genes,
         y = .data[[y_mean]],

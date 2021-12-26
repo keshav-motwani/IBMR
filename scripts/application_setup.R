@@ -6,7 +6,7 @@ prepare_real_data_application = function(split_index,
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
 
-  dataset_names = read.csv(file.path(cache_path, "table_1.csv"))$dataset
+  dataset_names = read.csv(file.path("data/", "table_1.csv"))$dataset
   stopifnot(length(dataset_names) == 10)
 
   splits = expand.grid(setdiff(dataset_names, "hao_2020"), setdiff(dataset_names, "hao_2020"), stringsAsFactors = FALSE)
@@ -82,7 +82,7 @@ prepare_hao_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE
   if (!sce) SingleCellExperiment::counts(data) = NULL
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -134,7 +134,7 @@ prepare_kotliarov_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = AnnotatedPBMC::get_kotliarov_2020(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -186,7 +186,7 @@ prepare_haniffa_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = AnnotatedPBMC::get_haniffa_2021(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -237,10 +237,11 @@ prepare_haniffa_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = F
 
 prepare_tsang_2021 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE) {
 
+  # data = AnnotatedPBMC::get_tsang_2021(cache_path)
   data = AnnotatedPBMC::get_tsang_2021(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -292,7 +293,7 @@ prepare_blish_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = AnnotatedPBMC::get_blish_2020(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -344,7 +345,7 @@ prepare_10x_sorted = function(cache_path, n_genes = NA, n_sample = NA, sce = FAL
   data = AnnotatedPBMC::get_10x_sorted(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -393,7 +394,7 @@ prepare_10x_pbmc_10k = function(cache_path, n_genes = NA, n_sample = NA, sce = F
   data = AnnotatedPBMC::get_10x_pbmc_10k(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -445,7 +446,7 @@ prepare_10x_pbmc_5k_v3 = function(cache_path, n_genes = NA, n_sample = NA, sce =
   data = AnnotatedPBMC::get_10x_pbmc_5k_v3(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -497,7 +498,7 @@ prepare_su_2020 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALSE)
   data = AnnotatedPBMC::get_su_2020(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 
@@ -549,7 +550,7 @@ prepare_ding_2019 = function(cache_path, n_genes = NA, n_sample = NA, sce = FALS
   data = AnnotatedPBMC::get_ding_2019(cache_path)
 
   if (!is.na(n_genes)) {
-    genes = read.csv(file.path(cache_path, "genes.csv"))[, 2][1:n_genes]
+    genes = read.csv(file.path("data/", "genes.csv"))[, 2][1:n_genes]
     data = data[genes, ]
   }
 

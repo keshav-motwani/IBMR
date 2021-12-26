@@ -3,11 +3,11 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 source("scripts/application_setup.R")
 
-ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/application_uniform_sampling_final"
+PARAMETER_ID = as.numeric(commandArgs(trailingOnly=TRUE)[1])
+RESULT_PATH = "results/application"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = c("IBMR_no_Gamma", "subset", "relabel")
+methods = rev(c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int"))
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",
@@ -36,16 +36,12 @@ for (n_genes in n_genes_sequence[-1]) {
   parameters = c(parameters, expand_parameters(paste0("n_sample = ", defaults$n_sample, "; n_genes = ", defaults$n_genes), considered_values, defaults, 5, methods))
 }
 
-chunk_size = 3
+parameters = rev(parameters)
 
-for (i in 1:chunk_size) {
+current_parameters = parameters[[PARAMETER_ID]]
 
-  PARAMETER_ID = (ARRAY_ID - 1) * chunk_size + i
-  current_parameters = parameters[[PARAMETER_ID]]
-  system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
-  saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
+print(PARAMETER_ID)
+print(current_parameters)
 
-  rm(result)
-  print(gc())
-
-}
+system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
+saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))

@@ -14,6 +14,6 @@
 
 export OMP_NUM_THREADS=1
 
-ml R/4
+ml R/4.0
 
 Rscript scripts/application_prepare_data.R

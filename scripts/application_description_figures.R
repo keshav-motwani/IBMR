@@ -6,7 +6,9 @@ library(IBMR)
 source("scripts/application_setup.R")
 
 CACHE_PATH = "../AnnotatedPBMC/data/"
+DATA_PATH = "data/"
 FIGURES_PATH = "figures/"
+dir.create(DATA_PATH, recursive = TRUE)
 dir.create(FIGURES_PATH, recursive = TRUE)
 
 dataset_names = c("hao_2020", "tsang_2021", "kotliarov_2020", "10x_sorted", "su_2020", "10x_pbmc_10k", "10x_pbmc_5k_v3", "ding_2019", "blish_2020", "haniffa_2021")
@@ -39,6 +41,9 @@ rownames(table_1) = NULL
 
 print(xtable::xtable(table_1[, 1:3]), sanitize.text.function = identity, sanitize.colnames.function = identity)
 print(xtable::xtable(table_1[, c(1, 4, 5)]), sanitize.text.function = identity, sanitize.colnames.function = identity)
+
+table_1$dataset = dataset_names
+write.csv(table_1, file.path(DATA_PATH, "table_1.csv"))
 
 binning_functions = lapply(data[dataset_names], `[[`, "binning_function")
 
