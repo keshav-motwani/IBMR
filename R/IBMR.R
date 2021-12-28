@@ -14,7 +14,7 @@ IBMR = function(Y_list,
                 phi = 1e-3,
                 n_iter = 1e4,
                 tolerance = 1e-6,
-                stop_solution_path = 1.1,
+                stop_solution_path = 1.01,
                 Gamma_update = "gradient",
                 common_Gamma = FALSE,
                 n_cores = 1,
@@ -220,7 +220,7 @@ IBMR_no_Gamma = function(Y_list,
                          lambda_min_ratio = 1e-4,
                          n_iter = 1e4,
                          tolerance = 1e-6,
-                         stop_solution_path = 1.1,
+                         stop_solution_path = 1.01,
                          verbose = TRUE) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
@@ -338,7 +338,7 @@ subset = function(Y_list,
                   lambda_min_ratio = 1e-4,
                   n_iter = 1e4,
                   tolerance = 1e-6,
-                  stop_solution_path = 1.1,
+                  stop_solution_path = 1.01,
                   verbose = TRUE) {
 
   Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
@@ -383,7 +383,7 @@ relabel = function(Y_list,
                    lambda_min_ratio = 1e-4,
                    n_iter = 1e4,
                    tolerance = 1e-6,
-                   stop_solution_path = 1.1,
+                   stop_solution_path = 1.01,
                    verbose = TRUE) {
 
   fit_subset = IBMR_no_Gamma_subset(Y_list, categories, category_mappings, X_list, Y_list_validation, category_mappings_validation, X_list_validation, n_rho, rho_min_ratio, n_iter, tolerance, stop_solution_path, verbose)
