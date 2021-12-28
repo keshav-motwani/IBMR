@@ -196,7 +196,7 @@ fit_lambda_sequence_fixed_rho = function(Y_matrix_list,
 
       validation_negative_log_likelihood[l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, fit$alpha, fit$Beta, N_val)
 
-      if (!is.na(stop_solution_path) && validation_negative_log_likelihood[l] > stop_solution_path * min(validation_negative_log_likelihood, na.rm = TRUE)) {
+      if ((l > n_lambda / 4) && !is.na(stop_solution_path) && validation_negative_log_likelihood[l] > stop_solution_path * min(validation_negative_log_likelihood, na.rm = TRUE)) {
         break
       }
 
@@ -295,7 +295,7 @@ IBMR_no_Gamma = function(Y_list,
 
       validation_negative_log_likelihood[l] = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_validation, X_list_validation, fit$alpha, fit$Beta, N_val)
 
-      if (!is.na(stop_solution_path) && validation_negative_log_likelihood[l] > stop_solution_path * min(validation_negative_log_likelihood, na.rm = TRUE)) {
+      if (l > n_lambda / 4 && !is.na(stop_solution_path) && validation_negative_log_likelihood[l] > stop_solution_path * min(validation_negative_log_likelihood, na.rm = TRUE)) {
         break
       }
 
