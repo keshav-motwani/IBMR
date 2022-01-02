@@ -1,5 +1,6 @@
 #!/bin/bash
 
+#SBATCH --constraint=milan
 #SBATCH --array=1-1900
 #SBATCH --mail-user=keshav.motwani@ufl.edu
 #SBATCH --mail-type=END
