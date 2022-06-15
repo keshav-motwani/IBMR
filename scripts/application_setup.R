@@ -43,6 +43,7 @@ prepare_real_data_application = function(split_index,
   category_mappings = unlist(lapply(train_datasets, `[[`, "category_mappings"), recursive = FALSE)
   inverse_category_mappings = unlist(lapply(train_datasets, `[[`, "inverse_category_mappings"), recursive = FALSE)
   category_mappings = list(categories = categories, category_mappings = category_mappings, inverse_category_mappings = inverse_category_mappings)
+  sample_list = unlist(lapply(train_datasets, `[[`, "sample_list"), recursive = FALSE)
 
   Y_list_val = unlist(lapply(validation_datasets, `[[`, "Y_list"), recursive = FALSE)
   X_list_val = unlist(lapply(validation_datasets, `[[`, "X_list"), recursive = FALSE)
@@ -61,6 +62,7 @@ prepare_real_data_application = function(split_index,
                         category_mappings_fine = NULL,
                         X_list = X_list,
                         X_star_list = NULL,
+                        sample_list = sample_list,
                         Y_list_validation = Y_list_val,
                         category_mappings_validation = category_mappings_val,
                         category_mappings_fine_validation = NULL,
@@ -613,10 +615,11 @@ prepare_dataset_output = function(data, binning_function, sce) {
 
   X_list = lapply(data, function(x) t(as.matrix(SingleCellExperiment::logcounts(x))))
   Y_list = lapply(data, function(x) as.character(x$cell_type))
+  sample_list = lapply(data, function(x) as.character(x$dataset))
 
   category_mapping = binning_function_to_category_mapping(binning_function)
 
-  return(list(Y_list = Y_list, X_list = X_list, categories = names(binning_function), category_mappings = replicate(length(Y_list), category_mapping, simplify = FALSE), inverse_category_mappings = replicate(length(Y_list), binning_function, simplify = FALSE)))
+  return(list(Y_list = Y_list, X_list = X_list, categories = names(binning_function), category_mappings = replicate(length(Y_list), category_mapping, simplify = FALSE), inverse_category_mappings = replicate(length(Y_list), binning_function, simplify = FALSE), sample_list = sample_list))
 
 }
 

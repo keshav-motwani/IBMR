@@ -56,6 +56,7 @@ prepare_data = function(Y_list,
                         category_mappings_fine,
                         X_list,
                         X_star_list,
+                        sample_list,
                         Y_list_validation,
                         category_mappings_validation,
                         category_mappings_fine_validation,
@@ -76,7 +77,8 @@ prepare_data = function(Y_list,
       train = list(
         X_list = X_list,
         Y_list = Y_list,
-        category_mappings = category_mappings
+        category_mappings = category_mappings,
+        sample_list = sample_list
       ),
       validation = list(
         X_list = X_list_validation,
