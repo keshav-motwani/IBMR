@@ -544,6 +544,7 @@ fit_Seurat = function(data) {
       seurat_object = CreateSeuratObject(t(data[[which]]$X_list[[k]]))
       seurat_object@assays$RNA@data = t(data[[which]]$X_list[[k]])
       seurat_object$cell_type = data[[which]]$Y_list[[k]]
+      colnames(seurat_object) = paste0(paste0(sample(LETTERS, 10), collapse = TRUE), colnames(seurat_object))
       seurat_object
     })
   }
@@ -589,7 +590,7 @@ fit_Seurat = function(data) {
       predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
       validation_error[d, a] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
 
-      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) {
+      if (validation_error[d, a] <= min(validation_error, na.rm = TRUE)) {
         integrated_best = integrated
         n.dim_best = n_dim
       }
@@ -666,7 +667,7 @@ fit_SingleR = function(data) {
       predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings$category_mappings)
       validation_error[d, q] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
 
-      if (validation_error[d, q] < min(validation_error, na.rm = TRUE)) {
+      if (validation_error[d, q] <= min(validation_error, na.rm = TRUE)) {
         fit_best = fit
         quantile_best = quantile
       }
