@@ -638,6 +638,7 @@ fit_SingleR = function(data) {
 
   validation_error = matrix(nrow = length(de.n_sequence), ncol = length(quantile_sequence))
   fit_best = NULL
+  quantile_best = NULL
 
   for (d in 1:length(de.n_sequence)) {
 
@@ -659,7 +660,10 @@ fit_SingleR = function(data) {
       predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
       validation_error[d, a] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
 
-      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) fit_best = fit
+      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) {
+        fit_best = fit
+        quantile_best = quantile
+      }
 
     }
 
@@ -669,7 +673,7 @@ fit_SingleR = function(data) {
 
   for (k in 1:length(test_datasets)) {
 
-    predictions = classifySingleR(t(data$validation$X_list[[k]]), fit_best, quantile = quantile)$labels
+    predictions = classifySingleR(t(data$validation$X_list[[k]]), fit_best, quantile = quantile_best)$labels
     P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
     P_list_test = c(P_list_test, list(P))
 
