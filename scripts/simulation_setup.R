@@ -659,7 +659,7 @@ fit_SingleR = function(data) {
 
       }
 
-      predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
+      predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings$category_mappings)
       validation_error[d, q] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
 
       if (validation_error[d, q] < min(validation_error, na.rm = TRUE)) {
