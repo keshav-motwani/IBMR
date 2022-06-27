@@ -648,7 +648,7 @@ fit_SingleR = function(data) {
 
       fit = trainSingleR(ref = lapply(subsetted$X_list, t), labels = subsetted$Y_list, de.method = "wilcox", aggr.ref = TRUE, de.n = de.n)
 
-      for (k in 1:length(validation_datasets)) {
+      for (k in 1:length(data$validation$Y_list)) {
 
         predictions = classifySingleR(t(data$validation$X_list[[k]]), fit, quantile = quantile)$labels
         P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
