@@ -557,6 +557,7 @@ fit_Seurat = function(data) {
 
   validation_error = matrix(nrow = length(n.dim_sequence), ncol = length(k.anchor_sequence))
   integrated_best = NULL
+  n.dim_best = NULL
 
   for (d in 1:length(n.dim_sequence)) {
 
@@ -588,7 +589,10 @@ fit_Seurat = function(data) {
       predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
       validation_error[d, a] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
 
-      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) integrated_best = integrated
+      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) {
+        integrated_best = integrated
+        n.dim_best = n_dim
+      }
 
     }
 
@@ -599,9 +603,9 @@ fit_Seurat = function(data) {
   for (k in 1:length(test_datasets)) {
 
     anchors = FindTransferAnchors(reference = integrated_best, query = test_datasets[[k]], k.anchor = k.anchor,
-                                  dims = 1:n.dim, reference.reduction = "pca")
+                                  dims = 1:n.dim_best, reference.reduction = "pca")
     predictions = TransferData(anchorset = anchors, refdata = integrated_best$cell_type,
-                               dims = 1:n.dim)$predicted.id
+                               dims = 1:n.dim_best)$predicted.id
     P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
     P_list_test = c(P_list_test, list(P))
 
