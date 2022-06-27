@@ -341,19 +341,15 @@ subset = function(Y_list,
                   stop_solution_path = 1.01,
                   verbose = TRUE) {
 
-  Y_matrix_list = lapply(1:length(Y_list), function(i) create_Y_matrix(Y_list[[i]], categories, category_mappings[[i]]))
+  subsetted = subset_helper(Y_list,
+                            categories,
+                            category_mappings,
+                            X_list)
 
-  indices_list = lapply(Y_matrix_list, function(Y) which(rowSums(Y) == 1))
-
-  print(paste0("Keeping ", sum(sapply(indices_list, length)), " observations out of a total of ", sum(sapply(Y_list, length))))
-
-  Y_list = list(unlist(mapply(Y = Y_list, indices = indices_list, map = category_mappings, FUN = function(Y, indices, map) unlist(map[Y[indices]]), SIMPLIFY = FALSE)))
-  X_list = list(do.call(rbind, mapply(X = X_list, indices = indices_list, FUN = function(X, indices) X[indices, ], SIMPLIFY = FALSE)))
-
-  IBMR_no_Gamma(Y_list,
+  IBMR_no_Gamma(subsetted$Y_list,
                 categories,
                 list(as.list(setNames(nm = categories))),
-                X_list,
+                subsetted$X_list,
                 Y_list_validation,
                 category_mappings_validation,
                 X_list_validation,

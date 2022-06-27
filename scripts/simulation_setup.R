@@ -524,6 +524,170 @@ fit_relabel = function(data) {
 
 }
 
+fit_Seurat = function(data) {
+
+  library(Seurat)
+
+  categories = data$train$category_mappings$categories
+
+  subsetted = subset_helper(data$train$Y_list,
+                            categories,
+                            data$train$category_mappings$category_mappings,
+                            data$train$X_list)
+
+  data$train$Y_list = subsetted$Y_list
+  data$train$X_list = subsetted$X_list
+
+  prepare_Seurat = function(data, which) {
+    lapply(1:length(data[[which]]$Y_list), function(k) {
+      seurat_object = CreateSeuratObject(data[[which]]$X_list[[k]])
+      seurat_object@assays$RNA@data = data[[which]]$X_list[[k]]
+      seurat_object$cell_type = data[[which]]$Y_list[[k]]
+      seurat_object
+    })
+  }
+
+  train_datasets = prepare_Seurat(data, "train")
+  validation_datasets = prepare_Seurat(data, "validation")
+  test_datasets = prepare_Seurat(data, "test")
+
+  n.dim_sequence = 1:5 * 10
+  k.anchor_sequence = c(3, 5, 10, 15, 20)
+
+  validation_error = matrix(nrow = length(n.dim_sequence), ncol = length(k.anchor_sequence))
+  integrated_best = NULL
+
+  for (d in 1:length(n.dim_sequence)) {
+
+    for (a in 1:length(k.anchor_sequence)) {
+
+      n.dim = n.dim_sequence[d]
+      k.anchor = k.anchor_sequence[a]
+
+      anchors = FindIntegrationAnchors(object.list = train_datasets, dims = 1:n.dim, k.anchor = k.anchor)
+      integrated = IntegrateData(anchorset = anchors, dims = 1:n.dim)
+
+      DefaultAssay(integrated) = "integrated"
+      integrated = ScaleData(integrated, verbose = FALSE)
+      integrated = RunPCA(integrated, npcs = n.dim, verbose = FALSE)
+
+      P_list_validation = list()
+
+      for (k in 1:length(validation_datasets)) {
+
+        anchors = FindTransferAnchors(reference = integrated, query = validation_datasets[[k]], k.anchor = k.anchor,
+                                      dims = 1:n.dim, reference.reduction = "pca")
+        predictions = TransferData(anchorset = anchors, refdata = integrated$cell_type,
+                                   dims = 1:n.dim)$predicted.id
+        P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
+        P_list_validation = c(P_list_validation, list(P))
+
+      }
+
+      predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
+      validation_error[d, a] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
+
+      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) integrated_best = integrated
+
+    }
+
+  }
+
+  P_list_test = list()
+
+  for (k in 1:length(test_datasets)) {
+
+    anchors = FindTransferAnchors(reference = integrated_best, query = test_datasets[[k]], k.anchor = k.anchor,
+                                  dims = 1:n.dim, reference.reduction = "pca")
+    predictions = TransferData(anchorset = anchors, refdata = integrated_best$cell_type,
+                               dims = 1:n.dim)$predicted.id
+    P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
+    P_list_test = c(P_list_test, list(P))
+
+  }
+
+  Seurat = list(
+    alpha_hat = NULL,
+    Beta_hat = NULL,
+    test_estimated_probabilities = P_list_test,
+    tuning_parameters = which_min(validation_error)[1, ],
+    validation_error = validation_error,
+    X_mean = NULL, X_sd = NULL,
+    best_model = NULL
+  )
+
+  return(list(Seurat = Seurat))
+
+}
+
+fit_SingleR = function(data) {
+
+  library(SingleR)
+
+  categories = data$train$category_mappings$categories
+
+  subsetted = subset_helper(data$train$Y_list,
+                            categories,
+                            data$train$category_mappings$category_mappings,
+                            data$train$X_list)
+
+  de.n_sequence = c(20, 40, 60, 80, 100)
+  quantile_sequence = c(0.6, 0.7, 0.8, 0.9, 1)
+
+  validation_error = matrix(nrow = length(de.n_sequence), ncol = length(quantile_sequence))
+  fit_best = NULL
+
+  for (d in 1:length(de.n_sequence)) {
+
+    for (q in 1:length(quantile_sequence)) {
+
+      de.n = de.n_sequence[d]
+      quantile = quantile_sequence[q]
+
+      fit = trainSingleR(ref = subsetted$X_list, labels = subsetted$Y_list, de.method = "wilcox", aggr.ref = TRUE, de.n = de.n)
+
+      for (k in 1:length(validation_datasets)) {
+
+        predictions = classifySingleR(data$validation$X_list[[k]], fit, quantile = quantile)$labels
+        P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
+        P_list_validation = c(P_list_validation, list(P))
+
+      }
+
+      predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
+      validation_error[d, a] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
+
+      if (validation_error[d, a] < min(validation_error, na.rm = TRUE)) fit_best = fit
+
+    }
+
+  }
+
+  P_list_test = list()
+
+  for (k in 1:length(test_datasets)) {
+
+    predictions = classifySingleR(data$validation$X_list[[k]], fit_best, quantile = quantile)$labels
+    P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
+    P_list_test = c(P_list_test, list(P))
+
+  }
+
+  SingleR = list(
+    alpha_hat = NULL,
+    Beta_hat = NULL,
+    test_estimated_probabilities = P_list_test,
+    tuning_parameters = which_min(validation_error)[1, ],
+    validation_error = validation_error,
+    X_mean = NULL, X_sd = NULL,
+    best_model = NULL
+  )
+
+  return(list(SingleR = SingleR))
+
+}
+
+
 fit_glmnet_subset = function(data) {
 
   fit = glmnet_subset(

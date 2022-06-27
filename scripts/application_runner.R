@@ -4,10 +4,10 @@ source("scripts/simulation_setup.R")
 source("scripts/application_setup.R")
 
 PARAMETER_ID = as.numeric(commandArgs(trailingOnly=TRUE)[1])
-RESULT_PATH = "results/application"
+RESULT_PATH = "results/application_R1"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = rev(c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int"))
+methods = rev(c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int", "Seurat", "SingleR"))
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",
