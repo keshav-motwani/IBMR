@@ -671,9 +671,9 @@ fit_SingleR = function(data) {
 
   P_list_test = list()
 
-  for (k in 1:length(test_datasets)) {
+  for (k in 1:length(data$test$Y_list)) {
 
-    predictions = classifySingleR(t(data$validation$X_list[[k]]), fit_best, quantile = quantile_best)$labels
+    predictions = classifySingleR(t(data$test$X_list[[k]]), fit_best, quantile = quantile_best)$labels
     P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
     P_list_test = c(P_list_test, list(P))
 
