@@ -541,8 +541,8 @@ fit_Seurat = function(data) {
 
   prepare_Seurat = function(data, which) {
     lapply(1:length(data[[which]]$Y_list), function(k) {
-      seurat_object = CreateSeuratObject(data[[which]]$X_list[[k]])
-      seurat_object@assays$RNA@data = data[[which]]$X_list[[k]]
+      seurat_object = CreateSeuratObject(t(data[[which]]$X_list[[k]]))
+      seurat_object@assays$RNA@data = t(data[[which]]$X_list[[k]])
       seurat_object$cell_type = data[[which]]$Y_list[[k]]
       seurat_object
     })
