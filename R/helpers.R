@@ -1,3 +1,4 @@
+#' @export
 subset_helper = function(Y_list,
                          categories,
                          category_mappings,
