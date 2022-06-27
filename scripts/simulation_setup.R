@@ -533,7 +533,8 @@ fit_Seurat = function(data) {
   subsetted = subset_helper(data$train$Y_list,
                             categories,
                             data$train$category_mappings$category_mappings,
-                            data$train$X_list)
+                            data$train$X_list,
+                            combine = FALSE)
 
   data$train$Y_list = subsetted$Y_list
   data$train$X_list = subsetted$X_list
@@ -629,7 +630,8 @@ fit_SingleR = function(data) {
   subsetted = subset_helper(data$train$Y_list,
                             categories,
                             data$train$category_mappings$category_mappings,
-                            data$train$X_list)
+                            data$train$X_list,
+                            combine = FALSE)
 
   de.n_sequence = c(20, 40, 60, 80, 100)
   quantile_sequence = c(0.6, 0.7, 0.8, 0.9, 1)
@@ -644,11 +646,11 @@ fit_SingleR = function(data) {
       de.n = de.n_sequence[d]
       quantile = quantile_sequence[q]
 
-      fit = trainSingleR(ref = subsetted$X_list, labels = subsetted$Y_list, de.method = "wilcox", aggr.ref = TRUE, de.n = de.n)
+      fit = trainSingleR(ref = lapply(subsetted$X_list, t), labels = subsetted$Y_list, de.method = "wilcox", aggr.ref = TRUE, de.n = de.n)
 
       for (k in 1:length(validation_datasets)) {
 
-        predictions = classifySingleR(data$validation$X_list[[k]], fit, quantile = quantile)$labels
+        predictions = classifySingleR(t(data$validation$X_list[[k]]), fit, quantile = quantile)$labels
         P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
         P_list_validation = c(P_list_validation, list(P))
 
@@ -667,7 +669,7 @@ fit_SingleR = function(data) {
 
   for (k in 1:length(test_datasets)) {
 
-    predictions = classifySingleR(data$validation$X_list[[k]], fit_best, quantile = quantile)$labels
+    predictions = classifySingleR(t(data$validation$X_list[[k]]), fit_best, quantile = quantile)$labels
     P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
     P_list_test = c(P_list_test, list(P))
 
