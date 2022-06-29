@@ -4,10 +4,16 @@ source("scripts/simulation_setup.R")
 source("scripts/application_setup.R")
 
 PARAMETER_ID = as.numeric(commandArgs(trailingOnly=TRUE)[1])
+METHOD = commandArgs(trailingOnly=TRUE)[2]
+
 RESULT_PATH = "results/application_R1"
 dir.create(RESULT_PATH, recursive = TRUE)
 
-methods = rev(c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int", "Seurat", "SingleR"))
+if (METHOD == "Seurat") {
+  methods = "Seurat"
+} else {
+  methods = "SingleR" # c("IBMR_no_Gamma", "SingleR", "subset", "relabel", "IBMR_int")
+}
 
 defaults = list(
   cache_path = "../AnnotatedPBMC/data",
@@ -36,7 +42,7 @@ for (n_genes in n_genes_sequence[-1]) {
   parameters = c(parameters, expand_parameters(paste0("n_sample = ", defaults$n_sample, "; n_genes = ", defaults$n_genes), considered_values, defaults, 5, methods))
 }
 
-parameters = (parameters)
+parameters = parameters
 
 current_parameters = parameters[[PARAMETER_ID]]
 

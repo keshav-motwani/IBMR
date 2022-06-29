@@ -227,14 +227,14 @@ evaluate_parameters = function(parameters, simulation_function) {
                                       fit$Beta_hat,
                                       fit$test_estimated_probabilities)
 
-    best_case_performance = compute_best_case_performance(data$test$Y_list,
-                                                          data$test$category_mappings,
-                                                          data$test$X_list,
-                                                          data$alpha,
-                                                          data$Beta,
-                                                          fit$all_alpha_hats,
-                                                          fit$all_Beta_hats,
-                                                          fit$all_test_estimated_probabilities)
+    # best_case_performance = compute_best_case_performance(data$test$Y_list,
+    #                                                       data$test$category_mappings,
+    #                                                       data$test$X_list,
+    #                                                       data$alpha,
+    #                                                       data$Beta,
+    #                                                       fit$all_alpha_hats,
+    #                                                       fit$all_Beta_hats,
+    #                                                       fit$all_test_estimated_probabilities)
 
     fit$test_estimated_probabilities = NULL
 
@@ -247,7 +247,7 @@ evaluate_parameters = function(parameters, simulation_function) {
     parameters$X_star = NULL
     parameters$glmnet_fit = NULL
 
-    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = best_case_performance, fit = fit, true = list(alpha = data$alpha, Beta = data$Beta))
+    results[[i]] = list(parameters = parameters, performance = performance, best_case_performance = NULL, fit = fit, true = list(alpha = data$alpha, Beta = data$Beta))
 
   }
 
@@ -287,7 +287,8 @@ compute_performance = function(Y_list_test, category_mappings_test, X_list_test,
   balanced_error = balanced_error(unlist(predicted_categories), unlist(Y_list_test))
 
   Y_matrix_list_test = mapply(Y = Y_list_test, category_mapping = category_mappings_test$category_mappings, FUN = function(Y, category_mapping) create_Y_matrix(Y, category_mappings_test$categories, category_mapping), SIMPLIFY = FALSE)
-  nll = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_test, X_list_test, alpha_hat, Beta_hat, length(unlist(Y_list_test)))
+  # nll = compute_negative_log_likelihood_no_Gamma(Y_matrix_list_test, X_list_test, alpha_hat, Beta_hat, length(unlist(Y_list_test)))
+  nll = compute_negative_log_likelihood_from_probabilities(Y_matrix_list_test, test_estimated_probabilities, length(unlist(Y_list_test)))
 
   confusion_matrix = table(unlist(Y_list_test), unlist(predicted_categories))
 
@@ -541,10 +542,10 @@ fit_Seurat = function(data) {
 
   prepare_Seurat = function(data, which) {
     lapply(1:length(data[[which]]$Y_list), function(k) {
+      rownames(data[[which]]$X_list[[k]]) = paste0(sapply(1:nrow(data[[which]]$X_list[[k]]), function(i) paste0(sample(LETTERS, 10), collapse = "")), rownames(data[[which]]$X_list[[k]]))
       seurat_object = CreateSeuratObject(t(data[[which]]$X_list[[k]]))
       seurat_object@assays$RNA@data = t(data[[which]]$X_list[[k]])
       seurat_object$cell_type = data[[which]]$Y_list[[k]]
-      colnames(seurat_object) = paste0(paste0(sample(LETTERS, 10), collapse = TRUE), colnames(seurat_object))
       seurat_object
     })
   }
@@ -553,12 +554,12 @@ fit_Seurat = function(data) {
   validation_datasets = prepare_Seurat(data, "validation")
   test_datasets = prepare_Seurat(data, "test")
 
+  features = rownames(train_datasets[[1]])
+
   n.dim_sequence = 1:5 * 10
   k.anchor_sequence = c(3, 5, 10, 15, 20)
 
   validation_error = matrix(nrow = length(n.dim_sequence), ncol = length(k.anchor_sequence))
-  integrated_best = NULL
-  n.dim_best = NULL
 
   for (d in 1:length(n.dim_sequence)) {
 
@@ -567,19 +568,19 @@ fit_Seurat = function(data) {
       n.dim = n.dim_sequence[d]
       k.anchor = k.anchor_sequence[a]
 
-      anchors = FindIntegrationAnchors(object.list = train_datasets, dims = 1:n.dim, k.anchor = k.anchor)
+      anchors = FindIntegrationAnchors(object.list = train_datasets, dims = 1:n.dim, k.anchor = k.anchor, anchor.features = features)
       integrated = IntegrateData(anchorset = anchors, dims = 1:n.dim)
 
       DefaultAssay(integrated) = "integrated"
-      integrated = ScaleData(integrated, verbose = FALSE)
-      integrated = RunPCA(integrated, npcs = n.dim, verbose = FALSE)
+      integrated = ScaleData(integrated, verbose = FALSE, features = features)
+      integrated = RunPCA(integrated, npcs = n.dim, verbose = FALSE, features = features)
 
       P_list_validation = list()
 
       for (k in 1:length(validation_datasets)) {
 
         anchors = FindTransferAnchors(reference = integrated, query = validation_datasets[[k]], k.anchor = k.anchor,
-                                      dims = 1:n.dim, reference.reduction = "pca")
+                                      dims = 1:n.dim, reference.reduction = "pca", features = features)
         predictions = TransferData(anchorset = anchors, refdata = integrated$cell_type,
                                    dims = 1:n.dim)$predicted.id
         P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
@@ -587,12 +588,13 @@ fit_Seurat = function(data) {
 
       }
 
-      predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings)
+      predicted_categories = predict_categories(P_list_validation, data$validation$category_mappings$category_mappings)
       validation_error[d, a] = error(unlist(predicted_categories), unlist(data$validation$Y_list))
 
       if (validation_error[d, a] <= min(validation_error, na.rm = TRUE)) {
         integrated_best = integrated
-        n.dim_best = n_dim
+        n.dim_best = n.dim
+        k.anchor_best = k.anchor
       }
 
     }
@@ -603,8 +605,8 @@ fit_Seurat = function(data) {
 
   for (k in 1:length(test_datasets)) {
 
-    anchors = FindTransferAnchors(reference = integrated_best, query = test_datasets[[k]], k.anchor = k.anchor,
-                                  dims = 1:n.dim_best, reference.reduction = "pca")
+    anchors = FindTransferAnchors(reference = integrated_best, query = test_datasets[[k]], k.anchor = k.anchor_best,
+                                  dims = 1:n.dim_best, reference.reduction = "pca", features = features)
     predictions = TransferData(anchorset = anchors, refdata = integrated_best$cell_type,
                                dims = 1:n.dim_best)$predicted.id
     P = create_Y_matrix(predictions, categories, as.list(setNames(categories, categories)))
@@ -642,8 +644,6 @@ fit_SingleR = function(data) {
   quantile_sequence = c(0.6, 0.7, 0.8, 0.9, 1)
 
   validation_error = matrix(nrow = length(de.n_sequence), ncol = length(quantile_sequence))
-  fit_best = NULL
-  quantile_best = NULL
 
   for (d in 1:length(de.n_sequence)) {
 
