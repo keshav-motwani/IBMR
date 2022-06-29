@@ -208,7 +208,7 @@ evaluate_parameters = function(parameters, simulation_function) {
 
   print("Fitting model")
 
-  fits = method_function(data)
+  time = system.time({fits = method_function(data)})[3]
 
   results = vector("list", length(fits))
 
@@ -226,6 +226,7 @@ evaluate_parameters = function(parameters, simulation_function) {
                                       fit$alpha_hat,
                                       fit$Beta_hat,
                                       fit$test_estimated_probabilities)
+    performance$time = time
 
     # best_case_performance = compute_best_case_performance(data$test$Y_list,
     #                                                       data$test$category_mappings,
