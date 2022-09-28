@@ -1,3 +1,5 @@
+print(Sys.getenv('SLURM_JOB_ID'))
+
 library(IBMR)
 
 source("scripts/simulation_setup.R")
@@ -12,7 +14,7 @@ dir.create(RESULT_PATH, recursive = TRUE)
 if (METHOD == "Seurat") {
   methods = "Seurat"
 } else {
-  methods = "SingleR" # c("IBMR_no_Gamma", "SingleR", "subset", "relabel", "IBMR_int")
+  methods = c("IBMR_no_Gamma", "subset", "relabel", "IBMR_int", "SingleR")
 }
 
 defaults = list(
@@ -49,5 +51,15 @@ current_parameters = parameters[[PARAMETER_ID]]
 print(PARAMETER_ID)
 print(current_parameters)
 
-system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
-saveRDS(result, file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds")))
+path = file.path(RESULT_PATH, paste0(gsub("___|__", "_", gsub(" |;|=|,", "_", current_parameters$run)), "_", current_parameters$experiment, "_", gsub(".", "_", current_parameters[[current_parameters$experiment]], fixed = TRUE), "_", current_parameters$method, "_", current_parameters$replicate, ".rds"))
+
+if (!file.exists(path)) {
+
+  system.time({result = evaluate_parameters(current_parameters, prepare_real_data_application)})
+  saveRDS(result, path)
+
+} else {
+
+  print("Already computed.")
+
+}

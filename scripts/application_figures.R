@@ -1,11 +1,11 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/application"
-FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
+RESULT_PATH = c("results/application_R1")
+FIGURES_PATH = c(file.path(RESULT_PATH[length(RESULT_PATH)], "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
-files = list.files(RESULT_PATH, full.names = TRUE)
+files = unlist(lapply(RESULT_PATH, function(x) list.files(x, full.names = TRUE)))
 files = files[grepl("rds", files)]
 
 results = lapply(files, function(x) {
@@ -24,7 +24,8 @@ results = lapply(files, function(x) {
           method = result$parameters$method,
           replicate = result$parameters$replicate,
           error = result$performance["error"],
-          nll = result$performance["nll"]
+          nll = result$performance["nll"],
+          time = log10(result$performance[["time"]])
         )
       ))
     }
@@ -39,7 +40,7 @@ methods = c("IBMR",
             "IBMR_common_Gamma",
             "IBMR_no_Gamma",
             "relabel",
-            "subset")
+            "subset", "Seurat", "SingleR")
 methods = methods[methods %in% result$method]
 
 dataset_names = read.csv(file.path("data/", "table_1.csv"))$dataset
@@ -73,8 +74,10 @@ names(plasma_pal) = methods
 result = result %>% group_by(run, value, method, n_sample, n_genes, validation, test) %>% summarize(
   mean_error = mean(error),
   mean_nll = mean(nll),
+  mean_time = mean(time),
   se_error = sd(error) / sqrt(n()),
-  se_nll = sd(nll) / sqrt(n())
+  se_nll = sd(nll) / sqrt(n()),
+  se_time = sd(time) / sqrt(n())
 )
 
 averaged_result = result %>%
@@ -83,15 +86,24 @@ averaged_result = result %>%
   summarize(
     se_error = sd(mean_error) / sqrt(n()),
     se_nll = sd(mean_nll) / sqrt(n()),
+    se_time = sd(mean_time) / sqrt(n()),
     mean_error = mean(mean_error),
-    mean_nll = mean(mean_nll)
+    mean_nll = mean(mean_nll),
+    mean_time = mean(mean_time)
   ) %>%
   mutate(validation = test)
 
-ylabs = c("error" = "Error rate", "nll" = "Negative log-likelihood")
+ylabs = c("error" = "Error rate", "nll" = "Negative log-likelihood", "time" = "log10(Runtime (s))")
 
 for (path in FIGURES_PATH) {
-  for (value in c("error", "nll")) {
+  for (value in c("error", "time", "nll")) {
+
+    colors = plasma_pal
+    if (value == "nll") {
+      averaged_result = averaged_result %>% filter(!(method %in% c("Seurat", "SingleR"))) %>% mutate(method = factor(method, levels = setdiff(methods, c("Seurat", "SingleR"))))
+      colors = colors[setdiff(methods, c("SingleR", "Seurat"))]
+    }
+
     pdf(file = file.path(path,
                          paste0(
                            "application_figures_", value, "_1.pdf"
@@ -125,7 +137,7 @@ for (path in FIGURES_PATH) {
             strip.placement = "outside") +
       theme(legend.position = "bottom",
             legend.key.width = grid::unit(5, "lines")) +
-      scale_color_manual(values = plasma_pal) +
+      scale_color_manual(values = colors) +
       xlab("# of genes") +
       ylab(ylabs[value]) +
       labs(color = "Method", linetype = "Method")
@@ -155,7 +167,7 @@ for (path in FIGURES_PATH) {
             strip.placement = "outside") +
       theme(legend.position = "bottom",
             legend.key.width = grid::unit(5, "lines")) +
-      scale_color_manual(values = plasma_pal) +
+      scale_color_manual(values = colors) +
       xlab("# of cells per dataset") +
       ylab(ylabs[value]) +
       labs(color = "Method", linetype = "Method")
@@ -166,7 +178,14 @@ for (path in FIGURES_PATH) {
 
   }
 
-  for (value in c("error", "nll")) {
+  for (value in c("error", "time", "nll")) {
+    
+    colors = plasma_pal
+    if (value == "nll") {
+      result = result %>% filter(!(method %in% c("Seurat", "SingleR"))) %>% mutate(method = factor(method, levels = setdiff(methods, c("Seurat", "SingleR"))))
+      colors = colors[setdiff(methods, c("SingleR", "Seurat"))]
+    }
+
     pdf(
       file = file.path(path,
                        paste0(
@@ -202,7 +221,7 @@ for (path in FIGURES_PATH) {
             strip.placement = "outside") +
       theme(legend.position = "bottom",
             legend.key.width = grid::unit(5, "lines")) +
-      scale_color_manual(values = plasma_pal) +
+      scale_color_manual(values = colors) +
       xlab("# of genes") +
       ylab(ylabs[value]) +
       labs(color = "Method", linetype = "Method")
@@ -232,7 +251,7 @@ for (path in FIGURES_PATH) {
             strip.placement = "outside") +
       theme(legend.position = "bottom",
             legend.key.width = grid::unit(5, "lines")) +
-      scale_color_manual(values = plasma_pal) +
+      scale_color_manual(values = colors) +
       xlab("# of cells per dataset") +
       ylab(ylabs[value]) +
       labs(color = "Method", linetype = "Method")

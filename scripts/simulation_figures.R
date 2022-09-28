@@ -1,7 +1,7 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = "results/simulation_random_X_and_structured_Beta"
+RESULT_PATH = "results/simulation_random_X_and_structured_Beta_R1"
 FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
@@ -25,7 +25,8 @@ results = lapply(files, function(x) {
                    Beta_TPR = result$performance["Beta_TPR"],
                    KL_divergence = result$performance["KL_divergence"],
                    hellinger_distance = result$performance["hellinger_distance"],
-                   error = result$performance["error"])
+                   error = result$performance["error"],
+                   time = log10(result$performance[["time"]]))
       ))
     }
     do.call(rbind, data)
@@ -45,7 +46,7 @@ oracles = c("observed", "ORC_fine")
 oracles = oracles[oracles %in% result$oracle]
 
 summary = result %>%
-  pivot_longer(Beta_SSE:error, names_repair = "minimal", values_to = "result") %>%
+  pivot_longer(Beta_SSE:time, names_repair = "minimal", values_to = "result") %>%
   filter(method %in% methods) %>%
   mutate(value = value) %>%
   mutate(method = factor(method, levels = methods)) %>%
@@ -91,10 +92,11 @@ orc_pal = rep("gray", length(methods) - length(notorcmethods))
 names(orc_pal) = setdiff(methods, notorcmethods)
 plasma_pal = c(plasma_pal, orc_pal)
 
+experiments_time = experiments[experiments[, 2] == "time", , drop = FALSE]
 experiments = experiments[experiments[, 2] %in% c("error", "KL_divergence", "hellinger_distance"), ]
 experiments = experiments[rev(order(experiments[, 2])), ]
 
-names = c("error" = "Error rate", "KL_divergence" = "KL divergence", "hellinger_distance" = "Hellinger distance")
+names = c("error" = "Error rate", "KL_divergence" = "KL divergence", "hellinger_distance" = "Hellinger distance", time = "log10(Runtime (s))")
 
 for (glmnet in c(TRUE)) {
 
@@ -153,6 +155,59 @@ for (glmnet in c(TRUE)) {
     print(plot)
 
     dev.off()
+
+
+    pdf(file = file.path(path, paste0("simulation_figures_time_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_1.pdf")), height = 3, width = length(unique(summary$experiment)) * 3 * 1.1)
+
+    plots = list()
+
+    for (i in 1:nrow(experiments_time)) {
+
+      data = summary %>% filter(name == experiments_time[i, 2], run == experiments_time[i, 1])
+
+      if (!glmnet) data = data %>% filter(!grepl("subset", method))
+
+      for (level in levels(data$experiment)) {
+
+        plots = c(plots, list(ggplot(
+          data %>% filter(experiment == level),
+          aes(
+            x = value,
+            y = mean,
+            color = method,
+            group = method,
+            linetype = method,
+            ymin = mean - se,
+            ymax = mean + se
+          )
+        ) +
+          geom_point(size = 1) +
+          geom_line() +
+          geom_errorbar(width = 0, linetype = "solid", show.legend = FALSE) +
+          theme_bw(base_size = 16) +
+          guides(color = guide_legend(nrow = 1)) +
+          theme(strip.background = element_blank(), strip.placement = "outside") +
+          scale_color_manual(values = plasma_pal[levels(droplevels(data$method))]) +
+          theme(legend.position = "bottom", legend.key.width = grid::unit(4, "lines"), plot.margin = unit(c(5.5, 20, 5.5, 5.5), "points")) +
+          xlab(level) +
+          ylab(names[experiments_time[i, 2]]) +
+          labs(subtitle = NULL, color = "Method", linetype = "Method"))) # experiments[i, 1])))
+
+      }
+
+    }
+
+    for (i in 2:4) {
+      plots[[i]] = plots[[i]] + ylab(NULL)
+    }
+
+    plot = wrap_plots(plots, ncol = 4) +
+      plot_layout(guides = "collect") & theme(legend.position = "bottom")
+
+    print(plot)
+
+    dev.off()
+
 
   }
 

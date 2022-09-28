@@ -1,9 +1,11 @@
+print(Sys.getenv('SLURM_JOB_ID'))
+
 library(IBMR)
 
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/simulation_random_X_and_structured_Beta"
+RESULT_PATH = "results/simulation_random_X_and_structured_Beta_R1"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
