@@ -6,8 +6,8 @@ library(tidyverse)
 source("scripts/application_setup.R")
 
 CACHE_PATH = "../AnnotatedPBMC/data"
-RESULT_PATH = "results/application"
-FIGURES_PATH = "figures/"
+RESULT_PATH = "results/application_R1"
+FIGURES_PATH = "results/application_R1/figures/"
 dir.create(FIGURES_PATH, recursive = TRUE)
 
 ding_2019 = prepare_ding_2019(CACHE_PATH, n_genes = 1000, sce = TRUE)
@@ -23,7 +23,9 @@ P = predict_probabilities(model, list(as.matrix(t(logcounts(ding_2019)))))
 C = predict_conditional_probabilities(P, list(Y), list(category_mapping))
 
 predictions = list()
-predictions[["Coarse prediction"]] = predict_categories(P, list(category_mapping))[[1]]
+coarse_predictions = predict_categories(P, list(category_mapping))[[1]]
+coarse_prediction = paste0("Coarse prediction\n(", round(100 * mean(Y == coarse_predictions), 1), "% accuracy)")
+predictions[[coarse_prediction]] = coarse_predictions
 predictions[["Fine prediction"]] = factor(predict_categories(P)[[1]], levels = colnames(model$Beta))
 predictions[["Conditional prediction"]] = factor(predict_categories(C)[[1]], levels = colnames(model$Beta))
 
@@ -45,7 +47,7 @@ data$type = factor(data$type, levels = names(predictions))
 
 library(ggplot2)
 
-plot_data = data %>% filter(type %in% c("Coarse prediction", "Fine prediction"))
+plot_data = data %>% filter(type %in% c(coarse_prediction, "Fine prediction"))
 ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
   geom_tile() +
   scale_fill_gradient(
@@ -64,7 +66,7 @@ ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
 
 ggsave(file.path(FIGURES_PATH, "application_heatmap_1.pdf"), height = 4.6, width = 13.2)
 
-plot_data = data %>% filter(type %in% c("Coarse prediction", "Conditional prediction"))
+plot_data = data %>% filter(type %in% c("Conditional prediction"))
 ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
   geom_tile() +
   scale_fill_gradient(

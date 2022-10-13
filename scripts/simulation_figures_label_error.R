@@ -52,8 +52,8 @@ summary = result %>%
   mutate(method = factor(method, levels = methods)) %>%
   mutate(oracle = factor(oracle, levels = oracles)) %>%
   mutate(group = paste0(experiment, method, oracle, name)) %>%
-  filter(experiment != "label_error") %>%
-  mutate(experiment = factor(experiment, levels = c("N", "p", "s", "batch_effect")))
+  filter(experiment == "label_error") %>%
+  mutate(experiment = factor(experiment, levels = c("label_error")))
 
 plasma_pal = rev(viridis::plasma(n = length(methods) + 2)[1:length(methods)])
 names(plasma_pal) = methods
@@ -84,7 +84,7 @@ levels(summary$method) = gsub("_", "-", levels(summary$method), fixed = TRUE)
 levels(summary$method) = gsub("IBMR-NG-ORC", "GL-ORC", levels(summary$method), fixed = TRUE)
 methods = levels(summary$method)
 
-levels(summary$experiment) = gsub("batch_effect", "b", levels(summary$experiment), fixed = TRUE)
+levels(summary$experiment) = gsub("label_error", "e", levels(summary$experiment), fixed = TRUE)
 
 notorcmethods = methods[grep("ORC", methods, invert = TRUE)]
 plasma_pal = rev(viridis::plasma(n = length(notorcmethods) + 2)[1:length(notorcmethods)])
@@ -103,7 +103,7 @@ for (glmnet in c(TRUE)) {
 
   for (path in FIGURES_PATH) {
 
-    pdf(file = file.path(path, paste0("simulation_figures_line_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_1.pdf")), height = 8, width = length(unique(summary$experiment)) * 3 * 1.1)
+    pdf(file = file.path(path, paste0("simulation_figures_line_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_label_error_1.pdf")), height = 3.5, width = 3 * 3 * 1.1)
 
     plots = list()
 
@@ -131,7 +131,7 @@ for (glmnet in c(TRUE)) {
           geom_line() +
           geom_errorbar(width = 0, linetype = "solid", show.legend = FALSE) +
           theme_bw(base_size = 16) +
-          guides(color = guide_legend(nrow = 1)) +
+          guides(color = guide_legend(nrow = 2, byrow = TRUE)) +
           theme(strip.background = element_blank(), strip.placement = "outside") +
           scale_color_manual(values = plasma_pal[levels(droplevels(data$method))]) +
           theme(legend.position = "bottom", legend.key.width = grid::unit(4, "lines"), plot.margin = unit(c(5.5, 20, 5.5, 5.5), "points")) +
@@ -143,14 +143,7 @@ for (glmnet in c(TRUE)) {
 
     }
 
-    for (i in setdiff(1:12, c(1, 5, 9))) {
-      plots[[i]] = plots[[i]] + ylab(NULL)
-    }
-    for (i in 1:8) {
-      plots[[i]] = plots[[i]] + xlab(NULL)
-    }
-
-    plot = wrap_plots(plots, ncol = 4) +
+    plot = wrap_plots(plots, ncol = 3) +
       plot_layout(guides = "collect") & theme(legend.position = "bottom")
 
     print(plot)
@@ -158,7 +151,7 @@ for (glmnet in c(TRUE)) {
     dev.off()
 
 
-    pdf(file = file.path(path, paste0("simulation_figures_time_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_1.pdf")), height = 3.8, width = length(unique(summary$experiment)) * 3 * 1.1)
+    pdf(file = file.path(path, paste0("simulation_figures_time_", ifelse(glmnet, "with_glmnet", "no_glmnet"), "_label_error_1.pdf")), height = 3, width = length(unique(summary$experiment)) * 3 * 1.1)
 
     plots = list()
 
@@ -198,11 +191,7 @@ for (glmnet in c(TRUE)) {
 
     }
 
-    for (i in 2:4) {
-      plots[[i]] = plots[[i]] + ylab(NULL)
-    }
-
-    plot = wrap_plots(plots, ncol = 4) +
+    plot = wrap_plots(plots, ncol = 1) +
       plot_layout(guides = "collect") & theme(legend.position = "bottom")
 
     print(plot)
@@ -214,5 +203,5 @@ for (glmnet in c(TRUE)) {
 
 }
 
-write.csv(result, file.path(RESULT_PATH, "figures", "simulation_results.csv"))
-write.csv(summary, file.path(RESULT_PATH, "figures", "simulation_result_summary.csv"))
+write.csv(result, file.path(RESULT_PATH, "figures", "simulation_results_label_error.csv"))
+write.csv(summary, file.path(RESULT_PATH, "figures", "simulation_result_summary_label_error.csv"))

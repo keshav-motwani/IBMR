@@ -5,7 +5,7 @@ library(IBMR)
 source("scripts/simulation_setup.R")
 
 ARRAY_ID = as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID'))
-RESULT_PATH = "results/simulation_random_X_and_structured_Beta_R1"
+RESULT_PATH = "results/simulation_random_X_and_structured_Beta_R1_label_error"
 dir.create(RESULT_PATH, recursive = TRUE)
 
 methods = c("IBMR_int", "IBMR_no_Gamma", "subset", "relabel")
@@ -20,14 +20,16 @@ defaults = list(
   s = 40, # number of genes which have shared coefficients within coarse categories
   sigma = 2, # sd of normal distribution for sampling coefficients
   rank = "int",
-  batch_effect = 0.1 # norm of batch effect over norm of true predictors
+  batch_effect = 0.1, # norm of batch effect over norm of true predictors,
+  label_error = 0
 )
 
 considered_values = list(
   p = c(250, 500, 1000, 2000),
   s = c(0, 20, 40, 60, 80),
   N = c(2400, 4800, 9600, 19200),
-  batch_effect = c(0, 0.025, 0.05, 0.1, 0.2, 0.4)
+  batch_effect = c(0, 0.025, 0.05, 0.1, 0.2, 0.4),
+  label_error = 0:5 * 0.05
 )
 
 parameters = expand_parameters("random_X_and_structured_Beta", considered_values, defaults, 50, methods)

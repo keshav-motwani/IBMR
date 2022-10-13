@@ -1,3 +1,12 @@
+shuffle_Y_list = function(Y_list, label_error) {
+  if (label_error > 0) {
+    for (i in 5:6) {
+      Y_list[[i]][1:(label_error * length(Y_list[[i]]))] = paste0(substr(Y_list[[i]][1:(label_error * length(Y_list[[i]]))], 1, 1), c("1" = "2", "2" = "1")[substr(Y_list[[i]][1:(label_error * length(Y_list[[i]]))], 2, 2)])
+    }
+  }
+  Y_list
+}
+
 generate_data_random_X_and_structured_Beta = function(category_mappings,
                                                       N,
                                                       p,
@@ -6,6 +15,7 @@ generate_data_random_X_and_structured_Beta = function(category_mappings,
                                                       sigma,
                                                       rank,
                                                       batch_effect,
+                                                      label_error,
                                                       replicate) {
 
   set.seed(replicate, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
@@ -18,6 +28,7 @@ generate_data_random_X_and_structured_Beta = function(category_mappings,
 
   X_star_list = simulate_X_star_list(rep(N / K, K), p)
   Y_list = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list, alpha, Beta)
+  Y_list = shuffle_Y_list(Y_list, label_error)
 
   X_star_list_val = simulate_X_star_list(rep(N / K, K), p)
   Y_list_val = simulate_Y_list(category_mappings$categories, category_mappings$inverse_category_mappings, X_star_list_val, alpha, Beta)
