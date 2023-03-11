@@ -87,9 +87,9 @@ methods = levels(summary$method)
 levels(summary$experiment) = gsub("label_error", "e", levels(summary$experiment), fixed = TRUE)
 
 notorcmethods = methods[grep("ORC", methods, invert = TRUE)]
-plasma_pal = rev(viridis::plasma(n = length(notorcmethods) + 2)[1:length(notorcmethods)])
+plasma_pal = rep("black", length(notorcmethods))
 names(plasma_pal) = notorcmethods
-orc_pal = rep("gray", length(methods) - length(notorcmethods))
+orc_pal = rep("#6b6b6b", length(methods) - length(notorcmethods))
 names(orc_pal) = setdiff(methods, notorcmethods)
 plasma_pal = c(plasma_pal, orc_pal)
 
@@ -122,6 +122,7 @@ for (glmnet in c(TRUE)) {
             y = mean,
             color = method,
             group = method,
+            shape = method,
             linetype = method,
             ymin = mean - se,
             ymax = mean + se
@@ -137,7 +138,7 @@ for (glmnet in c(TRUE)) {
           theme(legend.position = "bottom", legend.key.width = grid::unit(4, "lines"), plot.margin = unit(c(5.5, 20, 5.5, 5.5), "points")) +
           xlab(level) +
           ylab(names[experiments[i, 2]]) +
-          labs(subtitle = NULL, color = "Method", linetype = "Method"))) # experiments[i, 1])))
+          labs(subtitle = NULL, color = "Method", shape = "Method", linetype = "Method"))) # experiments[i, 1])))
 
       }
 
@@ -170,6 +171,7 @@ for (glmnet in c(TRUE)) {
             y = mean,
             color = method,
             group = method,
+            shape = method,
             linetype = method,
             ymin = mean - se,
             ymax = mean + se
@@ -185,7 +187,7 @@ for (glmnet in c(TRUE)) {
           theme(legend.position = "bottom", legend.key.width = grid::unit(4, "lines"), plot.margin = unit(c(5.5, 20, 5.5, 5.5), "points")) +
           xlab(level) +
           ylab(names[experiments_time[i, 2]]) +
-          labs(subtitle = NULL, color = "Method", linetype = "Method"))) # experiments[i, 1])))
+          labs(subtitle = NULL, color = "Method", shape = "Method", linetype = "Method"))) # experiments[i, 1])))
 
       }
 

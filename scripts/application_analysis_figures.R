@@ -7,7 +7,7 @@ source("scripts/application_setup.R")
 
 CACHE_PATH = "../AnnotatedPBMC/data"
 RESULT_PATH = "results/application_R1"
-FIGURES_PATH = "results/application_R1/figures/"
+FIGURES_PATH = "figures/"
 dir.create(FIGURES_PATH, recursive = TRUE)
 
 ding_2019 = prepare_ding_2019(CACHE_PATH, n_genes = 1000, sce = TRUE)
@@ -52,7 +52,7 @@ ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
   geom_tile() +
   scale_fill_gradient(
     low = "white",
-    high = "firebrick",
+    high = "black",
     breaks = c(0, 0.25, 0.5, 0.75, 1) * 100,
     limits = c(0, 1) * 100
   ) +
@@ -71,7 +71,7 @@ ggplot(plot_data, aes(x = prediction, y = true, fill = percentage * 100)) +
   geom_tile() +
   scale_fill_gradient(
     low = "white",
-    high = "firebrick",
+    high = "black",
     breaks = c(0, 0.25, 0.5, 0.75, 1) * 100,
     limits = c(0, 1) * 100
   ) +

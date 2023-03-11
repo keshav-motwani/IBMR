@@ -1,8 +1,8 @@
 library(tidyverse)
 library(patchwork)
 
-RESULT_PATH = c("results/application_R1")
-FIGURES_PATH = c(file.path(RESULT_PATH[length(RESULT_PATH)], "figures"))
+RESULT_PATH = "results/application_R1"
+FIGURES_PATH = c("figures/", file.path(RESULT_PATH, "figures"))
 sapply(FIGURES_PATH, function(path) dir.create(path, recursive = TRUE))
 
 files = unlist(lapply(RESULT_PATH, function(x) list.files(x, full.names = TRUE)))
@@ -68,7 +68,7 @@ levels(result$method) = gsub("ORC_fine", "ORC", levels(result$method), fixed = T
 levels(result$method) = gsub("_", "-", levels(result$method), fixed = TRUE)
 methods = levels(result$method)
 
-plasma_pal = rev(viridis::plasma(n = length(methods) + 2)[1:length(methods)])
+plasma_pal = rep("black", length(methods)) # rev(viridis::plasma(n = length(methods) + 2)[1:length(methods)])
 names(plasma_pal) = methods
 
 result = result %>% group_by(run, value, method, n_sample, n_genes, validation, test) %>% summarize(
@@ -121,6 +121,7 @@ for (path in FIGURES_PATH) {
         y = .data[[y_mean]],
         color = method,
         group = method,
+        shape = method,
         linetype = method,
         ymin = .data[[y_mean]] - .data[[y_se]],
         ymax = .data[[y_mean]] + .data[[y_se]]
@@ -140,7 +141,7 @@ for (path in FIGURES_PATH) {
       scale_color_manual(values = colors) +
       xlab("# of genes") +
       ylab(ylabs[value]) +
-      labs(color = "Method", linetype = "Method")
+      labs(color = "Method", shape = "Method", linetype = "Method")
 
     print(p)
 
@@ -151,6 +152,7 @@ for (path in FIGURES_PATH) {
         y = .data[[y_mean]],
         color = method,
         group = method,
+        shape = method,
         linetype = method,
         ymin = .data[[y_mean]] - .data[[y_se]],
         ymax = .data[[y_mean]] + .data[[y_se]]
@@ -170,7 +172,7 @@ for (path in FIGURES_PATH) {
       scale_color_manual(values = colors) +
       xlab("# of cells per dataset") +
       ylab(ylabs[value]) +
-      labs(color = "Method", linetype = "Method")
+      labs(color = "Method", shape = "Method", linetype = "Method")
 
     print(p)
 
@@ -205,6 +207,7 @@ for (path in FIGURES_PATH) {
         y = .data[[y_mean]],
         color = method,
         group = method,
+        shape = method,
         linetype = method,
         ymin = .data[[y_mean]] - .data[[y_se]],
         ymax = .data[[y_mean]] + .data[[y_se]]
@@ -224,7 +227,7 @@ for (path in FIGURES_PATH) {
       scale_color_manual(values = colors) +
       xlab("# of genes") +
       ylab(ylabs[value]) +
-      labs(color = "Method", linetype = "Method")
+      labs(color = "Method", shape = "Method", linetype = "Method")
 
     print(p)
 
@@ -235,6 +238,7 @@ for (path in FIGURES_PATH) {
         y = .data[[y_mean]],
         color = method,
         group = method,
+        shape = method,
         linetype = method,
         ymin = .data[[y_mean]] - .data[[y_se]],
         ymax = .data[[y_mean]] + .data[[y_se]]
@@ -254,7 +258,7 @@ for (path in FIGURES_PATH) {
       scale_color_manual(values = colors) +
       xlab("# of cells per dataset") +
       ylab(ylabs[value]) +
-      labs(color = "Method", linetype = "Method")
+      labs(color = "Method", shape = "Method", linetype = "Method")
 
     print(p)
 
